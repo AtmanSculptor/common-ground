@@ -218,3 +218,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# local outputs
+run.log
+run.err
+*_out.json
+audiences.json
+probe*.py
+
