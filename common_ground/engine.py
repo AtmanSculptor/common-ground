@@ -18,6 +18,8 @@ from typing import Any
 
 from .qloo import Qloo, affinity, slim
 
+NO_SIGNAL = 0.765  # value Qloo returns when it has no audience signal for an entity
+
 
 @dataclass
 class Group:
@@ -95,9 +97,9 @@ def score_groups(q: Qloo, groups: list[Group], entity_type: str, *, location: st
             for e in ents:
                 raw[e["entity_id"]][g.label] = affinity(e)
 
-    # keep candidates scored by every group
+    # keep candidates scored by every group; 0.765 is Qloo's no-signal filler, not a score
     labels = [g.label for g in groups]
-    kept = [i for i in ids if all(l in raw[i] for l in labels)]
+    kept = [i for i in ids if all(l in raw[i] and abs(raw[i][l] - NO_SIGNAL) > 1e-6 for l in labels)]
 
     # 3. curve per group
     curved: dict[str, dict[str, float]] = {i: {} for i in kept}

@@ -226,3 +226,6 @@ run.err
 audiences.json
 probe*.py
 
+agent.log
+agent.err
+
