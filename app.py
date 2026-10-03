@@ -112,6 +112,7 @@ _game_lock = threading.Lock()
 
 class NewGame(BaseModel):
     name: str = "host"
+    house: bool = False
 
 
 class JoinGame(BaseModel):
@@ -207,8 +208,8 @@ def game_page():
 @app.post("/api/game/new")
 def game_new(body: NewGame):
     GAMES.sweep()
-    r = GAMES.create(body.name.strip()[:24] or "host")
-    return {"code": r.code, "who": "host"}
+    r = GAMES.create(body.name.strip()[:24] or "host", house=body.house)
+    return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
 
 
 @app.post("/api/game/{code}/join")

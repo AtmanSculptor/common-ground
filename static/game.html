@@ -28,7 +28,7 @@
   .field { text-align:center; padding:1.4rem 1rem; }
   .field .dom { text-transform:uppercase; letter-spacing:0.12em; font-size:0.8rem; color:var(--dim); }
   .field .name { font-size:1.7rem; font-weight:700; margin:0.3rem 0 0.2rem; }
-  .field .tags { color:var(--dim); font-size:0.9rem; }
+  .field .tags { color:var(--dim); font-size:0.9rem; white-space:pre-line; }
   .bars { display:grid; grid-template-columns:max-content 1fr; gap:0.3rem 0.6rem; align-items:center; font-size:0.85rem; margin:0.8rem auto 0; max-width:360px; text-align:left; }
   .bar { height:0.5rem; background:rgba(0,0,0,0.25); border-radius:999px; overflow:hidden; }
   .bar > i { display:block; height:100%; }
@@ -55,8 +55,9 @@
   <p class="sub" id="sub">Two people. One field. What do you both love?</p>
 
   <section id="s-start" class="card">
-    <button onclick="pick('new')">Start a new game</button>
+    <button onclick="pick('new')">Start a game for two</button>
     <button class="ghost" onclick="pick('join')">Join with a code</button>
+    <button class="ghost" onclick="pick('house')">Play the house (just me)</button>
   </section>
 
   <section id="s-name" class="card hidden">
@@ -72,6 +73,13 @@
     <div class="muted" style="text-align:center">Your room code</div>
     <div class="code" id="code"></div>
     <div class="muted" style="text-align:center">Have the other person open this page and join with the code.<br>You can start your questions now.</div>
+  </section>
+
+  <section id="s-house" class="card hidden">
+    <div class="muted">Tonight you're playing</div>
+    <div class="name" style="font-size:1.5rem;font-weight:700" id="hname"></div>
+    <div id="hprofile" style="margin-top:0.3rem"></div>
+    <div class="muted" style="margin-top:0.5rem">That's their real taste profile. Answer your questions and we'll see what you two share.</div>
   </section>
 
   <section id="s-quiz" class="card hidden">
@@ -136,8 +144,8 @@ async function api(path, body){ const r = await fetch(path, body?{method:'POST',
 function myName(){ return document.getElementById('name').value.trim() || (who==='host'?'host':'guest'); }
 let mode='new';
 function pick(m){ mode=m; document.getElementById('codewrap').classList.toggle('hidden', m!=='join'); show('s-name'); setTimeout(()=>document.getElementById(m==='join'?'joincode':'name').focus(), 50); }
-async function enter(){ if(mode==='new') return newGame(); return joinGame(); }
-async function newGame(){ const j = await api('api/game/new',{name:myName()}); code=j.code; who='host'; history.replaceState(null,'',`game?code=${code}&who=host`); poll(); }
+async function enter(){ if(mode==='join') return joinGame(); return newGame(mode==='house'); }
+async function newGame(house){ const j = await api('api/game/new',{name:myName(), house:!!house}); code=j.code; who='host'; history.replaceState(null,'',`game?code=${code}&who=host`); poll(); }
 async function joinGame(){ const c=document.getElementById('joincode').value.trim().toUpperCase(); if(c.length<4){ document.getElementById('status').textContent='Type the 4-letter room code.'; return; } try{ const j = await api(`api/game/${c}/join`,{name:myName()}); code=j.code; who='guest'; history.replaceState(null,'',`game?code=${code}&who=guest`); poll(); }catch(e){ document.getElementById('status').textContent='No room with that code.'; } }
 document.addEventListener('keydown', e=>{ if(e.key==='Enter' && !document.getElementById('s-name').classList.contains('hidden')) enter(); });
 
@@ -148,12 +156,14 @@ async function poll(){
 function other(){ return who==='host'?'guest':'host'; }
 function render(){
   const me=state.sides[who], them=state.sides[other()];
+  const hb=document.getElementById('s-house');
+  if(them.house){ document.getElementById('hname').textContent=them.name; document.getElementById('hprofile').textContent=(them.profile_labels||[]).join(' · '); hb.classList.toggle('hidden', state.phase!=='quiz'); } else hb.classList.add('hidden');
   document.getElementById('status').textContent = `room ${state.code} · ${me.name||who}${them.joined?' & '+(them.name||'friend'):''}`;
   if(state.phase==='quiz'){
     const q = state.question;
     if(q){ question=q; document.getElementById('qn').textContent=`Which is more you?  ${q.n} of ${q.of}`; document.getElementById('qbar').style.width=((q.n-1)/q.of*100)+'%';
       document.getElementById('qa').textContent=q.a.text; document.getElementById('qb').textContent=q.b.text; show('s-quiz');
-      if(who==='host' && !them.joined){ document.getElementById('code').textContent=state.code; document.getElementById('s-lobby').classList.remove('hidden'); } else document.getElementById('s-lobby').classList.add('hidden'); }
+      if(who==='host' && !them.joined && !them.house){ document.getElementById('code').textContent=state.code; document.getElementById('s-lobby').classList.remove('hidden'); } else document.getElementById('s-lobby').classList.add('hidden'); }
     else { document.getElementById('waitmsg').textContent = them.joined ? `Waiting for ${them.name||'the other side'} to finish…` : 'Waiting for someone to join…';
       document.getElementById('waitsub').textContent = them.joined ? `${them.answered} of ${state.rounds>0?10:10} answered` : `Room code ${state.code}`; show('s-wait'); }
     return; }
@@ -166,7 +176,7 @@ function render(){
     document.getElementById('fname').dataset.id=c.entity.id;
     document.getElementById('fdom').textContent=`round ${c.round+1} of ${state.rounds} · ${c.domain.split(':').pop().replace('_',' ')}`;
     document.getElementById('fname').textContent=c.entity.name;
-    document.getElementById('ftags').textContent=(c.entity.tags||[]).slice(0,4).join(' · ');
+    document.getElementById('ftags').textContent=(c.entity.tags||[]).slice(0,4).join(' · ') + (them.house?`\n${them.name}: ${(them.profile_labels||[]).join(', ')}`:'');
     const names={[who]:'you',[other()]:them.name||'them'}; const cols={[who]:'var(--me)',[other()]:'var(--them)'};
     document.getElementById('fbars').innerHTML = Object.keys(c.raw).map(k=>{ const key = (k===me.name||k===who)?who:other(); return `<span>${names[key]}</span><span class="bar"><i style="width:${Math.round((c.curved[k]||0)*100)}%;background:${cols[key]}"></i></span>`; }).join('');
     show('s-field'); return; }

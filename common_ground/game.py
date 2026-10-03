@@ -92,6 +92,17 @@ TITLES = [  # (min score 0..100, title)
 ]
 
 
+# The House: a solo mode for a judge at a desk or a bar with no partner. The house is a character
+# with a real Qloo profile; it rates cards from its own affinity, so it is not a pushover.
+HOUSE = [
+    {"name": "Rosa the Barista", "profile": [A + "leisure:coffee", A + "leisure:music_festivals", A + "global_issues:climate_activism", A + "political_preferences:politically_progressive"]},
+    {"name": "Hank from the Hardware Store", "profile": [A + "hobbies_and_interests:fishing", A + "hobbies_and_interests:automotive", A + "spending_habits:discount_shoppers", A + "political_preferences:politically_conservative"]},
+    {"name": "Dee the Night Nurse", "profile": [A + "hobbies_and_interests:running", A + "leisure:avid_reader", A + "global_issues:mental_health", A + "life_stage:parents_with_young_children"]},
+    {"name": "Marcus the Gamer", "profile": [A + "hobbies_and_interests:video_gamer", A + "leisure:foodie", A + "hobbies_and_interests:basketball", A + "life_stage:single"]},
+    {"name": "June, Retired and Traveling", "profile": [A + "life_stage:retirement", A + "hobbies_and_interests:travel", A + "leisure:museums", A + "hobbies_and_interests:wine_enthusiast"]},
+]
+
+
 def _code() -> str:
     return "".join(random.choice("ABCDEFGHJKLMNPQRSTUVWXYZ") for _ in range(4))
 
@@ -106,6 +117,7 @@ class Side:
     favorite: dict | None = None                        # {"id","name"} optional
     ratings: dict[int, float] = field(default_factory=dict)  # round index -> stars
     pending: dict | None = None                         # the question on screen, until answered
+    house: bool = False                                 # an automated character, not a person
 
 
 @dataclass
@@ -251,6 +263,21 @@ class Room:
 
     def rate(self, who: str, stars: float) -> None:
         self.sides[who].ratings[self.current] = float(max(1, min(5, round(stars))))
+        self.house_play()
+
+    def house_play(self) -> None:
+        """If one side is the house, it rates the current card from its own Qloo score, with a little mood."""
+        for who, side in self.sides.items():
+            if side.house and 0 <= self.current < len(self.cards) and self.current not in side.ratings:
+                c = self.cards[self.current]
+                label_ = side.name or who
+                v = c.curved.get(label_, c.curved.get(who, 0.5))
+                stars = 1 + 4 * v + random.uniform(-0.6, 0.6)
+                side.ratings[self.current] = float(max(1, min(5, round(stars))))
+            if side.house and self.jukebox and who not in self.jukebox["votes"]:
+                label_ = side.name or who
+                v = self.jukebox["curved"].get(label_, 0.5)
+                self.jukebox["votes"][who] = v >= 0.45
 
     def both_rated(self) -> bool:
         return all(self.current in s.ratings for s in self.sides.values())
@@ -288,6 +315,7 @@ class Room:
     def vote_jukebox(self, who: str, up: bool) -> None:
         if self.jukebox:
             self.jukebox["votes"][who] = bool(up)
+            self.house_play()
 
     def jukebox_settled(self) -> str | None:
         """'play' when both up, 'redeal' when someone said no and we have a try left, 'skip' otherwise, None if waiting."""
@@ -318,7 +346,7 @@ class Room:
 
     def public(self, who: str | None = None) -> dict:
         cur = asdict(self.cards[self.current]) if 0 <= self.current < len(self.cards) else None
-        sides = {k: {"name": s.name, "joined": s.joined, "answered": len(s.answers), "profile": s.profile,
+        sides = {k: {"name": s.name, "joined": s.joined, "answered": len(s.answers), "profile": s.profile, "house": s.house,
                      "profile_labels": [label(x) for x in s.profile],
                      "favorite": s.favorite, "rated_current": self.current in s.ratings}
                  for k, s in self.sides.items()}
@@ -358,7 +386,7 @@ class Games:
         except Exception:
             pass
 
-    def create(self, host_name: str) -> Room:
+    def create(self, host_name: str, house: bool = False) -> Room:
         with self.lock:
             code = _code()
             while code in self.rooms:
@@ -367,6 +395,13 @@ class Games:
             r.sides["host"].name = host_name
             r.sides["host"].joined = True
             r.phase = "quiz"
+            if house:
+                h = random.choice(HOUSE)
+                g = r.sides["guest"]
+                g.name, g.joined, g.house = h["name"], True, True
+                g.profile = list(h["profile"])
+                g.answers = [{"a": x, "b": x, "chose": x} for x in h["profile"]] * 3  # counts as quizzed
+                r.log.append(f"the house is {h['name']}")
             self.rooms[code] = r
             self.save()
             return r
