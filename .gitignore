@@ -229,3 +229,9 @@ probe*.py
 agent.log
 agent.err
 
+server.log
+server.err
+inv.log
+inv.err
+inventory.py
+

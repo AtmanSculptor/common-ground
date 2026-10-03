@@ -132,9 +132,22 @@ def check_guesses(q: Qloo, groups: list[Group], domain: str, names: list[str],
 
 
 def run(groups: list[Group], goal: str = "find what they both love", location: str | None = None,
-        *, q: Qloo | None = None, domains: list[str] | None = None, top: int = 8) -> dict:
+        *, q: Qloo | None = None, domains: list[str] | None = None, top: int = 8,
+        exclude: list[str] | None = None, feedback: list[str] | None = None,
+        on_step=None) -> dict:
+    """exclude: entity ids the user rejected; feedback: their reasons, fed to the composer."""
     q = q or Qloo()
     trace = Trace()
+    if on_step:
+        _orig_add = trace.add
+        def _add(name, **data):
+            _orig_add(name, **data)
+            try:
+                on_step(trace.steps[-1])
+            except Exception:
+                pass
+        trace.add = _add  # type: ignore
+    exclude_set = set(exclude or [])
     t0 = time.time()
     doms = domains or plan(groups, goal, location, trace)
     guesses = guess(groups, goal, doms, trace)
@@ -142,7 +155,7 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
     results: dict[str, dict] = {}
     for d in doms:
         try:
-            scored = score_groups(q, groups, DOMAINS[d], location=location)
+            scored = score_groups(q, groups, DOMAINS[d], location=location, exclude=exclude_set)
         except Exception as e:
             trace.add("probe_error", domain=d, error=str(e))
             continue
@@ -168,7 +181,8 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
     allowed = {c["id"] for c in candidates} | {a["id"] for a in avoid_pool}
     brief = {"title": "", "brief": "", "picks": [], "avoid": []}
     if candidates:
-        user = (f"Groups: {_group_text(groups)}\nGoal: {goal}\nLocation: {location or 'none'}\n\n"
+        fb = ("\n\nUSER FEEDBACK on earlier picks (respect it): " + "; ".join(feedback)) if feedback else ""
+        user = (f"Groups: {_group_text(groups)}\nGoal: {goal}\nLocation: {location or 'none'}{fb}\n\n"
                 f"CANDIDATES (what the data says they all love):\n{candidates}\n\n"
                 f"DIVIDES (what to avoid, with which group it leans to):\n{avoid_pool}")
         try:
@@ -188,6 +202,8 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
         "groups": [asdict(g) for g in groups],
         "goal": goal,
         "location": location,
+        "excluded": sorted(exclude_set),
+        "feedback": feedback or [],
         "domains": doms,
         "results": results,
         "brief": brief,

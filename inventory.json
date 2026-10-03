@@ -1,0 +1,290 @@
+{
+ "audiences": {
+  "urn:audience:communities": [
+   "AAPI",
+   "Latino",
+   "LGBTQ",
+   "Black"
+  ],
+  "urn:audience:global_issues": [
+   "Climate Activism",
+   "Gender Equality",
+   "Racial Justice",
+   "Education Issues",
+   "Ocean Health",
+   "Foreign Affairs",
+   "Wealth Inequality",
+   "Animal Issues",
+   "Mental Health",
+   "Sustainability",
+   "Fair Wages"
+  ],
+  "urn:audience:hobbies_and_interests": [
+   "Health And Beauty",
+   "Adventuring",
+   "Photography",
+   "Tattoos",
+   "Meditation",
+   "Hockey",
+   "American Football",
+   "Martial Arts",
+   "Running",
+   "Secret Unravelers",
+   "Motorcycles",
+   "Jewellery",
+   "Hiking",
+   "Watches",
+   "Spy Enthusiast",
+   "Arts Crafts",
+   "Wrestling",
+   "Home Organization",
+   "Sneakerheads",
+   "Travel",
+   "Golf",
+   "High Fashion",
+   "Home Decor",
+   "Street Fashion",
+   "Video Gamer",
+   "Tennis",
+   "Swimming",
+   "Automotive",
+   "Musician",
+   "Perfume",
+   "Casual Escapists",
+   "Racing",
+   "Adrenaline Rushers",
+   "Soccer",
+   "Yoga",
+   "Baseball",
+   "Architecture",
+   "Wine Enthusiast",
+   "Basketball",
+   "Outdoors",
+   "Fishing",
+   "Dance"
+  ],
+  "urn:audience:investing_interests": [
+   "Stocks Bonds",
+   "Angel Start Up Investing",
+   "Real Estate",
+   "NFT Collectors",
+   "Cryptocurrency Enthusiasts",
+   "Art Collectibles"
+  ],
+  "urn:audience:leisure": [
+   "Political Junkie",
+   "Arts Culture",
+   "Foodie",
+   "Cooking",
+   "Museums",
+   "Cinephile",
+   "Music Festivals",
+   "Avid Reader",
+   "Exercising",
+   "Coffee",
+   "News Junkie"
+  ],
+  "urn:audience:life_stage": [
+   "Parents With Young Children",
+   "Engaged",
+   "Single",
+   "Retirement"
+  ],
+  "urn:audience:lifestyle_preferences_beliefs": [
+   "Astrology",
+   "Organic Ingredients",
+   "Christianity",
+   "Healthy Eating",
+   "Judaism",
+   "Veganism",
+   "Spirituality",
+   "Islam"
+  ],
+  "urn:audience:political_preferences": [
+   "Politically Progressive",
+   "Politically Center",
+   "Politically Conservative"
+  ],
+  "urn:audience:professional_area": [
+   "Business Professional",
+   "Hospitality Professional",
+   "Medical Professional",
+   "Advertising Design",
+   "Technology Professional",
+   "Marketing Professional",
+   "Retail Professional",
+   "Finance Professional",
+   "Sales Professional"
+  ],
+  "urn:audience:spending_habits": [
+   "Vintage Apparel",
+   "Technology Enthusiast",
+   "Watch Collecting",
+   "Boutique Hotels",
+   "Discount Shoppers",
+   "Gourmand Fine Dining"
+  ]
+ },
+ "tag_types": [
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:aesthetic_property:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:archetype:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:audience:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:category:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:characteristic:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:character:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:content_type:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:culture:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:emotional_tone:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:endorsement:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:ethnicity:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:gender:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:genre:media"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:genre:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:hobby:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:influenced_by:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:keyword:media"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:keyword:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:language:qloo"
+  },
+  {
+   "parents": [
+    {
+     "type": "urn:entity:actor"
+    }
+   ],
+   "type": "urn:tag:lifestyle:qloo"
+  }
+ ]
+}

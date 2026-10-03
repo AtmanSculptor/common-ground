@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Common Ground</title>
+<style>
+  :root {
+    --bg: #f6f3ee; --card: #ffffff; --ink: #1d1b19; --muted: #6b655e; --line: #e2dcd3;
+    --accent: #2d6a4f; --warn: #b5541c; --ok: #2d6a4f;
+    --g0: #2d6a4f; --g1: #b5541c; --g2: #3b5bdb; --g3: #8e3b9e;
+    --fs: 20px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #16150f; --card: #211f1a; --ink: #f1ece4; --muted: #a8a096; --line: #3a362f; }
+  }
+  * { box-sizing: border-box; }
+  html { font-size: var(--fs); }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif; line-height: 1.45; }
+  header { padding: 1.2rem 1rem 0.4rem; max-width: 1100px; margin: 0 auto; display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  h1 { font-size: 2rem; margin: 0; letter-spacing: -0.01em; }
+  .tag { color: var(--muted); font-size: 0.95rem; }
+  .fs { margin-left: auto; display: flex; gap: 0.3rem; }
+  button { font: inherit; font-size: 0.95rem; padding: 0.45rem 0.9rem; border-radius: 10px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  button.primary { background: var(--accent); color: #fff; border-color: var(--accent); font-size: 1.1rem; padding: 0.7rem 1.4rem; }
+  button:disabled { opacity: 0.5; cursor: wait; }
+  main { max-width: 1100px; margin: 0 auto; padding: 0 1rem 4rem; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 1.1rem 1.2rem; margin: 0.9rem 0; }
+  .groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.9rem; }
+  .group { border: 2px solid var(--line); border-radius: 14px; padding: 0.8rem; }
+  .group[data-i="0"] { border-color: var(--g0); } .group[data-i="1"] { border-color: var(--g1); }
+  .group[data-i="2"] { border-color: var(--g2); } .group[data-i="3"] { border-color: var(--g3); }
+  input, select, textarea { font: inherit; font-size: 1rem; width: 100%; padding: 0.5rem 0.6rem; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--ink); }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0.5rem 0 0.2rem; }
+  .chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.4rem; }
+  .chip { font-size: 0.85rem; padding: 0.25rem 0.6rem; border-radius: 999px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; }
+  .chip.on { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .row { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: end; }
+  .row > div { flex: 1 1 240px; }
+  #progress { font-size: 0.95rem; color: var(--muted); white-space: pre-line; min-height: 1.4rem; }
+  h2 { font-size: 1.35rem; margin: 0.2rem 0 0.6rem; }
+  h3 { font-size: 1.05rem; margin: 0.8rem 0 0.3rem; color: var(--muted); font-weight: normal; text-transform: uppercase; letter-spacing: 0.06em; }
+  .pick { padding: 0.7rem 0; border-top: 1px solid var(--line); }
+  .pick:first-of-type { border-top: 0; }
+  .pick .name { font-size: 1.15rem; }
+  .pick .dom { font-size: 0.8rem; color: var(--muted); margin-left: 0.4rem; }
+  .why { color: var(--muted); font-size: 0.95rem; }
+  .bars { display: grid; grid-template-columns: max-content 1fr max-content; gap: 0.2rem 0.6rem; align-items: center; font-size: 0.85rem; margin-top: 0.35rem; max-width: 520px; }
+  .bar { height: 0.55rem; background: var(--line); border-radius: 999px; overflow: hidden; }
+  .bar > i { display: block; height: 100%; }
+  .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 0.9rem; }
+  .thumb { font-size: 0.85rem; padding: 0.25rem 0.6rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  td, th { text-align: left; padding: 0.4rem 0.5rem; border-top: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: normal; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+  .v-holds { color: var(--ok); } .v-splits { color: var(--warn); } .v-nodata { color: var(--muted); }
+  details summary { cursor: pointer; color: var(--muted); }
+  pre { font-size: 0.75rem; overflow: auto; }
+  .brief { font-size: 1.12rem; }
+  .hidden { display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Common Ground</h1>
+  <span class="tag">What do they all love? Measured, not guessed.</span>
+  <span class="fs"><button onclick="fs(-2)">A−</button><button onclick="fs(2)">A+</button></span>
+</header>
+<main>
+  <section class="card" id="setup">
+    <h2>Who are we bringing together?</h2>
+    <div class="groups" id="groups"></div>
+    <div style="margin-top:0.6rem"><button onclick="addGroup()">+ add a group</button></div>
+    <div class="row" style="margin-top:0.8rem">
+      <div><label>What for?</label><input id="goal" value="plan a community movie-and-music night that everyone will actually come to"></div>
+      <div style="flex:0 1 260px"><label>Town (optional, for places)</label><input id="loc" placeholder="Tucson, AZ"></div>
+      <div style="flex:0 0 auto"><button class="primary" id="runBtn" onclick="go()">Find common ground</button></div>
+    </div>
+    <div id="progress"></div>
+  </section>
+
+  <section id="results" class="hidden">
+    <div class="card" id="briefCard"></div>
+    <div class="two" id="domains"></div>
+    <div class="card" id="llmCard"></div>
+    <div class="card"><details><summary>How the agent got there (trace)</summary><pre id="trace"></pre></details></div>
+  </section>
+</main>
+
+<script>
+const COLORS = ['var(--g0)','var(--g1)','var(--g2)','var(--g3)'];
+let FAMS = {}, groups = [], lastResult = null, excluded = [], feedback = [];
+
+function fs(d){ const r=document.documentElement; const cur=parseFloat(getComputedStyle(r).getPropertyValue('--fs'))||20; r.style.setProperty('--fs', Math.max(14, Math.min(34, cur+d))+'px'); try{localStorage.setItem('cg_fs', cur+d)}catch(e){} }
+try{ const s=localStorage.getItem('cg_fs'); if(s) document.documentElement.style.setProperty('--fs', s+'px'); }catch(e){}
+
+async function init(){
+  const r = await fetch('/api/audiences'); const j = await r.json(); FAMS = j.families;
+  addGroup('progressives', ['urn:audience:political_preferences:politically_progressive']);
+  addGroup('conservatives', ['urn:audience:political_preferences:politically_conservative']);
+}
+function addGroup(label, auds){
+  if(groups.length>=4) return;
+  const i = groups.length; const g = {label: label || ('group '+(i+1)), audiences: auds || [], fam: Object.keys(FAMS)[0]};
+  groups.push(g); renderGroups();
+}
+function removeGroup(i){ groups.splice(i,1); renderGroups(); }
+function renderGroups(){
+  const el = document.getElementById('groups'); el.innerHTML='';
+  groups.forEach((g,i)=>{
+    const d = document.createElement('div'); d.className='group'; d.dataset.i=i;
+    const fams = Object.keys(FAMS).map(f=>`<option ${f===g.fam?'selected':''}>${f}</option>`).join('');
+    const chips = (FAMS[g.fam]||[]).map(a=>`<span class="chip ${g.audiences.includes(a.id)?'on':''}" onclick="toggle(${i},'${a.id}')">${a.name}</span>`).join('');
+    const chosen = g.audiences.map(id=>nameOf(id)).join(', ');
+    d.innerHTML = `<label>Group name</label><input value="${g.label}" oninput="groups[${i}].label=this.value">
+      <label>Pick from</label><select onchange="groups[${i}].fam=this.value;renderGroups()">${fams}</select>
+      <div class="chips">${chips}</div>
+      <div class="why" style="margin-top:0.4rem">Chosen: ${chosen || 'nothing yet'}</div>
+      ${groups.length>2?`<div style="margin-top:0.4rem"><button onclick="removeGroup(${i})">remove</button></div>`:''}`;
+    el.appendChild(d);
+  });
+}
+function nameOf(id){ for(const f in FAMS){ const a=FAMS[f].find(x=>x.id===id); if(a) return a.name; } return id; }
+function toggle(i,id){ const a=groups[i].audiences; const k=a.indexOf(id); if(k>=0) a.splice(k,1); else a.push(id); renderGroups(); }
+
+async function go(rerun){
+  if(!rerun){ excluded=[]; feedback=[]; }
+  const body = { groups: groups.map(g=>({label:g.label, audiences:g.audiences})), goal: document.getElementById('goal').value,
+                 location: document.getElementById('loc').value || null, exclude: excluded, feedback: feedback };
+  const btn = document.getElementById('runBtn'); btn.disabled=true;
+  const prog = document.getElementById('progress'); prog.textContent='Starting…';
+  let r = await fetch('/api/run',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  if(!r.ok){ prog.textContent='Error: '+(await r.text()); btn.disabled=false; return; }
+  const {job} = await r.json();
+  while(true){
+    await new Promise(res=>setTimeout(res,1500));
+    const s = await (await fetch('/api/jobs/'+job)).json();
+    prog.textContent = s.steps.map(stepLine).join('\n') + (s.status==='running' ? `\n… ${s.elapsed}s` : '');
+    if(s.status==='done'){ lastResult=s.result; render(s.result); break; }
+    if(s.status==='error'){ prog.textContent += '\nError: '+s.error; break; }
+  }
+  btn.disabled=false;
+}
+function stepLine(s){
+  if(s.step==='plan') return `Planned: probing ${s.domains.join(', ')}. ${s.why||''}`;
+  if(s.step==='guess') return 'Asked a plain LLM for its guess (to check later).';
+  if(s.step==='probe') return `Probed ${s.domain}: ${s.pool} candidates scored against every group, ${s.unites} unite.`;
+  if(s.step==='compose') return `Wrote the brief: ${s.picks} cited picks${s.dropped_uncited?`, ${s.dropped_uncited} uncited picks dropped`:''}.`;
+  if(s.step.endsWith('_error')) return `Problem in ${s.step}: ${s.error}`;
+  return s.step;
+}
+function bars(raw, curved){
+  const labels = Object.keys(raw);
+  return `<div class="bars">`+labels.map((l,i)=>`<span>${l}</span><span class="bar"><i style="width:${Math.round((curved?curved[l]:raw[l])*100)}%;background:${COLORS[i]}"></i></span><span>${raw[l].toFixed(3)}</span>`).join('')+`</div>`;
+}
+function render(R){
+  document.getElementById('results').classList.remove('hidden');
+  const b = R.brief || {};
+  const byId = {}; for(const d in R.results){ for(const k of ['unites','divides']) for(const s of R.results[d][k]) byId[s.entity.id]=s; }
+  let h = `<h2>${b.title||'Common ground'}</h2><p class="brief">${(b.brief||'').replace(/\n/g,'<br>')}</p>`;
+  h += `<h3>Picks, with the evidence</h3>`;
+  for(const p of (b.picks||[])){ const s=byId[p.id];
+    h += `<div class="pick"><span class="name">${p.name}</span><span class="dom">${p.domain}</span>
+          <div class="why">${p.why||''}${s&&s.entity.tags&&s.entity.tags.length?` · ${s.entity.tags.slice(0,4).join(', ')}`:''}</div>
+          ${s?bars(s.raw, s.curved):''}
+          <div style="margin-top:0.3rem" id="fb-${p.id}"><button class="thumb" onclick="askWhy('${p.id}')">👎 not this one</button></div></div>`; }
+  if((b.avoid||[]).length){ h += `<h3>Leave off</h3>`; for(const a of b.avoid){ const s=byId[a.id]; h += `<div class="pick"><span class="name">${a.name}</span><div class="why">${a.why||''}${s?` · leans ${s.leans}`:''}</div>${s?bars(s.raw,s.curved):''}</div>`; } }
+  h += `<p class="why">${R.qloo_calls} Qloo calls, ${R.seconds}s${R.excluded.length?`, ${R.excluded.length} rejected by you`:''}.</p>`;
+  document.getElementById('briefCard').innerHTML = h;
+
+  const dd = document.getElementById('domains'); dd.innerHTML='';
+  for(const d in R.results){ const r=R.results[d];
+    let c = `<div class="card"><h2>${d.replace('_',' ')}</h2><h3>Unites</h3>`;
+    c += r.unites.slice(0,6).map(s=>`<div class="pick"><span class="name">${s.entity.name}</span>${bars(s.raw,s.curved)}</div>`).join('') || '<p class="why">nothing clears the bar</p>';
+    c += `<h3>Divides</h3>` + r.divides.slice(0,4).map(s=>`<div class="pick"><span class="name">${s.entity.name}</span><span class="dom">leans ${s.leans}</span>${bars(s.raw,s.curved)}</div>`).join('');
+    c += `</div>`; dd.insertAdjacentHTML('beforeend', c); }
+
+  let t = `<h2>What a plain LLM guessed, checked against the data</h2><table><tr><th>domain</th><th>the LLM said both love…</th><th>verdict</th><th>scores</th></tr>`;
+  let holds=0, splits=0, nodata=0;
+  for(const d in R.results) for(const c of R.results[d].llm_guesses_checked){
+    const v = c.found ? (c.verdict||'?') : 'not in Qloo'; if(v==='holds')holds++; else if(v==='splits')splits++; else nodata++;
+    const cls = v==='holds'?'v-holds':v==='splits'?'v-splits':'v-nodata';
+    t += `<tr><td>${d}</td><td>${c.guess}</td><td class="${cls}">${v}</td><td class="why">${c.raw?Object.entries(c.raw).map(([k,x])=>`${k} ${x}`).join(' · '):''}</td></tr>`; }
+  t += `</table><p class="why">${holds} held up, ${splits} actually split the groups, ${nodata} had no data or were not found.</p>`;
+  document.getElementById('llmCard').innerHTML = t;
+  document.getElementById('trace').textContent = JSON.stringify(R.trace, null, 1);
+  document.getElementById('results').scrollIntoView({behavior:'smooth'});
+}
+function askWhy(id){
+  const box = document.getElementById('fb-'+id);
+  box.innerHTML = `<div class="row"><div><input id="why-${id}" placeholder="why not? one line, the agent will use it"></div>
+    <div style="flex:0 0 auto"><button class="thumb" onclick="reject('${id}')">re-plan without it</button></div></div>`;
+  document.getElementById('why-'+id).focus();
+}
+function reject(id){
+  const why = (document.getElementById('why-'+id)||{}).value || 'rejected by the user';
+  const name = (lastResult && Object.values(lastResult.results).flatMap(r=>[...r.unites,...r.divides]).find(s=>s.entity.id===id)||{entity:{name:id}}).entity.name;
+  excluded.push(id); feedback.push(`${name}: ${why}`); go(true);
+}
+init();
+</script>
+</body>
+</html>

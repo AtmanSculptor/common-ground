@@ -145,7 +145,9 @@ def slim(e: dict) -> dict:
         "type": e.get("subtype") or e.get("type"),
         "affinity": round(affinity(e), 4),
         "popularity": round(float(e.get("popularity", 0) or 0), 4),
-        "tags": [t.get("name") for t in (e.get("tags") or [])[:8]],
+        "tags": [t.get("name") for t in (e.get("tags") or [])
+                 if t.get("name") and not str(t.get("name")).isdigit()
+                 and "obscurity" not in str(t.get("type", "")) and "audience" not in str(t.get("type", ""))][:8],
         "description": (props.get("description") or props.get("short_description") or "")[:300],
         "image": (props.get("image") or {}).get("url") if isinstance(props.get("image"), dict) else None,
     }

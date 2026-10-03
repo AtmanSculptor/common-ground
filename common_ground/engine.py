@@ -61,8 +61,9 @@ def _minmax(values: dict[str, float]) -> dict[str, float]:
 
 def score_groups(q: Qloo, groups: list[Group], entity_type: str, *, location: str | None = None,
                  pool_per_group: int = 25, pool_combined: int = 50, popularity_min: float | None = 0.9,
-                 extra_candidates: list[str] | None = None) -> list[Scored]:
+                 extra_candidates: list[str] | None = None, exclude: set[str] | None = None) -> list[Scored]:
     """Score a candidate pool of one entity type against every group."""
+    exclude = exclude or set()
     if len(groups) < 2:
         raise ValueError("need at least two groups")
 
@@ -71,7 +72,7 @@ def score_groups(q: Qloo, groups: list[Group], entity_type: str, *, location: st
 
     def add(ents: list[dict]) -> None:
         for e in ents:
-            if e.get("entity_id"):
+            if e.get("entity_id") and e["entity_id"] not in exclude:
                 pool.setdefault(e["entity_id"], e)
 
     for g in groups:
