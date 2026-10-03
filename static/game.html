@@ -34,11 +34,8 @@
   .bar > i { display:block; height:100%; }
   .stars { display:flex; justify-content:center; gap:0.2rem; margin:0.8rem 0 0.2rem; font-size:2.4rem; line-height:1; user-select:none; }
   .stars span { cursor:pointer; width:1.1em; text-align:center; position:relative; }
-  .stars span b { position:absolute; left:0; top:0; width:50%; height:100%; }
-  .stars span u { position:absolute; right:0; top:0; width:50%; height:100%; }
   .stars span::before { content:"☆"; color:var(--dim); }
   .stars span.full::before { content:"★"; color:var(--me); }
-  .stars span.half::before { content:"★"; color:var(--me); background:linear-gradient(90deg, var(--me) 50%, transparent 50%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
   .meter { font-size:3rem; font-weight:800; text-align:center; margin:0.2rem 0 0; }
   .title { text-align:center; font-size:1.3rem; }
   .row { display:flex; gap:0.6rem; }
@@ -58,12 +55,17 @@
   <p class="sub" id="sub">Two people. One field. What do you both love?</p>
 
   <section id="s-start" class="card">
+    <button onclick="pick('new')">Start a new game</button>
+    <button class="ghost" onclick="pick('join')">Join with a code</button>
+  </section>
+
+  <section id="s-name" class="card hidden">
+    <div id="codewrap" class="hidden"><label class="muted">Room code</label>
+    <input id="joincode" placeholder="ROOM CODE" maxlength="4" style="text-transform:uppercase" autocomplete="off"></div>
     <label class="muted">Your name</label>
-    <input id="name" placeholder="your name" maxlength="24">
-    <button onclick="newGame()">Start a new game</button>
-    <div class="muted" style="text-align:center;margin:0.8rem 0 0.3rem">or join a friend</div>
-    <input id="joincode" placeholder="ROOM CODE" maxlength="4" style="text-transform:uppercase">
-    <button class="ghost" onclick="joinGame()">Join</button>
+    <input id="name" placeholder="your name" maxlength="24" autocomplete="off">
+    <button id="gobtn" onclick="enter()">Let's go</button>
+    <button class="ghost" onclick="show('s-start')">back</button>
   </section>
 
   <section id="s-lobby" class="card hidden">
@@ -92,8 +94,24 @@
     <div class="bars" id="fbars"></div>
     <div class="muted" style="margin-top:0.8rem">How much is this you?</div>
     <div class="stars" id="stars"></div>
-    <div class="muted" id="starlabel">tap a star, tap its left half for a half</div>
+    <div class="muted" id="starlabel">tap a star</div>
     <button id="ratebtn" onclick="sendRating()" disabled>Lock it in</button>
+  </section>
+
+  <section id="s-juke" class="card field hidden">
+    <div class="dom">the jukebox pick</div>
+    <div class="name" id="jname"></div>
+    <div class="tags" id="jtags"></div>
+    <div class="bars" id="jbars"></div>
+    <div class="muted" style="margin-top:0.8rem">Play this one?</div>
+    <div class="row"><button onclick="vote(true)">👍 play it</button><button class="ghost" onclick="vote(false)">👎 not that</button></div>
+  </section>
+
+  <section id="s-play" class="card field hidden">
+    <div class="dom">you both said yes</div>
+    <div class="name" style="font-size:2.4rem" id="pname"></div>
+    <div style="font-size:3rem;margin:0.4rem 0">▶</div>
+    <div class="muted">Go put it on.</div>
   </section>
 
   <section id="s-done" class="hidden">
@@ -105,7 +123,7 @@
     <div class="card"><div class="muted">You both liked</div><ul id="liked"></ul>
       <div class="muted" style="margin-top:0.6rem">A playlist for the two of you</div><ul id="playlist"></ul></div>
     <div class="card"><div class="muted">How we read you</div><div id="profiles"></div></div>
-    <button class="ghost" onclick="location.href='/game'">Play again</button>
+    <button class="ghost" onclick="location.href='game'">Play again</button>
   </section>
   <div class="muted" id="status" style="text-align:center;margin-top:0.6rem"></div>
 </main>
@@ -113,14 +131,18 @@
 <script>
 let code=null, who=null, state=null, question=null, pending=0, timer=null;
 function fs(d){ const r=document.documentElement; const cur=parseFloat(getComputedStyle(r).getPropertyValue('--fs'))||20; r.style.setProperty('--fs', Math.max(14, Math.min(32, cur+d))+'px'); }
-function show(id){ for(const s of ['s-start','s-lobby','s-quiz','s-wait','s-field','s-done']) document.getElementById(s).classList.toggle('hidden', s!==id); }
+function show(id){ for(const s of ['s-start','s-name','s-lobby','s-quiz','s-wait','s-field','s-juke','s-play','s-done']) document.getElementById(s).classList.toggle('hidden', s!==id); }
 async function api(path, body){ const r = await fetch(path, body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:undefined); if(!r.ok) throw new Error(await r.text()); return r.json(); }
 function myName(){ return document.getElementById('name').value.trim() || (who==='host'?'host':'guest'); }
-async function newGame(){ const j = await api('/api/game/new',{name:myName()}); code=j.code; who='host'; history.replaceState(null,'',`/game?code=${code}&who=host`); poll(); }
-async function joinGame(){ const c=document.getElementById('joincode').value.trim().toUpperCase(); if(c.length<4) return; try{ const j = await api(`/api/game/${c}/join`,{name:myName()}); code=j.code; who='guest'; history.replaceState(null,'',`/game?code=${code}&who=guest`); poll(); }catch(e){ document.getElementById('status').textContent='No room with that code.'; } }
+let mode='new';
+function pick(m){ mode=m; document.getElementById('codewrap').classList.toggle('hidden', m!=='join'); show('s-name'); setTimeout(()=>document.getElementById(m==='join'?'joincode':'name').focus(), 50); }
+async function enter(){ if(mode==='new') return newGame(); return joinGame(); }
+async function newGame(){ const j = await api('api/game/new',{name:myName()}); code=j.code; who='host'; history.replaceState(null,'',`game?code=${code}&who=host`); poll(); }
+async function joinGame(){ const c=document.getElementById('joincode').value.trim().toUpperCase(); if(c.length<4){ document.getElementById('status').textContent='Type the 4-letter room code.'; return; } try{ const j = await api(`api/game/${c}/join`,{name:myName()}); code=j.code; who='guest'; history.replaceState(null,'',`game?code=${code}&who=guest`); poll(); }catch(e){ document.getElementById('status').textContent='No room with that code.'; } }
+document.addEventListener('keydown', e=>{ if(e.key==='Enter' && !document.getElementById('s-name').classList.contains('hidden')) enter(); });
 
 async function poll(){
-  try{ state = await api(`/api/game/${code}?who=${who}`); render(); }catch(e){ document.getElementById('status').textContent=e.message; }
+  try{ state = await api(`api/game/${code}?who=${who}`); render(); }catch(e){ document.getElementById('status').textContent=e.message; }
   clearTimeout(timer); timer=setTimeout(poll, state && state.phase==='quiz' ? 2500 : 1200);
 }
 function other(){ return who==='host'?'guest':'host'; }
@@ -136,7 +158,7 @@ function render(){
       document.getElementById('waitsub').textContent = them.joined ? `${them.answered} of ${state.rounds>0?10:10} answered` : `Room code ${state.code}`; show('s-wait'); }
     return; }
   document.getElementById('s-lobby').classList.add('hidden');
-  if(state.phase==='dealing'){ document.getElementById('waitmsg').textContent='Dealing the next card…'; document.getElementById('waitsub').textContent=`round ${state.current+2} of ${state.rounds}`; show('s-wait'); return; }
+  if(state.phase==='dealing'){ document.getElementById('waitmsg').textContent= state.current<0 ? 'Shuffling the deck for the two of you…' : 'Dealing the next card…'; document.getElementById('waitsub').textContent=`round ${state.current+2} of ${state.rounds}`; show('s-wait'); return; }
   if(state.phase==='rating'){
     const c=state.card; const rated = me.rated_current;
     if(rated){ document.getElementById('waitmsg').textContent=`Waiting for ${them.name||'the other side'} to rate…`; document.getElementById('waitsub').textContent=c.entity.name; show('s-wait'); return; }
@@ -148,8 +170,16 @@ function render(){
     const names={[who]:'you',[other()]:them.name||'them'}; const cols={[who]:'var(--me)',[other()]:'var(--them)'};
     document.getElementById('fbars').innerHTML = Object.keys(c.raw).map(k=>{ const key = (k===me.name||k===who)?who:other(); return `<span>${names[key]}</span><span class="bar"><i style="width:${Math.round((c.curved[k]||0)*100)}%;background:${cols[key]}"></i></span>`; }).join('');
     show('s-field'); return; }
+  if(state.phase==='jukebox'){
+    const j=state.jukebox; if(!j||!j.entity){ document.getElementById('waitmsg').textContent='Picking the jukebox song…'; document.getElementById('waitsub').textContent=''; show('s-wait'); return; }
+    if(j.voted && j.voted[who]){ document.getElementById('waitmsg').textContent=`Waiting for ${them.name||'the other side'}…`; document.getElementById('waitsub').textContent=j.entity.name; show('s-wait'); return; }
+    document.getElementById('jname').textContent=j.entity.name; document.getElementById('jtags').textContent=(j.entity.tags||[]).slice(0,4).join(' · ');
+    const names={[who]:'you',[other()]:them.name||'them'}; const cols={[who]:'var(--me)',[other()]:'var(--them)'};
+    document.getElementById('jbars').innerHTML = Object.keys(j.raw).map(k=>{ const key=(k===me.name||k===who)?who:other(); return `<span>${names[key]}</span><span class="bar"><i style="width:${Math.round((j.curved[k]||0)*100)}%;background:${cols[key]}"></i></span>`; }).join('');
+    show('s-juke'); return; }
   if(state.phase==='done'){
     const r=state.result; if(!r){ document.getElementById('waitmsg').textContent='Adding it all up…'; document.getElementById('waitsub').textContent=''; show('s-wait'); return; }
+    if(r.jukebox && r.jukebox.played && !sessionStorage.getItem('played_'+code)){ document.getElementById('pname').textContent=r.jukebox.name; show('s-play'); setTimeout(()=>{ try{sessionStorage.setItem('played_'+code,'1')}catch(e){} render(); }, 6000); return; }
     document.getElementById('score').textContent=`${r.score}`; document.getElementById('title').textContent=r.title||'';
     document.getElementById('note').textContent=r.note||'';
     document.getElementById('liked').innerHTML=(r.both_liked||[]).map(x=>`<li>${x}</li>`).join('')||'<li class="muted">not much this time</li>';
@@ -161,18 +191,19 @@ async function answer(which){
   if(!question) return; const q=question; question=null;
   const chose = which? q[which].id : null;
   document.getElementById('qa').disabled=true; document.getElementById('qb').disabled=true;
-  try{ await api(`/api/game/${code}/answer`,{who, a:q.a.id, b:q.b.id, chose}); }catch(e){}
+  try{ await api(`api/game/${code}/answer`,{who, a:q.a.id, b:q.b.id, chose}); }catch(e){}
   document.getElementById('qa').disabled=false; document.getElementById('qb').disabled=false;
   clearTimeout(timer); poll();
 }
 function drawStars(){
   const el=document.getElementById('stars'); el.innerHTML='';
-  for(let i=1;i<=5;i++){ const s=document.createElement('span'); s.className = pending>=i?'full':(pending>=i-0.5?'half':'');
-    const b=document.createElement('b'); b.onclick=()=>{pending=i-0.5; drawStars();}; const u=document.createElement('u'); u.onclick=()=>{pending=i; drawStars();}; s.appendChild(b); s.appendChild(u); el.appendChild(s); }
+  for(let i=1;i<=5;i++){ const s=document.createElement('span'); s.className = pending>=i?'full':'';
+    s.onclick=()=>{pending=i; drawStars();}; el.appendChild(s); }
   document.getElementById('ratebtn').disabled = !(pending>0);
-  document.getElementById('starlabel').textContent = pending>0 ? `${pending} star${pending===1?'':'s'}` : 'tap a star, tap its left half for a half';
+  document.getElementById('starlabel').textContent = pending>0 ? `${pending} star${pending===1?'':'s'}` : 'tap a star';
 }
-async function sendRating(){ if(!(pending>0)) return; document.getElementById('ratebtn').disabled=true; try{ await api(`/api/game/${code}/rate`,{who, stars:pending}); }catch(e){} clearTimeout(timer); poll(); }
+async function vote(up){ try{ await api(`api/game/${code}/jukebox`,{who, up}); }catch(e){} clearTimeout(timer); poll(); }
+async function sendRating(){ if(!(pending>0)) return; document.getElementById('ratebtn').disabled=true; try{ await api(`api/game/${code}/rate`,{who, stars:pending}); }catch(e){} clearTimeout(timer); poll(); }
 (function(){ const p=new URLSearchParams(location.search); if(p.get('code')&&p.get('who')){ code=p.get('code'); who=p.get('who'); poll(); } })();
 </script>
 </body>

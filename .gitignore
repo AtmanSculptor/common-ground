@@ -241,3 +241,6 @@ pp.log
 pp.err
 probe_people.py
 
+rooms.pkl
+rooms.tmp
+

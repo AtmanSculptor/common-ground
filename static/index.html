@@ -95,7 +95,7 @@ function fs(d){ const r=document.documentElement; const cur=parseFloat(getComput
 try{ const s=localStorage.getItem('cg_fs'); if(s) document.documentElement.style.setProperty('--fs', s+'px'); }catch(e){}
 
 async function init(){
-  const r = await fetch('/api/audiences'); const j = await r.json(); FAMS = j.families;
+  const r = await fetch('api/audiences'); const j = await r.json(); FAMS = j.families;
   addGroup('progressives', ['urn:audience:political_preferences:politically_progressive']);
   addGroup('conservatives', ['urn:audience:political_preferences:politically_conservative']);
 }
@@ -129,12 +129,12 @@ async function go(rerun){
                  location: document.getElementById('loc').value || null, exclude: excluded, feedback: feedback };
   const btn = document.getElementById('runBtn'); btn.disabled=true;
   const prog = document.getElementById('progress'); prog.textContent='Starting…';
-  let r = await fetch('/api/run',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+  let r = await fetch('api/run',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
   if(!r.ok){ prog.textContent='Error: '+(await r.text()); btn.disabled=false; return; }
   const {job} = await r.json();
   while(true){
     await new Promise(res=>setTimeout(res,1500));
-    const s = await (await fetch('/api/jobs/'+job)).json();
+    const s = await (await fetch('api/jobs/'+job)).json();
     prog.textContent = s.steps.map(stepLine).join('\n') + (s.status==='running' ? `\n… ${s.elapsed}s` : '');
     if(s.status==='done'){ lastResult=s.result; render(s.result); break; }
     if(s.status==='error'){ prog.textContent += '\nError: '+s.error; break; }

@@ -15,6 +15,10 @@ from common_ground.engine import Group
 from common_ground.qloo import Qloo
 
 app = FastAPI(title="Common Ground")
+
+# The pages may run under a CSP sandbox (null origin) and behind a path prefix, so: open CORS, no credentials.
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 ROOT = Path(__file__).resolve().parent
 _q = Qloo()
 _audiences_cache: dict = {}
@@ -131,6 +135,11 @@ class Rate(BaseModel):
     stars: float
 
 
+class Vote(BaseModel):
+    who: str
+    up: bool
+
+
 def _advance(room: Room) -> None:
     """Deal the next card or finish, in the background so phones keep polling."""
     def work():
@@ -139,15 +148,25 @@ def _advance(room: Room) -> None:
                 if room.phase == "done" and room.result is None:
                     room.result = _finish(room)
                     return
+                if room.phase == "jukebox":
+                    if room.deal_jukebox(Qloo()) is None:
+                        room.phase = "done"
+                        room.result = _finish(room)
+                    return
                 room.phase = "dealing"
+                if not room.deck:
+                    room.build_deck(Qloo())
                 card = room.deal(Qloo())
                 if card is None:
-                    room.phase = "done"
-                    room.result = _finish(room)
+                    room.phase = "jukebox"
+                    if room.deal_jukebox(Qloo()) is None:
+                        room.phase = "done"
+                        room.result = _finish(room)
             except Exception as e:
                 room.log.append(f"error: {e}")
                 room.phase = "done"
                 room.result = room.result or {"error": str(e)}
+            GAMES.save()
     threading.Thread(target=work, daemon=True).start()
 
 
@@ -175,7 +194,9 @@ def _finish(room: Room) -> dict:
             temperature=0.6, max_tokens=800)
     except Exception as e:
         room.log.append(f"note error: {e}")
-    return {**sc, "note": brief.get("note", ""), "playlist": playlist, "profiles": profiles, "rounds": rounds}
+    jb = room.jukebox or {}
+    return {**sc, "note": brief.get("note", ""), "playlist": playlist, "profiles": profiles, "rounds": rounds,
+            "jukebox": {"name": jb.get("entity", {}).get("name"), "played": jb.get("played")} if jb else None}
 
 
 @app.get("/game")
@@ -217,6 +238,7 @@ def game_answer(code: str, body: Answer):
     with r.lock:
         r.answer(body.who, body.a, body.b, body.chose)
         start = r.both_profiled() and r.phase == "quiz"
+    GAMES.save()
     if start:
         _advance(r)
     return {"ok": True}
@@ -244,6 +266,25 @@ def game_rate(code: str, body: Rate):
         both = r.both_rated()
         if both:
             r.after_rating()
+    GAMES.save()
     if both:
         _advance(r)
     return {"ok": True}
+
+
+@app.post("/api/game/{code}/jukebox")
+def game_jukebox(code: str, body: Vote):
+    r = GAMES.get(code)
+    if not r or body.who not in r.sides or r.phase != "jukebox" or not r.jukebox:
+        raise HTTPException(400, "no jukebox vote right now")
+    with r.lock:
+        r.vote_jukebox(body.who, body.up)
+        outcome = r.jukebox_settled()
+        if outcome in ("play", "skip"):
+            r.phase = "done"
+    GAMES.save()
+    if outcome == "redeal":
+        _advance(r)
+    elif outcome in ("play", "skip"):
+        _advance(r)
+    return {"ok": True, "outcome": outcome}

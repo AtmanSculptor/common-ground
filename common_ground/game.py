@@ -81,7 +81,7 @@ def quizable(aud_id: str) -> bool:
 
 QUIZ_ROUNDS = 10
 PROFILE_SIZE = 4
-ROUND_DOMAINS = ["urn:entity:movie", "urn:entity:artist", "urn:entity:tv_show", "urn:entity:podcast", "urn:entity:movie", "urn:entity:artist"]
+ROUND_DOMAINS = ["urn:entity:movie", "urn:entity:tv_show", "urn:entity:artist"]
 
 TITLES = [  # (min score 0..100, title)
     (90, "Common Ground, Fully Claimed"),
@@ -105,6 +105,7 @@ class Side:
     profile: list[str] = field(default_factory=list)     # audience ids
     favorite: dict | None = None                        # {"id","name"} optional
     ratings: dict[int, float] = field(default_factory=dict)  # round index -> stars
+    pending: dict | None = None                         # the question on screen, until answered
 
 
 @dataclass
@@ -125,11 +126,19 @@ class Room:
     phase: str = "lobby"           # lobby | quiz | dealing | rating | done
     sides: dict[str, Side] = field(default_factory=lambda: {"host": Side(), "guest": Side()})
     cards: list[Card] = field(default_factory=list)
+    deck: list[dict] = field(default_factory=list)   # pre-scored candidates per round: [{domain, scored:[Scored...]}]
     current: int = -1
+    jukebox: dict | None = None                      # {"entity", "raw", "curved", "votes": {who: bool}, "attempt": n}
     excluded: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     result: dict | None = None
     lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
+
+    def __getstate__(self):
+        d = self.__dict__.copy(); d.pop("lock", None); return d
+
+    def __setstate__(self, d):
+        self.__dict__.update(d); self.lock = threading.Lock()
 
     # ---- quiz -----------------------------------------------------------
     def next_question(self, who: str) -> dict | None:
@@ -139,6 +148,8 @@ class Room:
         s = self.sides[who]
         if len(s.answers) >= QUIZ_ROUNDS:
             return None
+        if s.pending:
+            return s.pending
         seen = {x for a in s.answers for x in (a["a"], a["b"])}
         all_ids = [a["id"] for a in AUDIENCES if quizable(a["id"])]
         leaders = [k for k, _ in sorted(s.tally.items(), key=lambda kv: -kv[1])]
@@ -162,11 +173,15 @@ class Room:
         b_id = random.choice(wild)
         pair = [a_id, b_id]
         random.shuffle(pair)  # don't always put the data pick on the same side
-        return {"n": len(s.answers) + 1, "of": QUIZ_ROUNDS,
-                "a": {"text": label(pair[0]), "id": pair[0]}, "b": {"text": label(pair[1]), "id": pair[1]}}
+        s.pending = {"n": len(s.answers) + 1, "of": QUIZ_ROUNDS,
+                     "a": {"text": label(pair[0]), "id": pair[0]}, "b": {"text": label(pair[1]), "id": pair[1]}}
+        return s.pending
 
     def answer(self, who: str, a: str, b: str, chose: str | None) -> None:
         s = self.sides[who]
+        if s.pending and {s.pending["a"]["id"], s.pending["b"]["id"]} != {a, b}:
+            return  # stale answer from an old screen, ignore
+        s.pending = None
         s.answers.append({"a": a, "b": b, "chose": chose})
         if chose:
             s.tally[chose] = s.tally.get(chose, 0) + 1
@@ -189,21 +204,44 @@ class Room:
             out.append(g)
         return out
 
+    def build_deck(self, q: Qloo) -> None:
+        """Score every round's domain once, in parallel, so cards flip instantly."""
+        from concurrent.futures import ThreadPoolExecutor
+        groups = self.groups()
+        domains = list(dict.fromkeys(ROUND_DOMAINS))
+        def one(d):
+            try:
+                return d, score_groups(Qloo(), groups, d, exclude=set(self.excluded), pool_per_group=20, pool_combined=30)
+            except Exception as e:
+                self.log.append(f"deck error {d}: {e}")
+                return d, []
+        with ThreadPoolExecutor(max_workers=len(domains)) as ex:
+            by_domain = dict(ex.map(one, domains))
+        self.deck = [{"domain": d, "scored": [sc.to_dict() for sc in by_domain.get(d, [])]} for d in ROUND_DOMAINS]
+        self.log.append(f"deck built: " + ", ".join(f"{d.split(':')[-1]}={len(by_domain.get(d, []))}" for d in domains))
+
+    @staticmethod
+    def _best(scored: list[dict], skip: set[str]) -> dict | None:
+        cands = [s for s in scored if s["entity"]["id"] not in skip]
+        strong = [s for s in cands if s["entity"].get("popularity", 0) >= 0.97 and s["common"] >= 0.8]
+        ok = [s for s in cands if s["entity"].get("popularity", 0) >= 0.93]
+        return (strong or ok or cands or [None])[0]
+
     def deal(self, q: Qloo) -> Card | None:
-        """Deal the next round's card: best shared candidate not yet dealt."""
+        """Deal the next round's card from the prebuilt deck."""
         rnd = self.current + 1
         if rnd >= len(ROUND_DOMAINS):
             return None
+        if not self.deck:
+            self.build_deck(q)
         domain = ROUND_DOMAINS[rnd]
-        dealt = {c.entity["id"] for c in self.cards}
-        scored = score_groups(q, self.groups(), domain, exclude=set(self.excluded) | dealt, pool_per_group=20, pool_combined=30)
-        # the card should be something both would recognise: well known first, then the best shared score
-        strong = [s for s in scored if s.entity.get("popularity", 0) >= 0.97 and s.common >= 0.8]
-        ok = [s for s in scored if s.entity.get("popularity", 0) >= 0.93]
-        pick = (strong or ok or scored or [None])[0]
-        if not pick:
+        skip = {c.entity["id"] for c in self.cards} | set(self.excluded)
+        pick_d = self._best(self.deck[rnd]["scored"], skip)
+        if not pick_d:
             self.log.append(f"round {rnd}: nothing to deal for {domain}")
             return None
+        from types import SimpleNamespace
+        pick = SimpleNamespace(**pick_d)
         card = Card(rnd, domain, pick.entity, pick.raw, pick.curved, pick.common, pick.divide)
         self.cards.append(card)
         self.current = rnd
@@ -212,7 +250,7 @@ class Room:
         return card
 
     def rate(self, who: str, stars: float) -> None:
-        self.sides[who].ratings[self.current] = max(0.5, min(5.0, round(stars * 2) / 2))
+        self.sides[who].ratings[self.current] = float(max(1, min(5, round(stars))))
 
     def both_rated(self) -> bool:
         return all(self.current in s.ratings for s in self.sides.values())
@@ -223,7 +261,45 @@ class Room:
         card = self.cards[self.current]
         if min(h, g) <= 2.0:
             self.excluded.append(card.entity["id"])
-        self.phase = "dealing" if self.current + 1 < len(ROUND_DOMAINS) else "done"
+        self.phase = "dealing" if self.current + 1 < len(ROUND_DOMAINS) else "jukebox"
+
+    # ---- jukebox finale -------------------------------------------------------
+    def deal_jukebox(self, q: Qloo) -> dict | None:
+        """One last card: the artist the data says you both rate highest. Both thumbs up and it plays."""
+        attempt = (self.jukebox or {}).get("attempt", 0) + 1
+        skip = set(self.excluded) | {c.entity["id"] for c in self.cards if c.domain == "urn:entity:artist"}
+        if self.jukebox and self.jukebox.get("entity"):
+            skip.add(self.jukebox["entity"]["id"])
+        pool = []
+        for d in self.deck:
+            if d["domain"] == "urn:entity:artist":
+                pool = d["scored"]
+                break
+        if not pool:
+            pool = [sc.to_dict() for sc in score_groups(q, self.groups(), "urn:entity:artist", exclude=skip, pool_per_group=20, pool_combined=30)]
+        pick = self._best(pool, skip)
+        if not pick:
+            return None
+        self.jukebox = {"entity": pick["entity"], "raw": pick["raw"], "curved": pick["curved"], "votes": {}, "attempt": attempt, "played": None}
+        self.phase = "jukebox"
+        self.log.append(f"jukebox pick {attempt}: {pick['entity']['name']}")
+        return self.jukebox
+
+    def vote_jukebox(self, who: str, up: bool) -> None:
+        if self.jukebox:
+            self.jukebox["votes"][who] = bool(up)
+
+    def jukebox_settled(self) -> str | None:
+        """'play' when both up, 'redeal' when someone said no and we have a try left, 'skip' otherwise, None if waiting."""
+        if not self.jukebox or len(self.jukebox["votes"]) < 2:
+            return None
+        if all(self.jukebox["votes"].values()):
+            self.jukebox["played"] = True
+            return "play"
+        if self.jukebox["attempt"] < 2:
+            return "redeal"
+        self.jukebox["played"] = False
+        return "skip"
 
     # ---- score --------------------------------------------------------------
     def score(self) -> dict:
@@ -246,16 +322,41 @@ class Room:
                      "profile_labels": [label(x) for x in s.profile],
                      "favorite": s.favorite, "rated_current": self.current in s.ratings}
                  for k, s in self.sides.items()}
-        return {"code": self.code, "phase": self.phase, "sides": sides, "current": self.current, "card": cur,
+        jb = None
+        if self.jukebox:
+            jb = {k: v for k, v in self.jukebox.items() if k != "votes"}
+            jb["voted"] = {k: (k in self.jukebox["votes"]) for k in self.sides}
+        return {"code": self.code, "phase": self.phase, "sides": sides, "current": self.current, "card": cur, "jukebox": jb,
                 "rounds": len(ROUND_DOMAINS), "cards": [{"name": c.entity["name"], "domain": c.domain, "round": c.round,
                                                         "ratings": {k: s.ratings.get(c.round) for k, s in self.sides.items()}} for c in self.cards],
                 "score": self.score() if self.cards else None, "log": self.log[-6:], "result": self.result}
 
 
 class Games:
-    def __init__(self) -> None:
+    """Rooms live in memory and are mirrored to a pickle so a restart does not end a game."""
+    def __init__(self, path: str | None = None) -> None:
+        import pathlib
+        self.path = pathlib.Path(path) if path else pathlib.Path(__file__).resolve().parents[1] / "rooms.pkl"
         self.rooms: dict[str, Room] = {}
         self.lock = threading.Lock()
+        self.load()
+
+    def load(self) -> None:
+        import pickle
+        try:
+            if self.path.exists():
+                self.rooms = pickle.loads(self.path.read_bytes())
+        except Exception:
+            self.rooms = {}
+
+    def save(self) -> None:
+        import pickle
+        try:
+            tmp = self.path.with_suffix(".tmp")
+            tmp.write_bytes(pickle.dumps(self.rooms))
+            tmp.replace(self.path)
+        except Exception:
+            pass
 
     def create(self, host_name: str) -> Room:
         with self.lock:
@@ -267,6 +368,7 @@ class Games:
             r.sides["host"].joined = True
             r.phase = "quiz"
             self.rooms[code] = r
+            self.save()
             return r
 
     def get(self, code: str) -> Room | None:
@@ -278,6 +380,7 @@ class Games:
             return None
         r.sides["guest"].name = guest_name
         r.sides["guest"].joined = True
+        self.save()
         return r
 
     def sweep(self, max_age: float = 6 * 3600) -> None:
