@@ -139,6 +139,7 @@ class Room:
     sides: dict[str, Side] = field(default_factory=lambda: {"host": Side(), "guest": Side()})
     cards: list[Card] = field(default_factory=list)
     deck: list[dict] = field(default_factory=list)   # pre-scored candidates per round: [{domain, scored:[Scored...]}]
+    deck_stats: dict = field(default_factory=dict)   # domain -> how many candidates Qloo scored for both sides
     current: int = -1
     jukebox: dict | None = None                      # {"entity", "raw", "curved", "votes": {who: bool}, "attempt": n}
     excluded: list[str] = field(default_factory=list)
@@ -230,7 +231,8 @@ class Room:
         with ThreadPoolExecutor(max_workers=len(domains)) as ex:
             by_domain = dict(ex.map(one, domains))
         self.deck = [{"domain": d, "scored": [sc.to_dict() for sc in by_domain.get(d, [])]} for d in ROUND_DOMAINS]
-        self.log.append(f"deck built: " + ", ".join(f"{d.split(':')[-1]}={len(by_domain.get(d, []))}" for d in domains))
+        self.deck_stats = {d.split(":")[-1]: len(by_domain.get(d, [])) for d in domains}
+        self.log.append(f"deck built: " + ", ".join(f"{k}={v}" for k, v in self.deck_stats.items()))
 
     @staticmethod
     def _best(scored: list[dict], skip: set[str]) -> dict | None:
@@ -355,6 +357,7 @@ class Room:
             jb = {k: v for k, v in self.jukebox.items() if k != "votes"}
             jb["voted"] = {k: (k in self.jukebox["votes"]) for k in self.sides}
         return {"code": self.code, "phase": self.phase, "sides": sides, "current": self.current, "card": cur, "jukebox": jb,
+                "deck_stats": self.deck_stats,
                 "rounds": len(ROUND_DOMAINS), "cards": [{"name": c.entity["name"], "domain": c.domain, "round": c.round,
                                                         "ratings": {k: s.ratings.get(c.round) for k, s in self.sides.items()}} for c in self.cards],
                 "score": self.score() if self.cards else None, "log": self.log[-6:], "result": self.result}

@@ -166,6 +166,17 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
         trace.add("probe", domain=d, pool=s["pool_size"], unites=len(s["unites"]),
                   guesses_found=sum(1 for c in checked if c.get("found")))
 
+    # Qloo Analysis Compare, when both groups are entity sets (two people's favorites)
+    compare = None
+    if len(groups) == 2 and all(g.entities for g in groups):
+        try:
+            cj = q.compare(groups[0].entities, groups[1].entities, take=20)
+            ents = cj.get("results", {}).get("entities", []) if isinstance(cj, dict) else []
+            compare = [{"id": e.get("entity_id"), "name": e.get("name"), "affinity": affinity(e)} for e in ents][:12]
+            trace.add("compare", shared=len(compare))
+        except Exception as e:
+            trace.add("compare_error", error=str(e))
+
     # compose from Qloo-returned candidates only
     candidates = []
     for d, r in results.items():
@@ -197,6 +208,28 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
         brief["picks"] = kept
         brief["avoid"] = [a for a in brief.get("avoid", []) if a.get("id") in allowed]
         trace.add("compose", picks=len(kept), dropped_uncited=len(dropped))
+        # explainability for the picks: ask Qloo why each one ranks, per group, and attach it
+        try:
+            by_dom: dict[str, list[str]] = {}
+            for p in kept:
+                by_dom.setdefault(p.get("domain", ""), []).append(p["id"])
+            explain: dict[str, dict] = {}
+            for d, ids in by_dom.items():
+                if d not in DOMAINS:
+                    continue
+                for g in groups:
+                    ents = q.insights(DOMAINS[d], result_entities=ids, take=len(ids), location_query=location,
+                                      explain=True, **g.signal())
+                    for e in ents:
+                        ex = (e.get("query") or {}).get("explainability") or e.get("explainability")
+                        if ex:
+                            explain.setdefault(e["entity_id"], {})[g.label] = ex
+            for p in kept:
+                if p["id"] in explain:
+                    p["explain"] = explain[p["id"]]
+            trace.add("explain", picks_explained=len(explain))
+        except Exception as e:
+            trace.add("explain_error", error=str(e))
 
     return {
         "groups": [asdict(g) for g in groups],
@@ -207,6 +240,7 @@ def run(groups: list[Group], goal: str = "find what they both love", location: s
         "domains": doms,
         "results": results,
         "brief": brief,
+        "compare": compare,
         "trace": trace.steps,
         "qloo_calls": q.calls,
         "seconds": round(time.time() - t0, 1),

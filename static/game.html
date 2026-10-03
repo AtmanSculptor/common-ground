@@ -174,7 +174,8 @@ function render(){
     if(rated){ document.getElementById('waitmsg').textContent=`Waiting for ${them.name||'the other side'} to rate…`; document.getElementById('waitsub').textContent=c.entity.name; show('s-wait'); return; }
     if(document.getElementById('fname').dataset.id!==c.entity.id){ pending=0; drawStars(); document.getElementById('ratebtn').disabled=true; }
     document.getElementById('fname').dataset.id=c.entity.id;
-    document.getElementById('fdom').textContent=`round ${c.round+1} of ${state.rounds} · ${c.domain.split(':').pop().replace('_',' ')}`;
+    const dkey=c.domain.split(':').pop(); const n=(state.deck_stats||{})[dkey];
+    document.getElementById('fdom').textContent=`round ${c.round+1} of ${state.rounds} · ${dkey.replace('_',' ')}` + (n?` · Qloo scored ${n} against both of you, this one fits best`:'');
     document.getElementById('fname').textContent=c.entity.name;
     document.getElementById('ftags').textContent=(c.entity.tags||[]).slice(0,4).join(' · ') + (them.house?`\n${them.name}: ${(them.profile_labels||[]).join(', ')}`:'');
     const names={[who]:'you',[other()]:them.name||'them'}; const cols={[who]:'var(--me)',[other()]:'var(--them)'};
