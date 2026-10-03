@@ -95,3 +95,155 @@ def _warm():
 @app.get("/api/health")
 def health():
     return {"ok": True, "qloo_calls": _q.calls}
+
+
+# ============================ the game ============================
+from common_ground.game import Games, Room, ROUND_DOMAINS, label as _label
+from common_ground.engine import score_groups as _score_groups, summarize as _summarize
+from common_ground.llm import chat_json as _chat_json
+
+GAMES = Games()
+_game_lock = threading.Lock()
+
+
+class NewGame(BaseModel):
+    name: str = "host"
+
+
+class JoinGame(BaseModel):
+    name: str = "guest"
+
+
+class Answer(BaseModel):
+    who: str
+    a: str
+    b: str
+    chose: str | None = None
+
+
+class Favorite(BaseModel):
+    who: str
+    query: str
+
+
+class Rate(BaseModel):
+    who: str
+    stars: float
+
+
+def _advance(room: Room) -> None:
+    """Deal the next card or finish, in the background so phones keep polling."""
+    def work():
+        with room.lock:
+            try:
+                if room.phase == "done" and room.result is None:
+                    room.result = _finish(room)
+                    return
+                room.phase = "dealing"
+                card = room.deal(Qloo())
+                if card is None:
+                    room.phase = "done"
+                    room.result = _finish(room)
+            except Exception as e:
+                room.log.append(f"error: {e}")
+                room.phase = "done"
+                room.result = room.result or {"error": str(e)}
+    threading.Thread(target=work, daemon=True).start()
+
+
+def _finish(room: Room) -> dict:
+    sc = room.score()
+    q = Qloo()
+    groups = room.groups()
+    playlist = []
+    try:
+        s = _summarize(_score_groups(q, groups, "urn:entity:artist", exclude=set(room.excluded), pool_per_group=20, pool_combined=30), top=8)
+        playlist = [{"id": x["entity"]["id"], "name": x["entity"]["name"], "common": x["common"]} for x in s["unites"]]
+    except Exception as e:
+        room.log.append(f"playlist error: {e}")
+    names = {k: (v.name or k) for k, v in room.sides.items()}
+    profiles = {names[k]: [_label(x) for x in v.profile] for k, v in room.sides.items()}
+    rounds = [{"card": c.entity["name"], "domain": c.domain.split(":")[-1],
+               "ratings": {names[k]: v.ratings.get(c.round) for k, v in room.sides.items()}} for c in room.cards]
+    brief = {}
+    try:
+        brief = _chat_json(
+            "You write a warm, short note (under 120 words, plain prose, no bullet symbols, no em-dashes) telling two people what they share, "
+            "based ONLY on the facts given: their profiles, the cards they both rated well, and the playlist. Mention specific names from the data. "
+            "Never invent titles. Reply as JSON: {\"note\": \"...\"}",
+            f"Score {sc['score']}/100, title '{sc['title']}'.\nProfiles: {profiles}\nRounds: {rounds}\nShared playlist: {[p['name'] for p in playlist]}",
+            temperature=0.6, max_tokens=800)
+    except Exception as e:
+        room.log.append(f"note error: {e}")
+    return {**sc, "note": brief.get("note", ""), "playlist": playlist, "profiles": profiles, "rounds": rounds}
+
+
+@app.get("/game")
+def game_page():
+    return FileResponse(ROOT / "static" / "game.html")
+
+
+@app.post("/api/game/new")
+def game_new(body: NewGame):
+    GAMES.sweep()
+    r = GAMES.create(body.name.strip()[:24] or "host")
+    return {"code": r.code, "who": "host"}
+
+
+@app.post("/api/game/{code}/join")
+def game_join(code: str, body: JoinGame):
+    r = GAMES.join(code, body.name.strip()[:24] or "guest")
+    if not r:
+        raise HTTPException(404, "no such room, or it is full")
+    return {"code": r.code, "who": "guest"}
+
+
+@app.get("/api/game/{code}")
+def game_state(code: str, who: str = "host"):
+    r = GAMES.get(code)
+    if not r:
+        raise HTTPException(404, "no such room")
+    st = r.public(who)
+    if r.phase == "quiz" and who in r.sides:
+        st["question"] = r.next_question(who)
+    return st
+
+
+@app.post("/api/game/{code}/answer")
+def game_answer(code: str, body: Answer):
+    r = GAMES.get(code)
+    if not r or body.who not in r.sides:
+        raise HTTPException(404, "no such room")
+    with r.lock:
+        r.answer(body.who, body.a, body.b, body.chose)
+        start = r.both_profiled() and r.phase == "quiz"
+    if start:
+        _advance(r)
+    return {"ok": True}
+
+
+@app.post("/api/game/{code}/favorite")
+def game_favorite(code: str, body: Favorite):
+    r = GAMES.get(code)
+    if not r or body.who not in r.sides:
+        raise HTTPException(404, "no such room")
+    res = _q.search(body.query, take=1)
+    if not res:
+        return {"ok": False, "found": None}
+    r.sides[body.who].favorite = {"id": res[0].get("entity_id"), "name": res[0].get("name")}
+    return {"ok": True, "found": r.sides[body.who].favorite}
+
+
+@app.post("/api/game/{code}/rate")
+def game_rate(code: str, body: Rate):
+    r = GAMES.get(code)
+    if not r or body.who not in r.sides or r.phase != "rating":
+        raise HTTPException(400, "not rating right now")
+    with r.lock:
+        r.rate(body.who, body.stars)
+        both = r.both_rated()
+        if both:
+            r.after_rating()
+    if both:
+        _advance(r)
+    return {"ok": True}

@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Common Ground</title>
+<style>
+  :root { --ink:#fff7ee; --dim:rgba(255,247,238,0.7); --card:rgba(255,255,255,0.10); --line:rgba(255,255,255,0.22);
+          --me:#ffd166; --them:#8ecae6; --good:#95d5b2; --fs:20px; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html { font-size:var(--fs); }
+  body { margin:0; min-height:100dvh; color:var(--ink); font-family: "Avenir Next", "Segoe UI", system-ui, sans-serif; line-height:1.35;
+         background: radial-gradient(120% 90% at 20% 0%, #ff8a5c 0%, #c2185b 35%, #4a148c 70%, #0d1b4c 100%); background-attachment: fixed; }
+  main { max-width:560px; margin:0 auto; padding: 1rem 1rem 3rem; }
+  h1 { font-size:2.1rem; margin:0.4rem 0 0; letter-spacing:-0.02em; }
+  .sub { color:var(--dim); margin:0 0 1rem; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:22px; padding:1.1rem; margin:0.8rem 0; backdrop-filter: blur(6px); }
+  input { font:inherit; font-size:1.1rem; width:100%; padding:0.7rem 0.8rem; border-radius:14px; border:1px solid var(--line); background:rgba(0,0,0,0.25); color:var(--ink); text-align:center; letter-spacing:0.05em; }
+  input::placeholder { color:var(--dim); }
+  button { font:inherit; font-size:1.1rem; width:100%; padding:0.9rem 1rem; border-radius:16px; border:0; background:var(--ink); color:#2a0a3a; font-weight:600; margin-top:0.6rem; cursor:pointer; }
+  button.ghost { background:transparent; color:var(--ink); border:1px solid var(--line); font-weight:500; }
+  button.choice { font-size:1.35rem; padding:1.3rem 1rem; min-height:5.5rem; background:rgba(255,255,255,0.92); }
+  button:active { transform: scale(0.98); }
+  .code { font-size:2.6rem; letter-spacing:0.25em; text-align:center; font-weight:700; margin:0.3rem 0; }
+  .muted { color:var(--dim); font-size:0.9rem; }
+  .progress { height:0.5rem; background:rgba(0,0,0,0.25); border-radius:999px; overflow:hidden; margin:0.6rem 0; }
+  .progress > i { display:block; height:100%; background:var(--good); transition: width 0.4s; }
+  .field { text-align:center; padding:1.4rem 1rem; }
+  .field .dom { text-transform:uppercase; letter-spacing:0.12em; font-size:0.8rem; color:var(--dim); }
+  .field .name { font-size:1.7rem; font-weight:700; margin:0.3rem 0 0.2rem; }
+  .field .tags { color:var(--dim); font-size:0.9rem; }
+  .bars { display:grid; grid-template-columns:max-content 1fr; gap:0.3rem 0.6rem; align-items:center; font-size:0.85rem; margin:0.8rem auto 0; max-width:360px; text-align:left; }
+  .bar { height:0.5rem; background:rgba(0,0,0,0.25); border-radius:999px; overflow:hidden; }
+  .bar > i { display:block; height:100%; }
+  .stars { display:flex; justify-content:center; gap:0.2rem; margin:0.8rem 0 0.2rem; font-size:2.4rem; line-height:1; user-select:none; }
+  .stars span { cursor:pointer; width:1.1em; text-align:center; position:relative; }
+  .stars span b { position:absolute; left:0; top:0; width:50%; height:100%; }
+  .stars span u { position:absolute; right:0; top:0; width:50%; height:100%; }
+  .stars span::before { content:"☆"; color:var(--dim); }
+  .stars span.full::before { content:"★"; color:var(--me); }
+  .stars span.half::before { content:"★"; color:var(--me); background:linear-gradient(90deg, var(--me) 50%, transparent 50%); -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent; }
+  .meter { font-size:3rem; font-weight:800; text-align:center; margin:0.2rem 0 0; }
+  .title { text-align:center; font-size:1.3rem; }
+  .row { display:flex; gap:0.6rem; }
+  .row > * { flex:1; }
+  .pulse { animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+  .fsbtn { position:fixed; right:0.6rem; top:0.6rem; display:flex; gap:0.3rem; }
+  .fsbtn button { width:auto; padding:0.3rem 0.6rem; font-size:0.9rem; margin:0; background:rgba(0,0,0,0.3); color:var(--ink); }
+  ul { padding-left:1.2rem; } li { margin:0.2rem 0; }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<div class="fsbtn"><button onclick="fs(-2)">A−</button><button onclick="fs(2)">A+</button></div>
+<main>
+  <h1>Common Ground</h1>
+  <p class="sub" id="sub">Two people. One field. What do you both love?</p>
+
+  <section id="s-start" class="card">
+    <label class="muted">Your name</label>
+    <input id="name" placeholder="your name" maxlength="24">
+    <button onclick="newGame()">Start a new game</button>
+    <div class="muted" style="text-align:center;margin:0.8rem 0 0.3rem">or join a friend</div>
+    <input id="joincode" placeholder="ROOM CODE" maxlength="4" style="text-transform:uppercase">
+    <button class="ghost" onclick="joinGame()">Join</button>
+  </section>
+
+  <section id="s-lobby" class="card hidden">
+    <div class="muted" style="text-align:center">Your room code</div>
+    <div class="code" id="code"></div>
+    <div class="muted" style="text-align:center">Have the other person open this page and join with the code.<br>You can start your questions now.</div>
+  </section>
+
+  <section id="s-quiz" class="card hidden">
+    <div class="muted" id="qn">Which is more you?</div>
+    <div class="progress"><i id="qbar" style="width:0%"></i></div>
+    <button class="choice" id="qa" onclick="answer('a')"></button>
+    <button class="choice" id="qb" onclick="answer('b')"></button>
+    <button class="ghost" onclick="answer(null)">neither, really</button>
+  </section>
+
+  <section id="s-wait" class="card hidden">
+    <div class="pulse" id="waitmsg">Waiting for the other side…</div>
+    <div class="muted" id="waitsub"></div>
+  </section>
+
+  <section id="s-field" class="card field hidden">
+    <div class="dom" id="fdom"></div>
+    <div class="name" id="fname"></div>
+    <div class="tags" id="ftags"></div>
+    <div class="bars" id="fbars"></div>
+    <div class="muted" style="margin-top:0.8rem">How much is this you?</div>
+    <div class="stars" id="stars"></div>
+    <div class="muted" id="starlabel">tap a star, tap its left half for a half</div>
+    <button id="ratebtn" onclick="sendRating()" disabled>Lock it in</button>
+  </section>
+
+  <section id="s-done" class="hidden">
+    <div class="card">
+      <div class="meter" id="score"></div>
+      <div class="title" id="title"></div>
+      <p id="note" style="margin-top:0.8rem"></p>
+    </div>
+    <div class="card"><div class="muted">You both liked</div><ul id="liked"></ul>
+      <div class="muted" style="margin-top:0.6rem">A playlist for the two of you</div><ul id="playlist"></ul></div>
+    <div class="card"><div class="muted">How we read you</div><div id="profiles"></div></div>
+    <button class="ghost" onclick="location.href='/game'">Play again</button>
+  </section>
+  <div class="muted" id="status" style="text-align:center;margin-top:0.6rem"></div>
+</main>
+
+<script>
+let code=null, who=null, state=null, question=null, pending=0, timer=null;
+function fs(d){ const r=document.documentElement; const cur=parseFloat(getComputedStyle(r).getPropertyValue('--fs'))||20; r.style.setProperty('--fs', Math.max(14, Math.min(32, cur+d))+'px'); }
+function show(id){ for(const s of ['s-start','s-lobby','s-quiz','s-wait','s-field','s-done']) document.getElementById(s).classList.toggle('hidden', s!==id); }
+async function api(path, body){ const r = await fetch(path, body?{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)}:undefined); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+function myName(){ return document.getElementById('name').value.trim() || (who==='host'?'host':'guest'); }
+async function newGame(){ const j = await api('/api/game/new',{name:myName()}); code=j.code; who='host'; history.replaceState(null,'',`/game?code=${code}&who=host`); poll(); }
+async function joinGame(){ const c=document.getElementById('joincode').value.trim().toUpperCase(); if(c.length<4) return; try{ const j = await api(`/api/game/${c}/join`,{name:myName()}); code=j.code; who='guest'; history.replaceState(null,'',`/game?code=${code}&who=guest`); poll(); }catch(e){ document.getElementById('status').textContent='No room with that code.'; } }
+
+async function poll(){
+  try{ state = await api(`/api/game/${code}?who=${who}`); render(); }catch(e){ document.getElementById('status').textContent=e.message; }
+  clearTimeout(timer); timer=setTimeout(poll, state && state.phase==='quiz' ? 2500 : 1200);
+}
+function other(){ return who==='host'?'guest':'host'; }
+function render(){
+  const me=state.sides[who], them=state.sides[other()];
+  document.getElementById('status').textContent = `room ${state.code} · ${me.name||who}${them.joined?' & '+(them.name||'friend'):''}`;
+  if(state.phase==='quiz'){
+    const q = state.question;
+    if(q){ question=q; document.getElementById('qn').textContent=`Which is more you?  ${q.n} of ${q.of}`; document.getElementById('qbar').style.width=((q.n-1)/q.of*100)+'%';
+      document.getElementById('qa').textContent=q.a.text; document.getElementById('qb').textContent=q.b.text; show('s-quiz');
+      if(who==='host' && !them.joined){ document.getElementById('code').textContent=state.code; document.getElementById('s-lobby').classList.remove('hidden'); } else document.getElementById('s-lobby').classList.add('hidden'); }
+    else { document.getElementById('waitmsg').textContent = them.joined ? `Waiting for ${them.name||'the other side'} to finish…` : 'Waiting for someone to join…';
+      document.getElementById('waitsub').textContent = them.joined ? `${them.answered} of ${state.rounds>0?10:10} answered` : `Room code ${state.code}`; show('s-wait'); }
+    return; }
+  document.getElementById('s-lobby').classList.add('hidden');
+  if(state.phase==='dealing'){ document.getElementById('waitmsg').textContent='Dealing the next card…'; document.getElementById('waitsub').textContent=`round ${state.current+2} of ${state.rounds}`; show('s-wait'); return; }
+  if(state.phase==='rating'){
+    const c=state.card; const rated = me.rated_current;
+    if(rated){ document.getElementById('waitmsg').textContent=`Waiting for ${them.name||'the other side'} to rate…`; document.getElementById('waitsub').textContent=c.entity.name; show('s-wait'); return; }
+    if(document.getElementById('fname').dataset.id!==c.entity.id){ pending=0; drawStars(); document.getElementById('ratebtn').disabled=true; }
+    document.getElementById('fname').dataset.id=c.entity.id;
+    document.getElementById('fdom').textContent=`round ${c.round+1} of ${state.rounds} · ${c.domain.split(':').pop().replace('_',' ')}`;
+    document.getElementById('fname').textContent=c.entity.name;
+    document.getElementById('ftags').textContent=(c.entity.tags||[]).slice(0,4).join(' · ');
+    const names={[who]:'you',[other()]:them.name||'them'}; const cols={[who]:'var(--me)',[other()]:'var(--them)'};
+    document.getElementById('fbars').innerHTML = Object.keys(c.raw).map(k=>{ const key = (k===me.name||k===who)?who:other(); return `<span>${names[key]}</span><span class="bar"><i style="width:${Math.round((c.curved[k]||0)*100)}%;background:${cols[key]}"></i></span>`; }).join('');
+    show('s-field'); return; }
+  if(state.phase==='done'){
+    const r=state.result; if(!r){ document.getElementById('waitmsg').textContent='Adding it all up…'; document.getElementById('waitsub').textContent=''; show('s-wait'); return; }
+    document.getElementById('score').textContent=`${r.score}`; document.getElementById('title').textContent=r.title||'';
+    document.getElementById('note').textContent=r.note||'';
+    document.getElementById('liked').innerHTML=(r.both_liked||[]).map(x=>`<li>${x}</li>`).join('')||'<li class="muted">not much this time</li>';
+    document.getElementById('playlist').innerHTML=(r.playlist||[]).map(x=>`<li>${x.name}</li>`).join('');
+    document.getElementById('profiles').innerHTML=Object.entries(r.profiles||{}).map(([n,p])=>`<div><b>${n}</b>: ${p.join(', ')}</div>`).join('');
+    show('s-done'); return; }
+}
+async function answer(which){
+  if(!question) return; const q=question; question=null;
+  const chose = which? q[which].id : null;
+  document.getElementById('qa').disabled=true; document.getElementById('qb').disabled=true;
+  try{ await api(`/api/game/${code}/answer`,{who, a:q.a.id, b:q.b.id, chose}); }catch(e){}
+  document.getElementById('qa').disabled=false; document.getElementById('qb').disabled=false;
+  clearTimeout(timer); poll();
+}
+function drawStars(){
+  const el=document.getElementById('stars'); el.innerHTML='';
+  for(let i=1;i<=5;i++){ const s=document.createElement('span'); s.className = pending>=i?'full':(pending>=i-0.5?'half':'');
+    const b=document.createElement('b'); b.onclick=()=>{pending=i-0.5; drawStars();}; const u=document.createElement('u'); u.onclick=()=>{pending=i; drawStars();}; s.appendChild(b); s.appendChild(u); el.appendChild(s); }
+  document.getElementById('ratebtn').disabled = !(pending>0);
+  document.getElementById('starlabel').textContent = pending>0 ? `${pending} star${pending===1?'':'s'}` : 'tap a star, tap its left half for a half';
+}
+async function sendRating(){ if(!(pending>0)) return; document.getElementById('ratebtn').disabled=true; try{ await api(`/api/game/${code}/rate`,{who, stars:pending}); }catch(e){} clearTimeout(timer); poll(); }
+(function(){ const p=new URLSearchParams(location.search); if(p.get('code')&&p.get('who')){ code=p.get('code'); who=p.get('who'); poll(); } })();
+</script>
+</body>
+</html>

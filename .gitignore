@@ -235,3 +235,9 @@ inv.log
 inv.err
 inventory.py
 
+sim.log
+sim.err
+pp.log
+pp.err
+probe_people.py
+
