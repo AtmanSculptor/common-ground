@@ -296,3 +296,141 @@ def game_jukebox(code: str, body: Vote):
     elif outcome in ("play", "skip"):
         _advance(r)
     return {"ok": True, "outcome": outcome}
+
+
+# =====================================================================================
+# Card edition: /play page and /api/cg/* routes. Q-Lou lives here.
+# =====================================================================================
+from common_ground import cards_game as CG
+
+CGROOMS = CG.Rooms()
+
+
+class CGNew(BaseModel):
+    name: str = "host"
+    house: bool = False
+
+
+class CGJoin(BaseModel):
+    name: str = "guest"
+
+
+class CGPlay(BaseModel):
+    who: str
+    cards: list[int]
+
+
+def _cg_advance(room: CG.Room) -> None:
+    """Qloo work in the background so the phones keep polling."""
+    def work():
+        with room.lock:
+            try:
+                if room.phase == "thinking":
+                    if room.pick(Qloo()) is None:
+                        room.finish()
+                elif room.phase == "done" and room.result is None:
+                    room.finish()
+            except Exception as e:
+                room.log.append(f"error: {e}")
+                room.finish()
+            CGROOMS.save()
+    threading.Thread(target=work, daemon=True).start()
+
+
+@app.get("/play")
+def play_page():
+    return FileResponse(ROOT / "static" / "play.html")
+
+
+@app.post("/api/cg/new")
+def cg_new(body: CGNew):
+    CGROOMS.sweep()
+    r = CGROOMS.create(body.name.strip()[:24] or "host", house=body.house)
+    return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
+
+
+@app.post("/api/cg/{code}/join")
+def cg_join(code: str, body: CGJoin):
+    r = CGROOMS.join(code, body.name.strip()[:24] or "guest")
+    if not r:
+        raise HTTPException(404, "no such room, or it is full")
+    return {"code": r.code, "who": "guest"}
+
+
+@app.get("/api/cg/{code}")
+def cg_state(code: str, who: str = "host"):
+    r = CGROOMS.get(code)
+    if not r:
+        raise HTTPException(404, "no such room")
+    st = r.public(who)
+    if r.phase == "quiz" and who in r.sides:
+        st["question"] = r.next_question(who)
+    return st
+
+
+@app.post("/api/cg/{code}/answer")
+def cg_answer(code: str, body: Answer):
+    r = CGROOMS.get(code)
+    if not r or body.who not in r.sides:
+        raise HTTPException(404, "no such room")
+    with r.lock:
+        r.answer(body.who, body.a, body.b, body.chose)
+        if r.both_quizzed() and r.phase == "quiz":
+            r.deal()
+    CGROOMS.save()
+    return {"ok": True}
+
+
+@app.post("/api/cg/{code}/play")
+def cg_play(code: str, body: CGPlay):
+    r = CGROOMS.get(code)
+    if not r or body.who not in r.sides:
+        raise HTTPException(404, "no such room")
+    with r.lock:
+        ok = r.play(body.who, body.cards)
+        if ok and r.both_locked():
+            r.reveal()
+    CGROOMS.save()
+    if not ok:
+        raise HTTPException(400, "play exactly two cards from your hand")
+    return {"ok": True}
+
+
+@app.post("/api/cg/{code}/next")
+def cg_next(code: str):
+    """After a reveal: next round of cards, or Q-Lou starts thinking."""
+    r = CGROOMS.get(code)
+    if not r:
+        raise HTTPException(404, "no such room")
+    go = False
+    with r.lock:
+        if r.phase == "reveal":
+            if r.rounds_left():
+                r.deal()
+            else:
+                r.phase = "thinking"
+                go = True
+    CGROOMS.save()
+    if go:
+        _cg_advance(r)
+    return {"ok": True, "phase": r.phase}
+
+
+@app.post("/api/cg/{code}/vote")
+def cg_vote(code: str, body: Vote):
+    r = CGROOMS.get(code)
+    if not r or body.who not in r.sides or r.phase != "jukebox" or not r.jukebox:
+        raise HTTPException(400, "no jukebox vote right now")
+    with r.lock:
+        r.vote(body.who, body.up)
+        if r.sides["guest"].house and "guest" not in r.jukebox["votes"]:
+            r.vote("guest", True)  # the house always says yes to a shared song
+        outcome = r.settled()
+        if outcome == "redeal":
+            r.phase = "thinking"
+        elif outcome in ("play", "skip"):
+            r.finish()
+    CGROOMS.save()
+    if outcome == "redeal":
+        _cg_advance(r)
+    return {"ok": True, "outcome": outcome}
