@@ -76,16 +76,20 @@ def _curve(d: dict[str, float]) -> dict[str, float]:
 
 
 def partner_scores(m: dict, cards: list[int]) -> dict[str, float]:
-    """Mean affinity per artist over the cards played, for artists covered by enough of them."""
-    cols = [m["scores"].get(str(c), {}) for c in cards]
+    """Mean affinity per artist over the cards played, for artists covered by enough of them.
+
+    A card Qloo had no signal on for this artist counts as that card's weakest real score: silence
+    is a penalty, not a free pass. An artist still needs real scores on half the cards to be ranked."""
+    cols = [col for col in (m["scores"].get(str(c), {}) for c in cards) if col]
     if not cols:
         return {}
+    floors = [min(col.values()) for col in cols]
     need = max(1, int(len(cols) * MIN_COVERAGE + 0.999))
     out: dict[str, float] = {}
     for eid in m["entities"]:
-        vals = [col[eid] for col in cols if eid in col]
-        if len(vals) >= need:
-            out[eid] = sum(vals) / len(vals)
+        hits = sum(1 for col in cols if eid in col)
+        if hits >= need:
+            out[eid] = sum(col.get(eid, floor) for col, floor in zip(cols, floors)) / len(cols)
     return out
 
 

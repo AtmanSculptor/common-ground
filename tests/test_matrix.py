@@ -151,3 +151,12 @@ def test_a_failing_batch_is_retried_then_counted_as_a_hole(fake_qloo, tmp_path, 
     monkeypatch.setattr(fake_qloo, "insights", lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("down")) if kw.get("result_entities") is not None else real(*a, **kw))
     m2 = matrix.build(fake_qloo, out=tmp_path / "m2.json", cards=cards[:1], workers=1)
     assert m2["holes"] == [cards[0]["name"]]
+
+
+def test_partial_coverage_does_not_outrank_full_coverage():
+    m = {"entities": {"full": {"name": "Full"}, "half": {"name": "Half"}},
+         "scores": {"1": {"full": 0.9, "half": 0.99}, "2": {"full": 0.9, "half": 0.99}, "3": {"full": 0.9}, "4": {"full": 0.9}}}
+    ps = matrix.partner_scores(m, [1, 2, 3, 4])
+    assert abs(ps["half"] - (0.99 + 0.99 + 0.9 + 0.9) / 4) < 1e-9   # the two silent cards count as their floor, not as nothing
+    assert ps["full"] == 0.9 and ps["half"] < 0.99
+    assert matrix.partner_scores(m, [3, 4]) == {"full": 0.9}            # below half coverage: not ranked
