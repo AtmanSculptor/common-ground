@@ -225,6 +225,7 @@ run.err
 *_out.json
 audiences.json
 probe*.py
+!probes/
 
 agent.log
 agent.err
@@ -243,4 +244,5 @@ probe_people.py
 
 rooms.pkl
 rooms.tmp
+data/
 

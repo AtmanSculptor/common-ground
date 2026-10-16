@@ -1,37 +1,91 @@
-"""Common Ground web app. One page, one API. Run: uvicorn app:app --host 0.0.0.0 --port 8080"""
+"""Our Song: the web app. One process, one API.
+
+Routes
+  /            the organizer (what do these audiences share? a plan with Qloo citations)
+  /play        the game: two phones, one room, Q-Lou in the jukebox
+  /deck        the cards, as a gallery
+  /stats       results so far
+  /api/...     JSON for the pages above
+
+Run: uvicorn app:app --host 0.0.0.0 --port 8080
+"""
 from __future__ import annotations
 
 import threading
 import time
 import uuid
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from common_ground.agent import run, DOMAINS
+from common_ground import stats
+from common_ground.agent import DOMAINS, run
 from common_ground.engine import Group
+from common_ground.llm import budget_status
 from common_ground.qloo import Qloo
+from common_ground.rooms import Room, Rooms
 
-app = FastAPI(title="Common Ground")
-
-# The pages may run under a CSP sandbox (null origin) and behind a path prefix, so: open CORS, no credentials.
-from fastapi.middleware.cors import CORSMiddleware
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 ROOT = Path(__file__).resolve().parent
-from fastapi.staticfiles import StaticFiles
+
+
+@asynccontextmanager
+async def _lifespan(_: FastAPI):
+    threading.Thread(target=audiences, daemon=True).start()  # warm the audience list for the organizer
+    yield
+
+
+app = FastAPI(title="Our Song", docs_url=None, redoc_url=None, lifespan=_lifespan)
+# Pages may run under a CSP sandbox (null origin) behind a path prefix: open CORS, no credentials, no cookies.
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
 
-
-@app.get("/cards")
-def cards_page():
-    return FileResponse(ROOT / "static" / "cardtest.html")
 _q = Qloo()
 _audiences_cache: dict = {}
 _jobs: dict[str, dict] = {}
+ROOMS = Rooms()
 
 
+def page(name: str) -> FileResponse:
+    return FileResponse(ROOT / "static" / name)
+
+
+# ============================ pages ============================
+@app.get("/")
+def index():
+    return page("index.html")
+
+
+@app.get("/play")
+def play_page():
+    return page("play.html")
+
+
+@app.get("/deck")
+def deck_page():
+    return page("deck.html")
+
+
+@app.get("/stats")
+def stats_page():
+    return page("stats.html")
+
+
+@app.get("/api/health")
+def health():
+    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status()}
+
+
+@app.get("/api/stats")
+def stats_api():
+    return stats.summary()
+
+
+# ============================ the organizer ============================
 class GroupIn(BaseModel):
     label: str
     audiences: list[str] = Field(default_factory=list)
@@ -44,11 +98,6 @@ class RunIn(BaseModel):
     domains: list[str] | None = None
     exclude: list[str] = Field(default_factory=list)
     feedback: list[str] = Field(default_factory=list)
-
-
-@app.get("/")
-def index():
-    return FileResponse(ROOT / "static" / "index.html")
 
 
 @app.get("/api/audiences")
@@ -77,9 +126,8 @@ def start_run(body: RunIn):
     def work():
         try:
             groups = [Group(g.label, g.audiences) for g in body.groups]
-            job["result"] = run(groups, body.goal, body.location or None, q=Qloo(),
-                                domains=body.domains or None, exclude=body.exclude,
-                                feedback=body.feedback, on_step=lambda s: job["steps"].append(s))
+            job["result"] = run(groups, body.goal, body.location or None, q=Qloo(), domains=body.domains or None,
+                                exclude=body.exclude, feedback=body.feedback, on_step=lambda s: job["steps"].append(s))
             job["status"] = "done"
         except Exception as e:  # surface, do not hide
             job["error"] = str(e)
@@ -98,25 +146,7 @@ def job_status(job_id: str):
                          "error": job["error"], "elapsed": round(time.time() - job["started"], 1)})
 
 
-@app.on_event("startup")
-def _warm():
-    threading.Thread(target=audiences, daemon=True).start()
-
-
-@app.get("/api/health")
-def health():
-    return {"ok": True, "qloo_calls": _q.calls}
-
-
 # ============================ the game ============================
-from common_ground.game import Games, Room, ROUND_DOMAINS, label as _label
-from common_ground.engine import score_groups as _score_groups, summarize as _summarize
-from common_ground.llm import chat_json as _chat_json
-
-GAMES = Games()
-_game_lock = threading.Lock()
-
-
 class NewGame(BaseModel):
     name: str = "host"
     house: bool = False
@@ -133,14 +163,9 @@ class Answer(BaseModel):
     chose: str | None = None
 
 
-class Favorite(BaseModel):
+class Play(BaseModel):
     who: str
-    query: str
-
-
-class Rate(BaseModel):
-    who: str
-    stars: float
+    cards: list[int]
 
 
 class Vote(BaseModel):
@@ -148,80 +173,38 @@ class Vote(BaseModel):
     up: bool
 
 
-def _advance(room: Room) -> None:
-    """Deal the next card or finish, in the background so phones keep polling."""
+def _room(code: str, who: str | None = None) -> Room:
+    r = ROOMS.get(code)
+    if not r or (who is not None and who not in r.sides):
+        raise HTTPException(404, "no such room")
+    return r
+
+
+def _think(room: Room) -> None:
+    """Q-Lou works in a background thread so the phones keep polling and see the steps."""
     def work():
         with room.lock:
             try:
-                if room.phase == "done" and room.result is None:
-                    room.result = _finish(room)
-                    return
-                if room.phase == "jukebox":
-                    if room.deal_jukebox(Qloo()) is None:
-                        room.phase = "done"
-                        room.result = _finish(room)
-                    return
-                room.phase = "dealing"
-                if not room.deck:
-                    room.build_deck(Qloo())
-                card = room.deal(Qloo())
-                if card is None:
-                    room.phase = "jukebox"
-                    if room.deal_jukebox(Qloo()) is None:
-                        room.phase = "done"
-                        room.result = _finish(room)
+                if room.think(Qloo()) is None:
+                    room.finish()
+                    stats.record(room.code, room.result, room.sides["guest"].house)
             except Exception as e:
                 room.log.append(f"error: {e}")
-                room.phase = "done"
-                room.result = room.result or {"error": str(e)}
-            GAMES.save()
+                room.finish()
+            ROOMS.save()
     threading.Thread(target=work, daemon=True).start()
-
-
-def _finish(room: Room) -> dict:
-    sc = room.score()
-    q = Qloo()
-    groups = room.groups()
-    playlist = []
-    try:
-        s = _summarize(_score_groups(q, groups, "urn:entity:artist", exclude=set(room.excluded), pool_per_group=20, pool_combined=30), top=8)
-        playlist = [{"id": x["entity"]["id"], "name": x["entity"]["name"], "common": x["common"]} for x in s["unites"]]
-    except Exception as e:
-        room.log.append(f"playlist error: {e}")
-    names = {k: (v.name or k) for k, v in room.sides.items()}
-    profiles = {names[k]: [_label(x) for x in v.profile] for k, v in room.sides.items()}
-    rounds = [{"card": c.entity["name"], "domain": c.domain.split(":")[-1],
-               "ratings": {names[k]: v.ratings.get(c.round) for k, v in room.sides.items()}} for c in room.cards]
-    brief = {}
-    try:
-        brief = _chat_json(
-            "You write a warm, short note (under 120 words, plain prose, no bullet symbols, no em-dashes) telling two people what they share, "
-            "based ONLY on the facts given: their profiles, the cards they both rated well, and the playlist. Mention specific names from the data. "
-            "Never invent titles. Reply as JSON: {\"note\": \"...\"}",
-            f"Score {sc['score']}/100, title '{sc['title']}'.\nProfiles: {profiles}\nRounds: {rounds}\nShared playlist: {[p['name'] for p in playlist]}",
-            temperature=0.6, max_tokens=800)
-    except Exception as e:
-        room.log.append(f"note error: {e}")
-    jb = room.jukebox or {}
-    return {**sc, "note": brief.get("note", ""), "playlist": playlist, "profiles": profiles, "rounds": rounds,
-            "jukebox": {"name": jb.get("entity", {}).get("name"), "played": jb.get("played")} if jb else None}
-
-
-@app.get("/game")
-def game_page():
-    return FileResponse(ROOT / "static" / "game.html")
 
 
 @app.post("/api/game/new")
 def game_new(body: NewGame):
-    GAMES.sweep()
-    r = GAMES.create(body.name.strip()[:24] or "host", house=body.house)
+    ROOMS.sweep()
+    r = ROOMS.create(body.name.strip()[:24] or "You", house=body.house)
     return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
 
 
 @app.post("/api/game/{code}/join")
 def game_join(code: str, body: JoinGame):
-    r = GAMES.join(code, body.name.strip()[:24] or "guest")
+    r = ROOMS.join(code, body.name.strip()[:24] or "Partner")
     if not r:
         raise HTTPException(404, "no such room, or it is full")
     return {"code": r.code, "who": "guest"}
@@ -229,208 +212,71 @@ def game_join(code: str, body: JoinGame):
 
 @app.get("/api/game/{code}")
 def game_state(code: str, who: str = "host"):
-    r = GAMES.get(code)
-    if not r:
-        raise HTTPException(404, "no such room")
+    r = _room(code)
     st = r.public(who)
     if r.phase == "quiz" and who in r.sides:
-        st["question"] = r.next_question(who)
+        st["question"] = r.question(who)
     return st
 
 
 @app.post("/api/game/{code}/answer")
 def game_answer(code: str, body: Answer):
-    r = GAMES.get(code)
-    if not r or body.who not in r.sides:
-        raise HTTPException(404, "no such room")
+    r = _room(code, body.who)
     with r.lock:
         r.answer(body.who, body.a, body.b, body.chose)
-        start = r.both_profiled() and r.phase == "quiz"
-    GAMES.save()
-    if start:
-        _advance(r)
+        if r.phase == "quiz" and r.both_quizzed():
+            r.deal(ROOMS.rng)
+    ROOMS.save()
     return {"ok": True}
 
 
-@app.post("/api/game/{code}/favorite")
-def game_favorite(code: str, body: Favorite):
-    r = GAMES.get(code)
-    if not r or body.who not in r.sides:
-        raise HTTPException(404, "no such room")
-    res = _q.search(body.query, take=1)
-    if not res:
-        return {"ok": False, "found": None}
-    r.sides[body.who].favorite = {"id": res[0].get("entity_id"), "name": res[0].get("name")}
-    return {"ok": True, "found": r.sides[body.who].favorite}
-
-
-@app.post("/api/game/{code}/rate")
-def game_rate(code: str, body: Rate):
-    r = GAMES.get(code)
-    if not r or body.who not in r.sides or r.phase != "rating":
-        raise HTTPException(400, "not rating right now")
-    with r.lock:
-        r.rate(body.who, body.stars)
-        both = r.both_rated()
-        if both:
-            r.after_rating()
-    GAMES.save()
-    if both:
-        _advance(r)
-    return {"ok": True}
-
-
-@app.post("/api/game/{code}/jukebox")
-def game_jukebox(code: str, body: Vote):
-    r = GAMES.get(code)
-    if not r or body.who not in r.sides or r.phase != "jukebox" or not r.jukebox:
-        raise HTTPException(400, "no jukebox vote right now")
-    with r.lock:
-        r.vote_jukebox(body.who, body.up)
-        outcome = r.jukebox_settled()
-        if outcome in ("play", "skip"):
-            r.phase = "done"
-    GAMES.save()
-    if outcome == "redeal":
-        _advance(r)
-    elif outcome in ("play", "skip"):
-        _advance(r)
-    return {"ok": True, "outcome": outcome}
-
-
-# =====================================================================================
-# Card edition: /play page and /api/cg/* routes. Q-Lou lives here.
-# =====================================================================================
-from common_ground import cards_game as CG
-
-CGROOMS = CG.Rooms()
-
-
-class CGNew(BaseModel):
-    name: str = "host"
-    house: bool = False
-
-
-class CGJoin(BaseModel):
-    name: str = "guest"
-
-
-class CGPlay(BaseModel):
-    who: str
-    cards: list[int]
-
-
-def _cg_advance(room: CG.Room) -> None:
-    """Qloo work in the background so the phones keep polling."""
-    def work():
-        with room.lock:
-            try:
-                if room.phase == "thinking":
-                    if room.pick(Qloo()) is None:
-                        room.finish()
-                elif room.phase == "done" and room.result is None:
-                    room.finish()
-            except Exception as e:
-                room.log.append(f"error: {e}")
-                room.finish()
-            CGROOMS.save()
-    threading.Thread(target=work, daemon=True).start()
-
-
-@app.get("/play")
-def play_page():
-    return FileResponse(ROOT / "static" / "play.html")
-
-
-@app.post("/api/cg/new")
-def cg_new(body: CGNew):
-    CGROOMS.sweep()
-    r = CGROOMS.create(body.name.strip()[:24] or "host", house=body.house)
-    return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
-
-
-@app.post("/api/cg/{code}/join")
-def cg_join(code: str, body: CGJoin):
-    r = CGROOMS.join(code, body.name.strip()[:24] or "guest")
-    if not r:
-        raise HTTPException(404, "no such room, or it is full")
-    return {"code": r.code, "who": "guest"}
-
-
-@app.get("/api/cg/{code}")
-def cg_state(code: str, who: str = "host"):
-    r = CGROOMS.get(code)
-    if not r:
-        raise HTTPException(404, "no such room")
-    st = r.public(who)
-    if r.phase == "quiz" and who in r.sides:
-        st["question"] = r.next_question(who)
-    return st
-
-
-@app.post("/api/cg/{code}/answer")
-def cg_answer(code: str, body: Answer):
-    r = CGROOMS.get(code)
-    if not r or body.who not in r.sides:
-        raise HTTPException(404, "no such room")
-    with r.lock:
-        r.answer(body.who, body.a, body.b, body.chose)
-        if r.both_quizzed() and r.phase == "quiz":
-            r.deal()
-    CGROOMS.save()
-    return {"ok": True}
-
-
-@app.post("/api/cg/{code}/play")
-def cg_play(code: str, body: CGPlay):
-    r = CGROOMS.get(code)
-    if not r or body.who not in r.sides:
-        raise HTTPException(404, "no such room")
+@app.post("/api/game/{code}/play")
+def game_play(code: str, body: Play):
+    r = _room(code, body.who)
     with r.lock:
         ok = r.play(body.who, body.cards)
         if ok and r.both_locked():
-            r.reveal()
-    CGROOMS.save()
+            r.reveal(ROOMS.rng)
+    ROOMS.save()
     if not ok:
         raise HTTPException(400, "play exactly two cards from your hand")
     return {"ok": True}
 
 
-@app.post("/api/cg/{code}/next")
-def cg_next(code: str):
-    """After a reveal: next round of cards, or Q-Lou starts thinking."""
-    r = CGROOMS.get(code)
-    if not r:
-        raise HTTPException(404, "no such room")
-    go = False
+@app.post("/api/game/{code}/next")
+def game_next(code: str):
+    """After a reveal: the next round of cards, or Q-Lou starts thinking."""
+    r = _room(code)
+    think = False
     with r.lock:
         if r.phase == "reveal":
             if r.rounds_left():
-                r.deal()
+                r.deal(ROOMS.rng)
             else:
                 r.phase = "thinking"
-                go = True
-    CGROOMS.save()
-    if go:
-        _cg_advance(r)
+                think = True
+    ROOMS.save()
+    if think:
+        _think(r)
     return {"ok": True, "phase": r.phase}
 
 
-@app.post("/api/cg/{code}/vote")
-def cg_vote(code: str, body: Vote):
-    r = CGROOMS.get(code)
-    if not r or body.who not in r.sides or r.phase != "jukebox" or not r.jukebox:
-        raise HTTPException(400, "no jukebox vote right now")
+@app.post("/api/game/{code}/vote")
+def game_vote(code: str, body: Vote):
+    r = _room(code, body.who)
+    if r.phase != "jukebox" or not r.pick:
+        raise HTTPException(400, "no song to vote on right now")
     with r.lock:
         r.vote(body.who, body.up)
-        if r.sides["guest"].house and "guest" not in r.jukebox["votes"]:
+        if r.sides["guest"].house and "guest" not in r.pick["votes"]:
             r.vote("guest", True)  # the house always says yes to a shared song
         outcome = r.settled()
         if outcome == "redeal":
             r.phase = "thinking"
         elif outcome in ("play", "skip"):
             r.finish()
-    CGROOMS.save()
+            stats.record(r.code, r.result, r.sides["guest"].house)
+    ROOMS.save()
     if outcome == "redeal":
-        _cg_advance(r)
+        _think(r)
     return {"ok": True, "outcome": outcome}

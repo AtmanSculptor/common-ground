@@ -1,14 +1,57 @@
-"""Small OpenRouter chat client. No framework, one function."""
+"""Small OpenRouter chat client. No framework, one function, and a daily spend cap.
+
+The cap (CG_LLM_DAILY_CAP calls per UTC day, default 150) is the only thing standing
+between a public demo and an empty OpenRouter balance. Callers catch BudgetExceeded and
+fall back to templated text; the game never depends on the LLM to finish.
+"""
 from __future__ import annotations
 
+import datetime as _dt
 import json
 import os
 import pathlib
 import re
+import threading
 
 import requests
 
 DEFAULT_MODEL = os.environ.get("CG_LLM_MODEL", "google/gemini-3.5-flash-lite")
+DAILY_CAP = int(os.environ.get("CG_LLM_DAILY_CAP", "150"))
+BUDGET_FILE = pathlib.Path(os.environ.get("CG_DATA_DIR", str(pathlib.Path(__file__).resolve().parents[1] / "data"))) / "llm_budget.json"
+_budget_lock = threading.Lock()
+
+
+class BudgetExceeded(RuntimeError):
+    pass
+
+
+def _spend_one() -> int:
+    """Count one call against today's cap. Raises BudgetExceeded at the cap."""
+    today = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+    with _budget_lock:
+        try:
+            d = json.loads(BUDGET_FILE.read_text())
+        except Exception:
+            d = {}
+        n = d.get("calls", 0) if d.get("day") == today else 0
+        if n >= DAILY_CAP:
+            raise BudgetExceeded(f"LLM daily cap of {DAILY_CAP} reached")
+        n += 1
+        try:
+            BUDGET_FILE.parent.mkdir(parents=True, exist_ok=True)
+            BUDGET_FILE.write_text(json.dumps({"day": today, "calls": n}))
+        except Exception:
+            pass
+        return n
+
+
+def budget_status() -> dict:
+    try:
+        d = json.loads(BUDGET_FILE.read_text())
+    except Exception:
+        d = {}
+    today = _dt.datetime.now(_dt.timezone.utc).strftime("%Y-%m-%d")
+    return {"day": today, "calls": d.get("calls", 0) if d.get("day") == today else 0, "cap": DAILY_CAP}
 
 
 def _key() -> str:
@@ -26,6 +69,7 @@ def _key() -> str:
 
 def chat(system: str, user: str, *, model: str = DEFAULT_MODEL, temperature: float = 0.4,
          max_tokens: int = 1500, json_mode: bool = False) -> str:
+    _spend_one()
     body = {
         "model": model,
         "temperature": temperature,
@@ -39,7 +83,7 @@ def chat(system: str, user: str, *, model: str = DEFAULT_MODEL, temperature: flo
     r = requests.post("https://openrouter.ai/api/v1/chat/completions",
                       headers={"Authorization": f"Bearer {_key()}",
                                "HTTP-Referer": "https://github.com/AtmanSculptor/common-ground",
-                               "X-Title": "Common Ground"},
+                               "X-Title": "Our Song"},
                       json=body, timeout=120)
     r.raise_for_status()
     return r.json()["choices"][0]["message"]["content"]

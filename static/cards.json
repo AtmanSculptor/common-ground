@@ -343,7 +343,7 @@
  {
   "id": 37,
   "name": "Sports fan",
-  "cat": "screen",
+  "cat": "life",
   "img": "static/deck/37_sports_fan.jpg",
   "signal": {
    "audiences": [
