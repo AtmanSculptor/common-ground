@@ -32,8 +32,8 @@ NICE = {
     "casual_escapists": "Switching off with a show", "adrenaline_rushers": "An adrenaline rush", "spy_enthusiast": "Spy stories",
 }
 
-# Identity is not an interest. These never appear as "which is more you" choices.
-EXCLUDE_FAMILIES = {"communities", "professional_area", "investing_interests"}
+# Identity is not an interest, and a bar is not a debate. These never appear as "which is more you" choices.
+EXCLUDE_FAMILIES = {"communities", "professional_area", "investing_interests", "global_issues", "political_preferences"}
 EXCLUDE_IDS = {A + "lifestyle_preferences_beliefs:christianity", A + "lifestyle_preferences_beliefs:judaism",
                A + "lifestyle_preferences_beliefs:islam"}
 

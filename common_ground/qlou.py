@@ -140,7 +140,9 @@ class QLou:
                     if e.get("entity_id") and e["entity_id"] not in exclude:
                         pool.setdefault(e["entity_id"], e)
             ids = list(pool)
-            self.step("pool", f"Pulled {len(ids)} artists from Qloo: yours, theirs, and the two of you together.", pool=len(ids))
+            # four names for the phones to bet on while the scoring runs: the combined call's top of the list
+            bet = [slim(e)["name"] for e in pools[2][:4] if e.get("entity_id") not in exclude]
+            self.step("pool", f"Pulled {len(ids)} artists from Qloo: yours, theirs, and the two of you together.", pool=len(ids), bet=bet)
             if not ids:
                 return None
 
@@ -264,10 +266,9 @@ class QLou:
 
     @staticmethod
     def _facts_line(a: Partner, b: Partner, artist: dict) -> tuple[str, str]:
-        tags = [t for t in artist.get("tags", []) if t][:3]
-        line = (f"{a.name} played {', '.join(a.card_names()[:2])}. {b.name} played {', '.join(b.card_names()[:2])}. "
-                + (f"Qloo files {artist['name']} under {', '.join(tags)}. " if tags else "")
-                + "Both of you rank them near the top. That is the common ground.")
+        ac, bc = a.card_names(), b.card_names()
+        line = (f"{' and '.join(ac[:2]) or a.name} on one side, {' and '.join(bc[:2]) or b.name} on the other. "
+                f"{artist['name']} is where you meet.")
         return line, "facts"
 
     def _why(self, a: Partner, b: Partner, artist: dict, sa: float, sb: float, shortlist: list[dict]) -> tuple[str, str]:

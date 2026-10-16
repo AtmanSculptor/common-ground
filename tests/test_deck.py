@@ -56,3 +56,16 @@ def test_lines_and_matches():
     line = deck.line_for("Brent", a, "Hank", b, random.Random(0))
     assert "Country roads" in line and "Jazz hands" in line and "—" not in line
     assert "Country roads" in deck.line_for("x", a, "y", a, random.Random(0))
+
+
+def test_per_viewer_lines_and_pairing():
+    a = next(c for c in deck.cards() if c["name"] == "Country roads")
+    b = next(c for c in deck.cards() if c["name"] == "Jazz hands")
+    for seed in range(6):
+        ls = deck.lines_for("Brent", a, "Josie", b, random.Random(seed))
+        assert "Brent" not in ls["host"] and "Josie" not in ls["guest"]
+        if "Josie" in ls["host"]:
+            assert "You" in ls["host"] and "Brent" in ls["guest"] and "You" in ls["guest"]
+    ids = {c["name"]: c["id"] for c in deck.cards()}
+    pairs = deck.pair_plays([ids["Whiskey"], ids["Country roads"]], [ids["Jazz hands"], ids["Craft beer"]])
+    assert (ids["Country roads"], ids["Jazz hands"]) in pairs and (ids["Whiskey"], ids["Craft beer"]) in pairs

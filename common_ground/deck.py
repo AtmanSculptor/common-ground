@@ -65,13 +65,14 @@ def signal(card_ids: list[int], audiences: list[str] = ()) -> dict[str, list[str
 
 
 # ---- the line that lands with a pair of cards -------------------------------------------
-LINES_SAME = ["You both played {card}. That is not a coincidence.",
+# Templates are written so {a} and {b} can be a name or "You" (past tense, no third-person verbs).
+LINES_SAME = ["Both of you played {card}. That is not a coincidence.",
               "Same card, both hands: {card}.",
               "{card}, from both of you. Q-Lou noticed."]
 LINES_BY_CAT = {
-    ("music", "music"): ["{a} leads with {ca}. {b} answers with {cb}. Q-Lou hears a bridge.",
+    ("music", "music"): ["{a} led with {ca}. {b} answered with {cb}. Q-Lou hears a bridge.",
                          "{ca} meets {cb}. Somewhere in the middle there is a song."],
-    ("life", "life"): ["{a} is {ca}. {b} is {cb}. Different mornings, same bar.",
+    ("life", "life"): ["{a}: {ca}. {b}: {cb}. Different mornings, same bar.",
                        "{ca} and {cb}. Two ways of spending a day."],
     ("table", "table"): ["{ca} for {a}, {cb} for {b}. This round is on the house."],
     ("heart", "heart"): ["{ca} and {cb}. Two homes, one jukebox."],
@@ -89,6 +90,28 @@ def line_for(a_name: str, ca: dict, b_name: str, cb: dict, rng: random.Random | 
     key = (ca["cat"], cb["cat"])
     opts = LINES_BY_CAT.get(key) or LINES_BY_CAT.get((key[1], key[0])) or LINES_MIX
     return rng.choice(opts).format(a=a_name, b=b_name, ca=ca["name"], cb=cb["name"])
+
+
+def lines_for(host_name: str, ca: dict, guest_name: str, cb: dict, rng: random.Random | None = None) -> dict[str, str]:
+    """The same line twice: once for the host's phone (host is 'You'), once for the guest's."""
+    rng = rng or random
+    seed = rng.random()
+    return {"host": line_for("You", ca, guest_name, cb, random.Random(seed)),
+            "guest": line_for(host_name, ca, "You", cb, random.Random(seed))}
+
+
+def pair_plays(host_cards: list[int], guest_cards: list[int]) -> list[tuple[int, int]]:
+    """Face the most alike cards: exact matches first, then same category, then what is left."""
+    h, g = list(host_cards), list(guest_cards)
+    pairs: list[tuple[int, int]] = []
+    for want in ("exact", "kin"):
+        for hc in list(h):
+            for gc in list(g):
+                if match_kind(card(hc), card(gc)) == want:
+                    pairs.append((hc, gc)); h.remove(hc); g.remove(gc)
+                    break
+    pairs += list(zip(h, g))
+    return pairs
 
 
 def match_kind(ca: dict, cb: dict) -> str:

@@ -55,7 +55,8 @@ def test_two_phones_full_game(client):
         st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
         assert st["phase"] == "reveal" and len(st["reveal"]["pairs"]) == 2 and st["meter"] > 0
         for p in st["reveal"]["pairs"]:
-            assert p["match"] in {"exact", "kin", "none"} and p["line"]
+            assert p["match"] in {"exact", "kin", "none"}
+            assert "Brent" not in p["lines"]["host"] and "Josie" not in p["lines"]["guest"]  # your own phone says "You"
         r = client.post(f"/api/game/{code}/next").json()
     assert r["phase"] in ("thinking", "jukebox")  # the fake Qloo is instant; the thread may already be done
     st = _wait_pick(client, code)

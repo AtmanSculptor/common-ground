@@ -26,7 +26,7 @@ from .qloo import Qloo
 
 CARD_ROUNDS = 2
 MAX_PICK_ATTEMPTS = 3
-PLAYED_BONUS = 20
+PLAYED_BONUS = 5
 ROOM_TTL = 6 * 3600
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"
 
@@ -138,12 +138,12 @@ class Room:
         h, g = self.sides["host"], self.sides["guest"]
         ha, ga = h.plays[self.round], g.plays[self.round]
         pairs, gained = [], 0
-        for i in range(deck.PLAYS):
-            ca, cb = deck.card(ha[i]), deck.card(ga[i])
+        for hc, gc in deck.pair_plays(ha, ga):
+            ca, cb = deck.card(hc), deck.card(gc)
             kind = deck.match_kind(ca, cb)
             gained += deck.METER_GAIN[kind]
             pairs.append({"a": deck.public(ca), "b": deck.public(cb), "match": kind,
-                          "line": deck.line_for(h.name or "You", ca, g.name or "your partner", cb, rng)})
+                          "lines": deck.lines_for(h.name or "Your partner", ca, g.name or "Your partner", cb, rng)})
         both = [deck.card(c)["name"] for c in ha if c in ga]
         self.meter = min(100, self.meter + gained)
         self.reveals.append({"round": self.round, "pairs": pairs, "both": both, "meter": self.meter})
@@ -187,6 +187,9 @@ class Room:
 
     # ---- result --------------------------------------------------------------------------
     def finish(self) -> dict:
+        """Common Ground is Q-Lou's find: the pick's weaker score, if that beats the card meter."""
+        if self.pick:
+            self.meter = max(self.meter, int(min(self.pick["scores"].values()) * 100))
         if self.pick and self.pick.get("played"):
             self.meter = min(100, self.meter + PLAYED_BONUS)
         title = next(t for m, t in TITLES if self.meter >= m)
