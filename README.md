@@ -59,7 +59,7 @@ static/
   cards.json               the deck with its verified Qloo signals
   matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
   deck/                    card art (generated to a locked style brief, see probes/ and deck.md history)
-tests/                     24 tests, fake Qloo, no network; run in CI on every push
+tests/                     25 tests, fake Qloo, no network; run in CI on every push
 docs/                      the feel brief, the Snap study, the TouchTunes style notes
 probes/                    the scripts and logs that verified every card's signal
 ```

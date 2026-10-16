@@ -40,7 +40,8 @@ POOL_BOTH = 30
 POOL_CAP = 50          # one scoring call per partner when Qloo is slow
 POPULARITY_MIN = 0.9
 SHORTLIST = 8
-EXTRAS_DEADLINE = 10.0   # seconds to wait for the line, the tracks and the control, together; late ones attach themselves
+EXTRAS_DEADLINE = 6.0    # seconds to wait for the line and the tracks; late ones attach themselves. The control never waits.
+VERIFY_DEADLINE = 8.0    # seconds to wait for the live check of the matrix draft before going with the matrix
 
 WHY_SYSTEM = """You are Q-Lou, the genie in a bar jukebox. Two strangers just played taste cards on their phones and you picked the one artist both of them rank highest.
 Write what you say to them: two short sentences, under 45 words total, warm, a little playful, plain words, no em-dashes, no bullet points, no hashtags.
@@ -153,24 +154,53 @@ class QLou:
         self.step("draft", f"Ranked {len(m['entities'])} artists from the card matrix, no waiting: Qloo scored every card against every one of them once.",
                   pool=len(m["entities"]), bet=names)
         top3 = [r["id"] for r in ranked[:3]]
+        shortlist = [{"id": r["id"], "name": r["name"], a.key: r["a"], b.key: r["b"]} for r in ranked]
+
+        def has_signal(scores: dict, eid: str) -> bool:
+            return eid in scores and abs(scores[eid] - NO_SIGNAL) > 1e-6
+
         ex = ThreadPoolExecutor(max_workers=6)
         try:
             fa, fb = ex.submit(self._score, top3, sa), ex.submit(self._score, top3, sb)
-            la, lb = fa.result(), fb.result()
-            self.step("verify", f"Checked the top three live with Qloo, for {a.name} and for {b.name}.", calls=self.q.calls)
-            chosen = next((r for r in ranked[:3] if abs(la.get(r["id"], NO_SIGNAL) - NO_SIGNAL) > 1e-6
-                           and abs(lb.get(r["id"], NO_SIGNAL) - NO_SIGNAL) > 1e-6), None)
-            if chosen is None:
-                self.step("verify", "Qloo had no live signal for the top three; falling back to the full loop.")
-                return None
+            _, slow = wait([fa, fb], timeout=VERIFY_DEADLINE)
+            if slow:
+                # Qloo is having a slow minute. The matrix is Qloo's own numbers; go with its top and
+                # let the live check attach itself when it lands.
+                chosen = ranked[0]
+                self.step("verify", "Qloo's live check is taking its time; going with the matrix. The check will catch up on its own.")
+                live = None
+            else:
+                la, lb = fa.result(), fb.result()
+                self.step("verify", f"Checked the top three live with Qloo, for {a.name} and for {b.name}.", calls=self.q.calls)
+                chosen = next((r for r in ranked[:3] if has_signal(la, r["id"]) and has_signal(lb, r["id"])), None)
+                if chosen is None:
+                    self.step("verify", "Qloo had no live signal for the top three; falling back to the full loop.")
+                    return None
+                live = {a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)}
             artist = dict(chosen["entity"]); artist["id"] = chosen["id"]
             self.step("pick", f"{artist['name']}. {a.name} {int(chosen['a'] * 100)}, {b.name} {int(chosen['b'] * 100)}. "
-                      f"Live: {la[chosen['id']]:.2f} and {lb[chosen['id']]:.2f}. The weaker score is the one that counts.",
-                      artist=artist["name"], id=chosen["id"])
-            shortlist = [{"id": r["id"], "name": r["name"], a.key: r["a"], b.key: r["b"]} for r in ranked]
+                      + (f"Live: {live[a.key]:.2f} and {live[b.key]:.2f}. " if live else "")
+                      + "The weaker score is the one that counts.", artist=artist["name"], id=chosen["id"])
             pick = Pick(artist=artist, scores={a.key: chosen["a"], b.key: chosen["b"]}, ranked=shortlist, tracks=[], why="", why_source="facts",
                         explain={}, baseline=None, steps=self.steps, pool=len(m["entities"]), calls=self.q.calls, seconds=0.0, source="matrix",
-                        live={a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)})
+                        live=live)
+            if slow:
+                def late_verify(_: Any) -> None:
+                    if not (fa.done() and fb.done()):
+                        return
+                    try:
+                        la, lb = fa.result(), fb.result()
+                    except Exception:
+                        return
+                    if has_signal(la, chosen["id"]) and has_signal(lb, chosen["id"]):
+                        pick.live = {a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)}
+                        self.step("verify", f"The live check landed: {pick.live[a.key]:.2f} and {pick.live[b.key]:.2f} for {artist['name']}.")
+                    else:
+                        self.step("verify", f"The live check landed with no signal for {artist['name']}; the matrix stands.")
+                    if self.on_update:
+                        self.on_update(pick)
+                fa.add_done_callback(late_verify)
+                fb.add_done_callback(late_verify)
             self._extras(ex, pick, a, b, artist, chosen["a"], chosen["b"], shortlist,
                          ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None)
             return pick
@@ -279,8 +309,9 @@ class QLou:
         itself to the pick when it lands; the phones pick it up on their next poll."""
         f_tracks = ex.submit(catalog.top_tracks, artist["name"])
         f_why = ex.submit(self._why, a, b, artist, score_a, score_b, shortlist)
-        futures = [f for f in (f_tracks, f_why, f_base) if f]
-        done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
+        done, pending = wait([f_tracks, f_why], timeout=EXTRAS_DEADLINE)
+        if f_base:
+            pending = set(pending) | {f_base}      # the control is for the done screen; it never gets a grace period
 
         def attach(fut: Any) -> None:
             try:
@@ -304,8 +335,9 @@ class QLou:
             attach(f)
         for f in pending:
             f.add_done_callback(late)
-        if pending:
-            self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} will catch up on their own; the song is not kept waiting.")
+        slow = [f for f in pending if f is not f_base]
+        if slow:
+            self.step("deadline", f"{len(slow)} slow extra{'s' if len(slow) > 1 else ''} will catch up on their own; the song is not kept waiting.")
         self.step("tracks", f"{len(pick.tracks)} tracks by {artist['name']} in the catalog." if pick.tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
         pick.calls = self.q.calls
         pick.seconds = round(time.time() - self._t0, 1)

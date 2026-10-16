@@ -58,3 +58,31 @@ def test_matrix_route_is_loopback_only(client):
     assert client.get("/api/admin/matrix").status_code in (200, 404)
     r = client.get("/api/admin/matrix", headers={"x-forwarded-for": "8.8.8.8"})
     assert r.status_code == 404
+
+
+def test_a_slow_live_check_does_not_hold_the_matrix_pick(fake_qloo, tmp_path, monkeypatch):
+    """Past the verify deadline Q-Lou goes with the matrix; the live scores attach when they land."""
+    import time
+    from common_ground import qlou
+    out = tmp_path / "matrix.json"
+    matrix.build(fake_qloo, out=out, cards=list(deck.cards()))
+    monkeypatch.setattr(matrix, "FILE", out)
+    matrix._cache = None
+    real = fake_qloo.insights
+
+    def slow_when_verifying(*args, **kw):
+        if kw.get("result_entities") is not None:
+            time.sleep(0.3)
+        return real(*args, **kw)
+
+    monkeypatch.setattr(fake_qloo, "insights", slow_when_verifying)
+    monkeypatch.setattr(qlou, "VERIFY_DEADLINE", 0.05)
+    updates = []
+    a = Partner("host", "Brent", _ids("Country roads", "Dog person"))
+    b = Partner("guest", "Hank", _ids("Rock and roll", "Night owl"))
+    t0 = time.time()
+    p = QLou(fake_qloo, use_llm=False, on_update=updates.append).pick(a, b)
+    assert time.time() - t0 < 0.25 and p.source == "matrix" and p.live is None
+    assert "taking its time" in next(s["text"] for s in p.steps if s["step"] == "verify")
+    time.sleep(0.5)
+    assert p.live and set(p.live) == {"host", "guest"} and updates and updates[-1] is p
