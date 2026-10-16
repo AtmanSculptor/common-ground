@@ -16,7 +16,18 @@ The target product is a feature inside a jukebox app (TouchTunes announced "song
 
 ## The agent
 
-`common_ground/qlou.py` is the agent. Every step is logged and streamed to both phones while it thinks:
+`common_ground/qlou.py` is the agent. Every step is logged and streamed to both phones while it thinks.
+
+**The fast path, which is what a bar sees.** Qloo scores every card against a shared pool of artists once, at build time, into `static/matrix.json` (`common_ground/matrix.py`). The pool is the union of each card's own top artists from Qloo and an outside list of what bars actually play (`static/jukebox_seeds.json`, TouchTunes most-played and Billboard year-end), every name resolved to a Qloo entity; an artist Qloo has never met is dropped and counted, never guessed at. Per game:
+
+1. **read** – the played cards and quiz profile, as below.
+2. **draft** – local arithmetic over the matrix: a partner's affinity to an artist is the mean of that artist's Qloo scores on the cards they played (a card Qloo was silent on counts as that card's weakest real score), curved per partner, ranked by the weaker score. No call, no wait. Four names from the top of the list go to the phones as a bet.
+3. **verify** – the top three are scored live with `filter.results.entities`, for both partners, in parallel. Q-Lou takes the first with a real live signal. If Qloo is having a slow minute (past 8 s), it goes with the matrix and the live check attaches itself when it lands.
+4. **why**, **baseline**, **tracks** – as below, with a deadline: a slow extra never holds the song; it attaches itself to the pick when it arrives and the phones pick it up on their next poll. The control experiment is for the results screen and is never waited on.
+
+Live, two phones, the song arrives in 5 to 10 seconds. Before the matrix the same games took 31 to 55 seconds and 8 calls.
+
+**The full loop**, used when the matrix is missing or has nothing for a pair:
 
 1. **read** – each partner's played cards and quiz profile become one Qloo signal (`signal.interests.tags` + `signal.demographics.audiences`). Every card maps to a tag or audience verified against the live API (`probes/`).
 2. **pool** – candidate artists: `/v2/insights` for partner A, for partner B, and for the two signals combined.
