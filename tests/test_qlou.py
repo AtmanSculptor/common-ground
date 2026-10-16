@@ -44,7 +44,7 @@ def test_llm_line_is_citation_checked(fake_qloo, monkeypatch):
     monkeypatch.setattr(qlou, "chat_json", lambda s, u, **kw: {"artist": "Shakira", "line": f"Tonight belongs to {p.artist['name']}. Both of you lean in."})
     p2 = QLou(fake_qloo, use_llm=True).pick(a, b)
     assert p2.why_source == "llm" and p2.artist["name"] in p2.why
-    assert p2.baseline and p2.baseline["guess"] == "Shakira" and p2.baseline["verdict"] in {"holds", "splits", "no data"}
+    assert p2.baseline and p2.baseline["guess"] == "Shakira" and p2.baseline["verdict"] in {"holds", "splits", "misses", "no data"}
 
 
 def test_llm_budget_exhaustion_is_graceful(fake_qloo, monkeypatch):

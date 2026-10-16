@@ -69,7 +69,7 @@ class Pick:
     tracks: list[dict]                            # catalog top tracks
     why: str
     why_source: str                               # "llm" | "facts"
-    explain: dict[str, list[dict]]                # partner key -> [{label, score}]
+    explain: dict[str, list[dict]]                # {"both": [{label, score}]} when Qloo returns drivers
     baseline: dict | None                         # {"guess", "id", "scores", "verdict"}
     steps: list[dict]
     pool: int
@@ -132,7 +132,8 @@ class QLou:
         both = {k: list(dict.fromkeys(v)) for k, v in both.items() if v}
         with ThreadPoolExecutor(max_workers=6) as ex:
             # 2. pool: three calls at once
-            pools = list(ex.map(lambda arg: self._insights(arg[0], take=arg[1]), [(sa, POOL_EACH), (sb, POOL_EACH), (both, POOL_BOTH)]))
+            pools = list(ex.map(lambda arg: self._insights(arg[0], take=arg[1], explain=arg[2]),
+                                [(sa, POOL_EACH, False), (sb, POOL_EACH, False), (both, POOL_BOTH, True)]))
             pool: dict[str, dict] = {}
             for ents in pools:
                 for e in ents:
@@ -166,15 +167,14 @@ class QLou:
             f_tracks = ex.submit(catalog.top_tracks, artist["name"])
             f_why = ex.submit(self._why, a, b, artist, ca[top], cb[top], shortlist)
             f_base = ex.submit(self._baseline, a, b, ra, rb, keep) if self.use_llm else None
-            f_expl = ex.submit(self._explain, top, {a.key: sa, b.key: sb})
-            futures = [f for f in (f_tracks, f_why, f_base, f_expl) if f]
+            explain = self._explain(pool[top])
+            futures = [f for f in (f_tracks, f_why, f_base) if f]
             done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
             for f in pending:
                 f.cancel()
             tracks = f_tracks.result() if f_tracks in done else []
             why, src = f_why.result() if f_why in done else self._facts_line(a, b, artist)
             baseline = f_base.result() if (f_base and f_base in done) else None
-            explain = f_expl.result() if f_expl in done else {}
             if pending:
                 self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} left behind so the song is not kept waiting.")
             self.step("tracks", f"{len(tracks)} tracks by {artist['name']} in the catalog." if tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
@@ -209,22 +209,15 @@ class QLou:
                     out.update(part)
         return out
 
-    def _explain(self, entity_id: str, sigs: dict[str, dict]) -> dict[str, list[dict]]:
-        out: dict[str, list[dict]] = {}
-        for key, sig in sigs.items():
-            try:
-                ents = self.q.insights(ARTIST, result_entities=[entity_id], take=1, explain=True, **sig)
-                raw = (ents[0].get("query") or {}).get("explainability") if ents else None
-                found: list[dict] = []
-                _flatten_explain(raw, found)
-                found.sort(key=lambda d: -d["score"])
-                out[key] = found[:5]
-            except Exception as e:
-                self.step("error", f"explainability failed: {e}")
-                out[key] = []
-        n = sum(len(v) for v in out.values())
-        self.step("explain", f"Asked Qloo which signals drove the pick: {n} drivers." if n else "Asked Qloo for the signal breakdown; nothing extra came back.")
-        return out
+    def _explain(self, entity: dict) -> dict[str, list[dict]]:
+        """Drivers behind the pick, from the combined pool call made with feature.explainability=true."""
+        raw = (entity.get("query") or {}).get("explainability")
+        found: list[dict] = []
+        _flatten_explain(raw, found)
+        found.sort(key=lambda d: -d["score"])
+        self.step("explain", f"Qloo's signal breakdown for the pick: {', '.join(d['label'] for d in found[:4])}." if found
+                  else "Asked Qloo for the signal breakdown; nothing extra came back for this one.")
+        return {"both": found[:6]} if found else {}
 
     def _baseline(self, a: Partner, b: Partner, ra: dict, rb: dict, keep: list[str]) -> dict | None:
         """The control: a plain LLM's cold guess, scored by Qloo against both partners."""
@@ -261,9 +254,12 @@ class QLou:
             verdict = "no data"
         elif min(pa, pb) >= 0.6:
             verdict = "holds"
-        else:
+        elif max(pa, pb) >= 0.6:
             verdict = "splits"
-        self.step("baseline", f"A plain LLM guessed {gname}. Qloo scores that {a.name} {int((pa or 0) * 100)}, {b.name} {int((pb or 0) * 100)}: it {verdict}.")
+        else:
+            verdict = "misses"
+        self.step("baseline", f"A plain LLM guessed {gname}. Qloo scores that {a.name} {int((pa or 0) * 100)}, {b.name} {int((pb or 0) * 100)}: "
+                  + {"holds": "it holds up.", "splits": "it splits the two of you.", "misses": "it misses you both.", "no data": "no data."}[verdict])
         return {"guess": gname, "id": gid, "scores": {a.key: pa, b.key: pb}, "verdict": verdict}
 
     @staticmethod
@@ -283,7 +279,7 @@ class QLou:
         if not self.use_llm:
             return fallback, "facts"
         try:
-            j = chat_json(WHY_SYSTEM, facts, temperature=0.7, max_tokens=300)
+            j = chat_json(WHY_SYSTEM, facts, temperature=0.7, max_tokens=700)
             line = " ".join(str(j.get("line", "")).split())
         except BudgetExceeded:
             self.step("why", "Wrote the line from the facts: daily LLM cap reached.")

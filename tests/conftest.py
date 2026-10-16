@@ -48,8 +48,14 @@ class FakeQloo:
             return out
         rng = random.Random(",".join(sorted(sig["tags"] + sig["audiences"])))
         names = rng.sample(ARTISTS, min(take, len(ARTISTS)))
-        return [{"entity_id": "id:" + n, "name": n, "type": entity_type, "popularity": 0.95,
-                 "query": {"affinity": _aff("id:" + n, sig)}, "tags": [{"name": "Vocals", "type": "urn:tag:genre"}]} for n in names]
+        out = []
+        for n in names:
+            e = {"entity_id": "id:" + n, "name": n, "type": entity_type, "popularity": 0.95,
+                 "query": {"affinity": _aff("id:" + n, sig)}, "tags": [{"name": "Vocals", "type": "urn:tag:genre"}]}
+            if explain:
+                e["query"]["explainability"] = {"signal.interests.tags": [{"tag_id": t, "score": 0.5} for t in sig["tags"]][:3]}
+            out.append(e)
+        return out
 
     def search(self, query, types=None, take=5):
         self.calls += 1
