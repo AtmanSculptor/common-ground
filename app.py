@@ -11,6 +11,7 @@ Run: uvicorn app:app --host 0.0.0.0 --port 8080
 """
 from __future__ import annotations
 
+import os
 import threading
 import time
 import uuid
@@ -60,10 +61,36 @@ def resources() -> dict:
     return out
 
 
+REFRESH_EVERY = int(os.environ.get("CG_REFRESH_CHECK_MINUTES", "60"))   # 0 turns the keeper off
+
+
+def _keeper() -> None:
+    """Keeps the matrix current without anyone remembering to: extends from the outside list every
+    week, rebuilds every month in the quiet hours. Never runs over a build someone started by hand."""
+    time.sleep(120)
+    while True:
+        try:
+            need = matrix.due(matrix.load())
+            if need and _matrix_job["status"] != "running":
+                _matrix_job.update({"status": "running", "progress": [], "started": time.time(), "by": "keeper", "what": need})
+                q = Qloo(timeout=60)
+                if need == "build":
+                    m = matrix.build(q, on_progress=lambda d: _matrix_job["progress"].append(d))
+                    _matrix_job.update({"status": "done", "artists": len(m["entities"]), "cards": m["cards"], "calls": m["calls"]})
+                else:
+                    out = matrix.extend(q, matrix.seed_names(), on_progress=lambda d: _matrix_job["progress"].append(d))
+                    _matrix_job.update({"status": "done", "artists": out["artists"], "added": len(out["added"]), "calls": q.calls})
+        except Exception as e:
+            _matrix_job.update({"status": "error", "error": str(e)[:200]})
+        time.sleep(REFRESH_EVERY * 60)
+
+
 @asynccontextmanager
 async def _lifespan(_: FastAPI):
     anyio.to_thread.current_default_thread_limiter().total_tokens = REQUEST_WORKERS
     threading.Thread(target=audiences, daemon=True).start()  # warm the audience list for the organizer
+    if REFRESH_EVERY:
+        threading.Thread(target=_keeper, daemon=True, name="matrix-keeper").start()
     yield
 
 

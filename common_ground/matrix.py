@@ -346,3 +346,32 @@ def extend(q: Qloo, names: list[str], *, path: pathlib.Path | None = None, popul
     if on_progress:
         on_progress({"stage": "done", "added": len(new), "artists": len(m["entities"])})
     return {"added": [e["name"] for e in new.values()], "dropped": dropped, "artists": len(m["entities"])}
+
+
+# ---- keeping it current ----------------------------------------------------------------------
+REFRESH_DAYS = 7        # re-resolve the outside list and extend this often
+REBUILD_DAYS = 30       # full rebuild this often, in the quiet hours
+QUIET_HOURS_UTC = range(8, 12)     # 1 to 5 AM Arizona: the bar is closed
+
+
+def _stamp(s: str | None) -> float:
+    try:
+        return time.mktime(time.strptime(s or "", "%Y-%m-%dT%H:%M:%SZ")) - time.timezone
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def due(m: dict | None, now: float | None = None, *, refresh_days: int = REFRESH_DAYS, rebuild_days: int = REBUILD_DAYS) -> str | None:
+    """What the matrix needs right now: 'build' (none, or older than rebuild_days and it is quiet),
+    'extend' (the outside list has not been checked in refresh_days), or None."""
+    now = time.time() if now is None else now
+    if not m:
+        return "build"
+    built = _stamp(m.get("built"))
+    checked = max(built, _stamp(m.get("extended")))
+    quiet = time.gmtime(now).tm_hour in QUIET_HOURS_UTC
+    if rebuild_days and now - built > rebuild_days * 86400 and quiet:
+        return "build"
+    if refresh_days and now - checked > refresh_days * 86400:
+        return "extend"
+    return None

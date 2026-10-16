@@ -205,3 +205,19 @@ def test_seed_aliases_carry_qloo_spellings(fake_qloo, tmp_path, monkeypatch):
     monkeypatch.setattr(fake_qloo, "search", lambda q, types=None, take=5: [{"entity_id": "x9", "name": "GIVĒON", "popularity": 0.95}] if q == "GIVĒON" else [])
     assert matrix._resolve_seed(fake_qloo, "Giveon", aliases={}) is None
     assert matrix._resolve_seed(fake_qloo, "Giveon", aliases=matrix.seed_aliases(f))["id"] == "x9"
+
+
+def test_due_knows_when_to_extend_and_when_to_rebuild():
+    import time
+    day = 86400
+    quiet = time.mktime(time.strptime("2026-10-20T09:00:00Z", "%Y-%m-%dT%H:%M:%SZ")) - time.timezone   # 09:00 UTC, 2 AM Arizona
+    busy = quiet + 12 * 3600                                                                              # 21:00 UTC, 2 PM Arizona
+    assert matrix.due(None) == "build"
+    fresh = {"built": "2026-10-19T00:00:00Z"}
+    assert matrix.due(fresh, now=quiet) is None
+    week_old = {"built": "2026-10-10T00:00:00Z"}
+    assert matrix.due(week_old, now=quiet) == "extend"
+    assert matrix.due({"built": "2026-10-10T00:00:00Z", "extended": "2026-10-19T00:00:00Z"}, now=quiet) is None
+    month_old = {"built": "2026-09-01T00:00:00Z", "extended": "2026-10-19T00:00:00Z"}
+    assert matrix.due(month_old, now=busy) is None            # a rebuild waits for the quiet hours
+    assert matrix.due(month_old, now=quiet) == "build"

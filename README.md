@@ -25,6 +25,8 @@ The target product is a feature inside a jukebox app (TouchTunes announced "song
 3. **verify** – the top three are scored live with `filter.results.entities`, for both partners, in parallel. Q-Lou takes the first with a real live signal. If Qloo is having a slow minute (past 8 s), it goes with the matrix and the live check attaches itself when it lands.
 4. **why**, **baseline**, **tracks** – as below, with a deadline: a slow extra never holds the song; it attaches itself to the pick when it arrives and the phones pick it up on their next poll. The control experiment is for the results screen and is never waited on.
 
+The matrix keeps itself current: a keeper thread re-resolves the outside list and extends the matrix every week, and rebuilds it every month in the quiet hours (1 to 5 AM Arizona), the old matrix serving until the new one is whole. New artists can also be added by hand through a loopback-only route (`POST /api/admin/matrix/extend`).
+
 Live, two phones, the song arrives in 5 to 10 seconds. Before the matrix the same games took 31 to 55 seconds and 8 calls.
 
 **The full loop**, used when the matrix is missing or has nothing for a pair:
@@ -71,7 +73,7 @@ static/
   matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
   jukebox_seeds.json       the outside list: artists bars actually play, resolved to Qloo entities at build time
   deck/                    card art (generated to a locked style brief, see probes/ and deck.md history)
-tests/                     36 tests, fake Qloo, no network; run in CI on every push
+tests/                     37 tests, fake Qloo, no network; run in CI on every push
 docs/                      the feel brief, the Snap study, the TouchTunes style notes
 probes/                    the scripts and logs that verified every card's signal
 ```
