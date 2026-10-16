@@ -12,7 +12,15 @@ Then Q-Lou, the genie in the jukebox, goes to work: it turns both players' cards
 
 Partners, not competitors. Nobody wins over anybody. The song does.
 
-The target product is a feature inside a jukebox app (TouchTunes announced "song battles" on its 2026 roadmap, head-to-head; this is the cooperative version). In that product the app pairs you with someone in the same bar. Here, a room code does that job.
+The target product is a feature inside a jukebox app. TouchTunes' March 2026 roadmap names song battles, leaderboards and social feeds, and its app already lets patrons react to songs, share their music taste and send credits to friends; Our Song is the duet mode of a song battle. In that product the app pairs you with someone in the same bar. Here, a room code does that job.
+
+## Why a bar would want it
+
+- The jukebox already runs on credits and already sells the venue a line on screen. "Play it for a credit?" is a credit sale that two people agreed to; the venue line on the table ("Happy hour till 7") is the surface TouchTunes already sells to bars and sponsors, with daypart and venue targeting (65,000 venues, about 2 million monthly app users, about 35 minutes of engagement per visit, by TouchTunes' own advertising page).
+- Bar games keep people in the seat. Buzztime's trial data: players stay 27 minutes longer and spend about 5 dollars more; a trivia night lifted checks by about 20 dollars at one restaurant. Our Song is a two-minute game, not a league, so it fits between songs.
+- Taste data moves a match. Match Group's Yuzu saw a 70 percent lift in likes after adding Qloo interests to profiles. Two strangers who just heard "their" song have something to say to each other.
+
+Sources: TouchTunes' March 17, 2026 release and its advertising page; Buzztime's Beond trial (Bar Business); Hospitality Technology on trivia nights; Qloo's Match Group client story.
 
 ## The agent
 
