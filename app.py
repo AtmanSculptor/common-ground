@@ -349,9 +349,30 @@ def game_join(code: str, body: JoinGame):
     return {"code": r.code, "who": "guest"}
 
 
+def _settle(r: Room) -> str | None:
+    """Both votes are in (or not): finish the game, or send Q-Lou back for another pick."""
+    outcome = r.settled()
+    if outcome == "redeal":
+        r.phase = "thinking"
+    elif outcome in ("play", "skip"):
+        r.finish()
+        stats.record(r.code, r.result, r.sides["guest"].house)
+    return outcome
+
+
 @app.get("/api/game/{code}")
 def game_state(code: str, who: str = "host"):
     r = _room(code)
+    moved = None
+    if r.sides["guest"].house:
+        with r.lock:
+            moved = r.tick(ROOMS.rng)
+            if moved == "vote":
+                moved = _settle(r)
+        if moved:
+            ROOMS.save()
+        if moved in ("reveal", "redeal"):
+            _think(r)
     st = r.public(who)
     if r.phase == "quiz" and who in r.sides:
         st["question"] = r.question(who)
@@ -419,14 +440,9 @@ def game_vote(code: str, body: Vote):
         raise HTTPException(400, "no song to vote on right now")
     with r.lock:
         r.vote(body.who, body.up)
-        if r.sides["guest"].house and "guest" not in r.pick["votes"]:
-            r.vote("guest", True)  # the house always says yes to a shared song
-        outcome = r.settled()
-        if outcome == "redeal":
-            r.phase = "thinking"
-        elif outcome in ("play", "skip"):
-            r.finish()
-            stats.record(r.code, r.result, r.sides["guest"].house)
+        r.house_will_vote(ROOMS.rng)
+        r.tick(ROOMS.rng)            # a house with no pause answers now; otherwise on a later poll
+        outcome = _settle(r)
     ROOMS.save()
     if outcome == "redeal":
         _think(r)

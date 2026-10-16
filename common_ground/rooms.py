@@ -18,7 +18,7 @@ import pickle
 import random
 import threading
 import time
-from dataclasses import dataclass, field
+from dataclasses import MISSING, dataclass, field, fields
 
 from . import deck, quiz
 from .qlou import Partner, Pick, QLou
@@ -39,6 +39,10 @@ def make_code(rng: random.Random | None = None) -> str:
     return "".join(rng.choice(CODE_ALPHABET) for _ in range(4))
 
 
+HOUSE_LOCK_PAUSE = (4.0, 9.0)    # seconds a house partner takes to pick two cards, like a person would
+HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds it takes to say yes to the song
+
+
 @dataclass
 class Side:
     name: str = ""
@@ -48,6 +52,8 @@ class Side:
     hands: list[list[int]] = field(default_factory=list)   # per card round
     plays: list[list[int]] = field(default_factory=list)   # per card round
     seen: list[int] = field(default_factory=list)
+    pending: list[int] | None = None   # a house partner's next plays, waiting for their moment
+    due: float = 0.0                   # when that moment is (epoch seconds)
 
     @property
     def profile(self) -> list[str]:
@@ -105,8 +111,33 @@ class Room:
             s.plays.append([])
             s.seen += hand
             if s.house:
-                s.plays[-1] = self._house_plays(s, hand, rng)
+                s.pending = self._house_plays(s, hand, rng)
+                s.due = time.time() + (rng or random).uniform(*HOUSE_LOCK_PAUSE)
         self.log.append(f"round {self.round + 1}: dealt")
+
+    def tick(self, rng: random.Random | None = None, now: float | None = None) -> str | None:
+        """A house partner acts when its moment comes, not the instant the human does. Called on
+        every poll. Returns 'reveal' when its lock-in completed the round, 'vote' when it voted."""
+        now = time.time() if now is None else now
+        for s in self.sides.values():
+            if not s.house or now < s.due:
+                continue
+            if self.phase == "cards" and s.pending is not None:
+                s.plays[-1], s.pending = s.pending, None
+                if self.both_locked():
+                    self.reveal(rng)
+                    return "reveal"
+            if self.phase == "jukebox" and self.pick and s.pending == [] :
+                s.pending = None
+                self.vote("guest", True)      # the house always says yes to a shared song
+                return "vote"
+        return None
+
+    def house_will_vote(self, rng: random.Random | None = None) -> None:
+        """The human voted; the house answers in a few seconds."""
+        g = self.sides["guest"]
+        if g.house and "guest" not in (self.pick or {}).get("votes", {}):
+            g.pending, g.due = [], time.time() + (rng or random).uniform(*HOUSE_VOTE_PAUSE)
 
     @staticmethod
     def _house_plays(s: Side, hand: list[int], rng: random.Random | None = None) -> list[int]:
@@ -256,6 +287,11 @@ class Rooms:
                 self.rooms = pickle.loads(self.path.read_bytes())
         except Exception:
             self.rooms = {}
+        for r in self.rooms.values():           # rooms pickled before a field existed get its default
+            for side in r.sides.values():
+                for f in fields(Side):
+                    if f.name not in side.__dict__:
+                        side.__dict__[f.name] = f.default_factory() if f.default_factory is not MISSING else f.default  # type: ignore[misc]
 
     def save(self) -> None:
         try:
