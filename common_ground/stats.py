@@ -27,7 +27,8 @@ def record(room_code: str, result: dict, house: bool) -> None:
         "artist": (p.get("artist") or {}).get("name"), "played": p.get("played"),
         "attempt": p.get("attempt"), "calls": p.get("calls"), "seconds": p.get("seconds"),
         "why_source": p.get("why_source"),
-        "baseline": {k: (p.get("baseline") or {}).get(k) for k in ("guess", "verdict")} if p.get("baseline") else None,
+        "scores": p.get("scores"),
+        "baseline": {k: (p.get("baseline") or {}).get(k) for k in ("guess", "verdict", "scores")} if p.get("baseline") else None,
     }
     with _lock:
         try:
@@ -68,7 +69,26 @@ def summary() -> dict:
         "avg_calls": round(sum(r["calls"] for r in picks if r.get("calls")) / len(picks), 1) if picks else None,
         "top_artists": Counter(r["artist"] for r in picks).most_common(10),
         "top_cards": Counter(c for r in rs for v in (r.get("plays") or {}).values() for c in v).most_common(12),
-        "baseline": {"n": len(base), "holds": sum(1 for r in base if r["baseline"].get("verdict") == "holds"),
-                     "splits": sum(1 for r in base if r["baseline"].get("verdict") == "splits")},
+        "baseline": guess_vs_data(base),
         "recent": [{k: r.get(k) for k in ("t", "house", "meter", "title", "artist", "played", "attempt")} for r in rs[-15:]][::-1],
     }
+
+
+def guess_vs_data(base: list[dict]) -> dict:
+    """The control, rolled up: how often Qloo's pick out-scored a plain LLM's cold guess.
+    'both': higher for each partner. 'weaker': higher on the weaker partner's score, which is
+    the game's own criterion. Only games where both were scored count toward those two."""
+    scored = [r for r in base if r.get("scores") and (r["baseline"].get("scores") or {})]
+    both = weaker = 0
+    for r in scored:
+        ps, bs = r["scores"], r["baseline"]["scores"]
+        keys = [k for k in ps if k in bs and bs[k] is not None]
+        if len(keys) < 2:
+            continue
+        if all(ps[k] > bs[k] for k in keys):
+            both += 1
+        if min(ps[k] for k in keys) > min(bs[k] for k in keys):
+            weaker += 1
+    verdicts = Counter(r["baseline"].get("verdict") for r in base)
+    return {"n": len(base), "holds": verdicts.get("holds", 0), "splits": verdicts.get("splits", 0), "misses": verdicts.get("misses", 0),
+            "scored": len(scored), "qlou_higher_both": both, "qlou_higher_weaker": weaker}
