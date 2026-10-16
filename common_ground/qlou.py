@@ -33,8 +33,9 @@ from .qloo import Qloo, affinity, slim
 
 NO_SIGNAL = 0.765
 ARTIST = "urn:entity:artist"
-POOL_EACH = 25
-POOL_BOTH = 40
+POOL_EACH = 20
+POOL_BOTH = 30
+POOL_CAP = 50          # one scoring call per partner when Qloo is slow
 POPULARITY_MIN = 0.9
 SHORTLIST = 8
 EXTRAS_DEADLINE = 25.0   # seconds to wait for explainability, the control and the line, together
@@ -139,7 +140,7 @@ class QLou:
                 for e in ents:
                     if e.get("entity_id") and e["entity_id"] not in exclude:
                         pool.setdefault(e["entity_id"], e)
-            ids = list(pool)
+            ids = list(pool)[:POOL_CAP]
             # four names for the phones to bet on while the scoring runs: the combined call's top of the list
             bet = [slim(e)["name"] for e in pools[2][:4] if e.get("entity_id") not in exclude]
             self.step("pool", f"Pulled {len(ids)} artists from Qloo: yours, theirs, and the two of you together.", pool=len(ids), bet=bet)

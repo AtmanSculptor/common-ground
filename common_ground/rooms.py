@@ -158,9 +158,12 @@ class Room:
         """Run Q-Lou. Steps stream into self.thinking as they happen. The caller moves the phase:
         the pick may be ready while the phones are still watching the reveal."""
         attempt = (self.pick or {}).get("attempt", 0) + 1
+        rnd = self.round
         self.thinking = []
         agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append)
         p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded))
+        if self.round != rnd:
+            return None   # a new round was dealt meanwhile; this run is stale
         if p is None:
             self.log.append(f"Q-Lou came up empty on attempt {attempt}")
             return None
@@ -220,6 +223,7 @@ class Room:
             pick = {k: v for k, v in self.pick.items() if k not in ("votes", "steps")}
             pick["voted"] = {k: (k in self.pick["votes"]) for k in self.sides}
         return {"code": self.code, "phase": self.phase, "round": self.round, "rounds": CARD_ROUNDS, "sides": sides,
+                "more_allowed": self.rounds_left(), "pick_ready": bool(self.pick) and self.phase == "reveal",
                 "reveal": self.reveals[-1] if self.reveals and self.phase in ("reveal", "thinking", "jukebox", "done") else None,
                 "meter": self.meter, "thinking": self.thinking[-8:], "pick": pick, "log": self.log[-5:],
                 "result": self.result, "t": time.time()}

@@ -186,11 +186,15 @@ def _think(room: Room) -> None:
     jukebox once they press on (see game_next), or at once if they are already waiting."""
     def work():
         try:
+            rnd = room.round
             p = room.think(Qloo(timeout=25))
             with room.lock:
+                if room.round != rnd:
+                    return               # they dealt again while Q-Lou was working; that run is stale
                 if p is None:
-                    room.finish()
-                    stats.record(room.code, room.result, room.sides["guest"].house)
+                    if room.phase == "thinking":
+                        room.finish()
+                        stats.record(room.code, room.result, room.sides["guest"].house)
                 elif room.phase == "thinking":
                     room.phase = "jukebox"  # the phones were waiting; if still on the reveal, Next takes them there
         except Exception as e:
@@ -238,16 +242,15 @@ def game_answer(code: str, body: Answer):
 
 @app.post("/api/game/{code}/play")
 def game_play(code: str, body: Play):
-    """Lock in two cards. When the last hand of the last round locks, Q-Lou starts at once,
-    so the reveal animation hides most of the thinking time."""
+    """Lock in two cards. When both hands lock, Q-Lou starts at once with what it has, so the
+    reveal animation hides most of the thinking time. A later round re-runs it."""
     r = _room(code, body.who)
     think = False
     with r.lock:
         ok = r.play(body.who, body.cards)
         if ok and r.both_locked():
             r.reveal(ROOMS.rng)
-            if not r.rounds_left():
-                think = True
+            think = True
     ROOMS.save()
     if not ok:
         raise HTTPException(400, "play exactly two cards from your hand")
@@ -256,13 +259,21 @@ def game_play(code: str, body: Play):
     return {"ok": True}
 
 
+class Next(BaseModel):
+    more: bool = False   # deal another round instead of going to the song
+
+
 @app.post("/api/game/{code}/next")
-def game_next(code: str):
-    """After a reveal: the next round of cards, or on to Q-Lou (already thinking, or done)."""
+def game_next(code: str, body: Next | None = None):
+    """After a reveal: another round of cards if asked for and allowed, else on to Q-Lou
+    (already thinking, or done)."""
     r = _room(code)
+    more = bool(body and body.more)
     with r.lock:
         if r.phase == "reveal":
-            if r.rounds_left():
+            if more and r.rounds_left():
+                r.pick = None
+                r.thinking = []
                 r.deal(ROOMS.rng)
             elif r.pick:
                 r.phase = "jukebox"

@@ -57,7 +57,9 @@ def test_two_phones_full_game(client):
         for p in st["reveal"]["pairs"]:
             assert p["match"] in {"exact", "kin", "none"}
             assert "Brent" not in p["lines"]["host"] and "Josie" not in p["lines"]["guest"]  # your own phone says "You"
-        r = client.post(f"/api/game/{code}/next").json()
+        r = client.post(f"/api/game/{code}/next", json={"more": rnd == 0}).json()
+        if rnd == 0:
+            assert r["phase"] == "cards"
     assert r["phase"] in ("thinking", "jukebox")  # the fake Qloo is instant; the thread may already be done
     st = _wait_pick(client, code)
     assert st["phase"] == "jukebox"
@@ -89,7 +91,7 @@ def test_solo_against_the_house(client):
         st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
         hand = [c["id"] for c in st["sides"]["host"]["hand"]]
         client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
-        client.post(f"/api/game/{code}/next")
+        client.post(f"/api/game/{code}/next", json={"more": _ == 0})
     st = _wait_pick(client, code)
     assert st["phase"] == "jukebox"
     out = client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}).json()
@@ -103,3 +105,17 @@ def test_pages_and_health(client):
     h = client.get("/api/health").json()
     assert h["ok"] and "llm" in h
     assert client.get("/api/game/ZZZZ").status_code == 404
+
+
+def test_one_round_is_enough(client):
+    """A pair in a hurry gets a song after a single round."""
+    code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
+    _answer_all(client, code, "host")
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    hand = [c["id"] for c in st["sides"]["host"]["hand"]]
+    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    assert st["phase"] == "reveal" and st["more_allowed"] is True
+    client.post(f"/api/game/{code}/next", json={"more": False})
+    st = _wait_pick(client, code)
+    assert st["phase"] == "jukebox" and st["pick"]["artist"]["name"]

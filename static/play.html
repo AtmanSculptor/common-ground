@@ -129,7 +129,8 @@ button.pill.aa{width:auto;margin:0;padding:6px 12px;background:var(--surface);co
   <p class="sub" id="revealLabel">The reveal</p>
   <div class="meter"><i id="meter"></i></div><p class="sub" id="meterText"></p>
   <div id="pairs"></div>
-  <button id="nextBtn" onclick="next()">Next</button>
+  <button id="nextBtn" onclick="next(false)">Hear Q-Lou's pick</button>
+  <button id="moreBtn" class="ghost" onclick="next(true)">Deal another round</button>
 </section>
 
 <section class="screen" id="s-thinking">
@@ -189,7 +190,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
   if(s.phase==="cards"){if(me.locked||lockedRound===s.round){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";$("meterWait").style.width=s.meter+"%";
       const mine=(me.hand||[]).filter(c=>(me.plays||selected).includes(c.id));$("waitCards").innerHTML=mine.map(c=>cardHTML(c,"kin")).join("");show("wait");return}
     if(lastPhase!=="cards"+s.round){selected=[];renderHand(me.hand||[]);$("roundLabel").textContent=`Round ${s.round+1} of ${s.rounds}`;lastPhase="cards"+s.round}show("cards");return}
-  if(s.phase==="reveal"){if(shownReveal!==s.round){shownReveal=s.round;renderReveal(s.reveal)}show("reveal");return}
+  if(s.phase==="reveal"){if(shownReveal!==s.round){shownReveal=s.round;renderReveal(s.reveal)}$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";show("reveal");return}
   if(s.phase==="thinking"){renderSteps(s.thinking||[]);show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s.pick,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);clearInterval(timer);forget();show("done")}}
@@ -207,8 +208,8 @@ function renderReveal(rv){const them=partnerName();$("revealLabel").textContent=
     <div><div class="who">${them}</div><div class="scene"><div class="card flip ${cls}" id="fb${i}"><div class="back">?</div>${face(b)}</div></div></div></div><p class="line" id="ln${i}">${(p.lines&&p.lines[who])||p.line||""}</p>`}).join("");
   rv.pairs.forEach((p,i)=>{setTimeout(()=>{$("fa"+i).classList.add("shown");$("fb"+i).classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},400+i*900);setTimeout(()=>$("ln"+i).classList.add("shown"),1000+i*900)});
   setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`Common Ground: ${rv.meter}`},600+rv.pairs.length*900);
-  $("nextBtn").textContent=state.round+1<state.rounds?"Next round":"Hear Q-Lou's pick"}
-async function next(){try{await api(code+"/next",{});lastPhase=null;stepsShown=0;$("steps").innerHTML="";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
+  $("moreBtn").style.display=state.more_allowed?"":"none"}
+async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;stepsShown=0;$("steps").innerHTML="";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 let myBet=null;
 function renderSteps(steps){const box=$("steps");for(let i=stepsShown;i<steps.length;i++){const s=steps[i];const d=document.createElement("div");d.className="step"+(s.step==="error"?" error":"");d.innerHTML=`<b>${s.step}</b><span>${s.text}</span>`;box.appendChild(d);setTimeout(()=>d.classList.add("shown"),30+(i-stepsShown)*120);
     if(s.step==="pool"&&s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 style="margin-top:14px">${s.bet.length} of the ${s.pool} are in the running. Call it.</h2><div class="choice">${s.bet.map(n=>`<button class="ghost" onclick="placeBet(this,'${n.replace(/'/g,"\\'")}')">${n}</button>`).join("")}</div>`}}
