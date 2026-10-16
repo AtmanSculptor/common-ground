@@ -155,7 +155,8 @@ class Room:
 
     # ---- Q-Lou ---------------------------------------------------------------------------
     def think(self, q: Qloo, *, use_llm: bool = True) -> Pick | None:
-        """Run Q-Lou. Steps stream into self.thinking as they happen."""
+        """Run Q-Lou. Steps stream into self.thinking as they happen. The caller moves the phase:
+        the pick may be ready while the phones are still watching the reveal."""
         attempt = (self.pick or {}).get("attempt", 0) + 1
         self.thinking = []
         agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append)
@@ -164,7 +165,6 @@ class Room:
             self.log.append(f"Q-Lou came up empty on attempt {attempt}")
             return None
         self.pick = {**p.to_dict(), "votes": {}, "attempt": attempt, "played": None}
-        self.phase = "jukebox"
         self.log.append(f"pick {attempt}: {p.artist['name']} in {p.seconds}s, {p.calls} Qloo calls")
         return p
 

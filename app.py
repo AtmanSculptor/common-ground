@@ -181,17 +181,23 @@ def _room(code: str, who: str | None = None) -> Room:
 
 
 def _think(room: Room) -> None:
-    """Q-Lou works in a background thread so the phones keep polling and see the steps."""
+    """Q-Lou works in a background thread so the phones keep polling and see the steps.
+    It may start while the phones are still on the reveal; the phase only moves to the
+    jukebox once they press on (see game_next), or at once if they are already waiting."""
     def work():
-        with room.lock:
-            try:
-                if room.think(Qloo(timeout=25)) is None:
+        try:
+            p = room.think(Qloo(timeout=25))
+            with room.lock:
+                if p is None:
                     room.finish()
                     stats.record(room.code, room.result, room.sides["guest"].house)
-            except Exception as e:
+                elif room.phase == "thinking":
+                    room.phase = "jukebox"  # the phones were waiting; if still on the reveal, Next takes them there
+        except Exception as e:
+            with room.lock:
                 room.log.append(f"error: {e}")
                 room.finish()
-            ROOMS.save()
+        ROOMS.save()
     threading.Thread(target=work, daemon=True).start()
 
 
@@ -232,32 +238,37 @@ def game_answer(code: str, body: Answer):
 
 @app.post("/api/game/{code}/play")
 def game_play(code: str, body: Play):
+    """Lock in two cards. When the last hand of the last round locks, Q-Lou starts at once,
+    so the reveal animation hides most of the thinking time."""
     r = _room(code, body.who)
+    think = False
     with r.lock:
         ok = r.play(body.who, body.cards)
         if ok and r.both_locked():
             r.reveal(ROOMS.rng)
+            if not r.rounds_left():
+                think = True
     ROOMS.save()
     if not ok:
         raise HTTPException(400, "play exactly two cards from your hand")
+    if think:
+        _think(r)
     return {"ok": True}
 
 
 @app.post("/api/game/{code}/next")
 def game_next(code: str):
-    """After a reveal: the next round of cards, or Q-Lou starts thinking."""
+    """After a reveal: the next round of cards, or on to Q-Lou (already thinking, or done)."""
     r = _room(code)
-    think = False
     with r.lock:
         if r.phase == "reveal":
             if r.rounds_left():
                 r.deal(ROOMS.rng)
+            elif r.pick:
+                r.phase = "jukebox"
             else:
                 r.phase = "thinking"
-                think = True
     ROOMS.save()
-    if think:
-        _think(r)
     return {"ok": True, "phase": r.phase}
 
 

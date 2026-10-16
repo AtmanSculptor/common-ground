@@ -200,7 +200,7 @@ function renderReveal(rv){const them=partnerName();$("revealLabel").textContent=
     <div><div class="who">${them}</div><div class="scene"><div class="card flip ${cls}" id="fb${i}"><div class="back">?</div>${face(b)}</div></div></div></div><p class="line" id="ln${i}">${p.line}</p>`}).join("");
   rv.pairs.forEach((p,i)=>{setTimeout(()=>{$("fa"+i).classList.add("shown");$("fb"+i).classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},400+i*900);setTimeout(()=>$("ln"+i).classList.add("shown"),1000+i*900)});
   setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`Common Ground: ${rv.meter}`},600+rv.pairs.length*900);
-  $("nextBtn").textContent=state.round+1<state.rounds?"Next round":"Ask Q-Lou for the song"}
+  $("nextBtn").textContent=state.round+1<state.rounds?"Next round":"Hear Q-Lou's pick"}
 async function next(){try{await api(code+"/next",{});lastPhase=null;stepsShown=0;$("steps").innerHTML="";poll()}catch(e){}}
 function renderSteps(steps){const box=$("steps");for(let i=stepsShown;i<steps.length;i++){const s=steps[i];const d=document.createElement("div");d.className="step"+(s.step==="error"?" error":"");d.innerHTML=`<b>${s.step}</b><span>${s.text}</span>`;box.appendChild(d);setTimeout(()=>d.classList.add("shown"),30+(i-stepsShown)*120)}stepsShown=steps.length}
 function trackHTML(t,i){return `<div class="track ${i===0?"pick":""}"><img src="${t.art||""}" alt=""><div class="t"><b>${i===0?"▶ ":""}${t.track}</b><span>${t.album||""}${t.year?" · "+t.year:""}</span></div><button class="ghost" onclick="playPreview('${(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
