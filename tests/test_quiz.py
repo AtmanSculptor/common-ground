@@ -3,12 +3,12 @@ import random
 from common_ground import quiz
 
 
-def test_four_questions_then_a_profile():
+def test_the_questions_then_a_profile():
     q = quiz.Quiz()
     rng = random.Random(3)
-    for n in range(1, 5):
+    for n in range(1, quiz.ROUNDS + 1):
         qu = q.next_question(rng)
-        assert qu["n"] == n and qu["of"] == 4
+        assert qu["n"] == n and qu["of"] == quiz.ROUNDS
         assert qu["a"]["id"] != qu["b"]["id"]
         assert quiz.quizable(qu["a"]["id"]) and quiz.quizable(qu["b"]["id"])
         assert q.answer(qu["a"]["id"], qu["b"]["id"], qu["a"]["id"])

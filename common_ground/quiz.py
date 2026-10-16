@@ -15,7 +15,7 @@ from dataclasses import dataclass, field
 from .qloo import Qloo
 
 A = "urn:audience:"
-ROUNDS = 4
+ROUNDS = 3
 PROFILE_SIZE = 3
 
 # Friendlier wording for some segments.

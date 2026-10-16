@@ -164,7 +164,7 @@ details[open] summary::after{content:"–"}
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people, one jukebox. Play your cards. Q-Lou finds the song you both love.</p>
+  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. One shared credit. Q-Lou finds the song you both already like.</p>
   <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
@@ -185,15 +185,15 @@ details[open] summary::after{content:"–"}
   <div class="code" id="codeBig" onclick="copyCode()" title="Tap to copy"></div>
   <p class="sub center" id="codeHint">Your partner opens Our Song and joins with it. Tap the code to copy it.</p>
   <button class="ghost" id="shareBtn" onclick="shareCode()">Share the code</button>
-  <button id="quizEarlyBtn" onclick="quizEarly=true;poll()">Four quick questions while you wait</button>
+  <button id="quizEarlyBtn" onclick="quizEarly=true;poll()">Three quick questions while you wait</button>
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
   <p class="wait pulse" id="lobbyWaitMsg">Waiting for your partner…</p>
 </section>
 
 <section class="screen" id="s-quiz">
   <div class="joinbar" id="joinBar" style="display:none"><div class="l"><small>Code for your partner</small><b id="joinBarCode"></b></div><button class="small ghost" onclick="shareCode()">Share</button></div>
-  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou:</b> Four quick ones, then the cards. Which is more you?</p></div>
-  <p class="sub" id="qn">1 of 4</p>
+  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou:</b> Three quick ones, then the cards. Which is more you?</p></div>
+  <p class="sub" id="qn">1 of 3</p>
   <div class="tiles"><button class="tile" id="qa"></button><button class="tile" id="qb"></button></div>
   <button class="ghost" id="qn0">Neither, really</button>
 </section>
@@ -226,7 +226,8 @@ details[open] summary::after{content:"–"}
   <p class="song-artist" id="artist"></p>
   <p class="song-album" id="album"></p>
   <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p id="why"></p></div>
-  <h1 class="center" style="margin-top:18px" id="askPlay">Play it for a credit?</h1>
+  <p class="center" id="proof" style="margin:8px 0 0;font-size:.95rem;color:var(--text2)"></p>
+  <h1 class="center" style="margin-top:14px" id="askPlay">Play it for a credit?</h1>
   <p class="center" style="margin:0 0 4px;font-size:.95rem;color:var(--text2)">Both of you say yes and it plays. One credit, shared.</p>
   <button class="big" id="yesBtn" onclick="vote(true)">Play it <svg class="coin"><use href="#coin"/></svg></button>
   <button class="ghost" id="noBtn" onclick="vote(false)">Try another</button>
@@ -362,23 +363,24 @@ function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"
   setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},700+rv.pairs.length*800)}
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;saidStep=-1;$("say").textContent="Listening to both of you.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice on the thinking screen. The raw steps stay behind a fold on the done screen; the pick is never named here.
-function sayFor(s){switch(s.step){case"read":return"Reading your cards.";case"draft":return`Narrowing ${s.pool?Number(s.pool).toLocaleString():"the"} artists.`;case"pool":return`Pulling ${s.pool||"the"} artists from Qloo.`;
-    case"score":return"Scoring them for each of you.";case"verify":return"Checking with Qloo.";case"compare":return"Comparing your two tastes.";case"curve":return"Grading on a curve.";case"pick":return"Got it.";case"error":return"Qloo is slow tonight. Hang on.";default:return null}}
+function sayFor(s){switch(s.step){case"read":return"Turning your cards into Qloo signals.";case"draft":return`Ranking ${s.pool?Number(s.pool).toLocaleString():"the"} artists Qloo scored for each of you.`;case"pool":return`Pulling ${s.pool||"the"} artists from Qloo for each of you.`;
+    case"score":return"Qloo is scoring every one of them, for you and for your partner.";case"verify":return"Checking the top three live with Qloo.";case"compare":return"Comparing your two tastes.";case"curve":return"Grading each of you on a curve.";case"pick":return"Got it. The weaker score decides.";case"error":return"Qloo is slow tonight. Hang on.";default:return null}}
 function renderThinking(steps){for(let i=saidStep+1;i<steps.length;i++){const s=steps[i];const line=sayFor(s);if(line){$("say").textContent=line}
     if(s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 class="center" style="margin-top:14px">Four are in the running. Which one will Q-Lou pick?</h2><div class="bet">${s.bet.map(n=>`<button onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`}}
   saidStep=steps.length-1}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.classList.add("chosen")}
 function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" alt=""><div class="t"><b>${esc(t.track)}</b><span>${esc(t.album||"")}${t.year?" · "+esc(t.year):""}</span></div><button class="ghost" onclick="playPreview('${esc(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
-function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+p.why_source;const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
+function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+p.why_source+":"+(p.baseline?p.baseline.guess:"");const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
-    $("betVerdict").textContent=p.attempt>1?"Second pick, last one tonight":(myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with"):"Q-Lou's pick for the two of you");
+    $("betVerdict").textContent=p.attempt>1?"Second pick, last one tonight":(myBet?(myBet===p.artist.name?"You called it. Q-Lou tips the coin.":"You said "+myBet+". Q-Lou smirks and goes with"):"Q-Lou's pick for the two of you");
     $("noBtn").textContent=p.attempt>1?"Not tonight":"Try another";
     $("art").innerHTML=artHTML(t0);
     $("songTitle").textContent=t0?t0.track:p.artist.name;
     $("artist").textContent=t0?p.artist.name:"";
     $("album").textContent=t0?`${t0.album||""}${t0.year?" · "+t0.year:""}`:`No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.`;
     $("why").innerHTML="<b>Q-Lou:</b> "+esc(p.why);
+    const g=p.baseline&&p.baseline.guess;$("proof").textContent=`Q-Lou asked Qloo. You ${Math.round((p.scores[who]||0)*100)}, ${them} ${Math.round((p.scores[theirKey]||0)*100)}.`+(g?(g===p.artist.name?` A plain model guessed the same.`:` A plain model guessed ${g}.`):"");
     $("scores").innerHTML=`<span class="pill">Fit: you ${Math.round((p.scores[who]||0)*100)}</span><span class="pill">${esc(them)} ${Math.round((p.scores[theirKey]||0)*100)}</span>`;
     $("moreTitle").textContent=`More by ${p.artist.name}`;$("moreBox").style.display=p.tracks&&p.tracks.length>1?"":"none";
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?p.tracks.slice(1).map(trackHTML).join(""):"";

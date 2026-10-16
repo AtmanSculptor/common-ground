@@ -7,9 +7,11 @@ from fastapi.testclient import TestClient
 
 
 def _answer_all(client, code, who):
-    for _ in range(4):
+    while True:
         st = client.get(f"/api/game/{code}", params={"who": who}).json()
-        q = st["question"]
+        q = st.get("question")
+        if not q:
+            return
         client.post(f"/api/game/{code}/answer", json={"who": who, "a": q["a"]["id"], "b": q["b"]["id"], "chose": q["a"]["id"]})
 
 

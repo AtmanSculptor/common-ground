@@ -16,9 +16,9 @@ Words that matter: it is a challenge you do together, and the other person is yo
 
 ## Running a game
 
-1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold. While they open the page, tap "Four quick questions while you wait" and answer yours.
+1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold. While they open the page, tap "Three quick questions while you wait" and answer yours.
 2. They open the same link, tap "Join with a code", type the code. Or tap "Share the code" and send them the link; it joins them straight in.
-3. Four quick "which is more you" taps each.
+3. Three quick "which is more you" taps each.
 4. Each of you drags (or taps) the two cards that are most you up onto your side of the table. Their cards show face-down across from yours as they place them. Lock it in.
 5. The reveal: cards flip, a line about the two of you, the meter moves.
 6. "Deal another round" if you want more cards in the mix (better pick, one more minute), or "Hear Q-Lou's pick".
