@@ -184,7 +184,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
       $("qa").onclick=()=>answer(q,q.a.id);$("qb").onclick=()=>answer(q,q.b.id);$("qn0").onclick=()=>answer(q,null);show("quiz")}
     else{$("waitMsg").textContent="Waiting for "+partnerName()+" to finish the questions…";$("meterWait").style.width=s.meter+"%";show("wait")}return}
   if(s.phase==="cards"){if(me.locked||lockedRound===s.round){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";$("meterWait").style.width=s.meter+"%";
-      const mine=(me.hand||[]).filter(c=>(me.plays||selected).includes(c.id));$("waitCards").innerHTML=mine.map(c=>cardHTML(c,"sel")).join("");show("wait");return}
+      const mine=(me.hand||[]).filter(c=>(me.plays||selected).includes(c.id));$("waitCards").innerHTML=mine.map(c=>cardHTML(c,"kin")).join("");show("wait");return}
     if(lastPhase!=="cards"+s.round){selected=[];renderHand(me.hand||[]);$("roundLabel").textContent=`Round ${s.round+1} of ${s.rounds}`;lastPhase="cards"+s.round}show("cards");return}
   if(s.phase==="reveal"){if(shownReveal!==s.round){shownReveal=s.round;renderReveal(s.reveal)}show("reveal");return}
   if(s.phase==="thinking"){renderSteps(s.thinking||[]);show("thinking");return}
