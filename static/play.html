@@ -389,7 +389,7 @@ function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.sr
 async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;poll()}catch(e){alert(e.message)}}
 function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick;const t=p&&p.tracks&&p.tracks[0];const names=Object.keys(r.plays||{});
   if(p&&p.played){$("creditN").textContent="4"}
-  $("doneKicker").textContent=p&&p.artist?(p.played?"You both said yes.":"Not this time."):"No song tonight.";
+  $("doneKicker").textContent=p&&p.artist?(p.played?"You both said yes.":"Not this time. Q-Lou will remember."):"Nothing landed tonight. The jukebox is still yours.";
   heroUrl=t&&t.preview||"";$("doneArt").innerHTML=artHTML(t);$("doneArt").style.display=p&&p.artist?"":"none";
   $("doneTitle").textContent=p&&p.artist?(t?t.track:p.artist.name):"";
   $("doneArtist").textContent=p&&p.artist&&t?p.artist.name:"";

@@ -1,10 +1,10 @@
 # Pub night: how to run it
 
-One page. Read it once before you go. Big text on the phone: tap "Aa".
+One page. Read it once before you go.
 
 ## Before you leave
 
-1. Open https://boostersplace.com/bt/app/ on your phone and play one solo game ("Play solo with Q-Lou") to make sure it is up. Five seconds to a song is normal.
+1. Open https://boostersplace.com/bt/app/ on your phone and play one solo game ("Try it solo": Q-Lou seats you with a house partner who plays on a human clock) to make sure it is up. Five seconds to a song is normal.
 2. Tell BT "clean slate" and the results page starts at zero for the night (the old test games are archived, not lost).
 3. Charge the phone. Bring a second phone or let a friend use theirs; any phone with a browser works, no install.
 
@@ -16,14 +16,14 @@ Words that matter: it is a challenge you do together, and the other person is yo
 
 ## Running a game
 
-1. You tap "Start a challenge" and type your first name. Your room code shows big and gold. While they open the page, tap "Four quick questions while you wait" and answer yours.
+1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold. While they open the page, tap "Four quick questions while you wait" and answer yours.
 2. They open the same link, tap "Join with a code", type the code. Or tap "Share the code" and send them the link; it joins them straight in.
 3. Four quick "which is more you" taps each.
-4. Each of you picks the two cards that are most you. Your first pick leads. Lock it in.
+4. Each of you drags (or taps) the two cards that are most you up onto your side of the table. Their cards show face-down across from yours as they place them. Lock it in.
 5. The reveal: cards flip, a line about the two of you, the meter moves.
 6. "Deal another round" if you want more cards in the mix (better pick, one more minute), or "Hear Q-Lou's pick".
-7. While Q-Lou thinks, four names come up: call it. Then the song, the 30 second preview (tap the album art), and "Play it for a credit?". Both say yes and it is your song. "Try another" and Q-Lou picks again with that artist out.
-8. The done screen is the keepsake. "Save it" shares it. "Play again" for the next pair.
+7. While Q-Lou thinks, four names come up: call it. Then the song, the 30 second preview (tap the album art), and "Play it for a credit?". Both say yes and it is your song. "Try another" and Q-Lou picks once more with that artist out; if the second pick is not a yes from both, the night moves on.
+8. The done screen is the keepsake: both names, all four cards, the song, the bar, the date, and "You share: Soul, Indie rock" from Qloo. "Save it" shares it. "Play again" for the next pair.
 
 ## What to watch for (write it down, this is the evidence)
 

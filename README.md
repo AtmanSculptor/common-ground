@@ -94,7 +94,7 @@ cp .env.example .env        # QLOO_API_KEY required; OPENROUTER_API_KEY optional
 uvicorn app:app --host 0.0.0.0 --port 8080
 ```
 
-Open `/` on two phones, or one with "Demo with a stranger": Q-Lou seats you with a house partner who has a real Qloo profile and picks cards and says yes on a human clock. `/deck` shows the cards, `/stats` the results, `/organize` the older organizer.
+Open `/` on two phones, or one with "Try it solo": Q-Lou seats you with a house partner who has a real Qloo profile and picks cards and says yes on a human clock. `/deck` shows the cards, `/stats` the results, `/organize` the older organizer.
 
 Tests: `pip install -r requirements-dev.txt && python -m pytest -q`.
 
