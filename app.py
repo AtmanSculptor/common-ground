@@ -157,6 +157,22 @@ def admin_search(request: Request, q: str):
             "hits": [{"name": h.get("name"), "id": h.get("entity_id"), "types": h.get("types"), "popularity": h.get("popularity")} for h in hits]}
 
 
+class ExtendIn(BaseModel):
+    names: list[str] = Field(default_factory=list)
+
+
+@app.post("/api/admin/matrix/extend")
+def matrix_extend(request: Request, body: ExtendIn):
+    """Maintenance: add outside names to the built matrix without a rebuild. Loopback only, synchronous
+    (one call per card plus one search per name: under a minute for a few dozen names)."""
+    _local_only(request)
+    if _matrix_job["status"] == "running":
+        raise HTTPException(409, "a build is running")
+    log: list[dict] = []
+    out = matrix.extend(Qloo(timeout=60), body.names, on_progress=log.append)
+    return {**out, "log": log[-3:]}
+
+
 @app.get("/api/admin/matrix")
 def matrix_status(request: Request):
     _local_only(request)

@@ -286,7 +286,7 @@ class QLou:
                 self.step("curve", "Qloo had no signal for either of you on anything in the pool.")
                 return None
             ca, cb = _curve({i: ra[i] for i in keep}), _curve({i: rb[i] for i in keep})
-            ranked = sorted(keep, key=lambda i: (-min(ca[i], cb[i]), abs(ca[i] - cb[i])))
+            ranked = sorted(keep, key=lambda i: matrix.rank_key(min(ca[i], cb[i]), abs(ca[i] - cb[i]), pool[i].get("popularity")))
             top = ranked[0]
             artist = slim(pool[top])
             self.step("curve", f"Graded on a curve for each of you. {len(keep)} artists had a real signal for both.")

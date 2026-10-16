@@ -21,7 +21,7 @@ def test_build_then_draft_needs_no_calls(fake_qloo, tmp_path, monkeypatch):
     ranked = matrix.draft(m, [cards[0]["id"], cards[1]["id"]], [cards[2]["id"], cards[3]["id"]])
     assert fake_qloo.calls == calls_before
     assert ranked and ranked[0]["name"] and 0 <= ranked[0]["a"] <= 1 and 0 <= ranked[0]["b"] <= 1
-    assert min(ranked[0]["a"], ranked[0]["b"]) >= min(ranked[-1]["a"], ranked[-1]["b"])
+    assert min(ranked[0]["a"], ranked[0]["b"]) >= min(ranked[-1]["a"], ranked[-1]["b"]) - 0.01   # ties within a point go to popularity
 
 
 def test_build_resumes_from_a_checkpoint(fake_qloo, tmp_path):
@@ -52,6 +52,10 @@ def test_qlou_drafts_from_the_matrix_and_verifies_live(fake_qloo, tmp_path, monk
     assert "draft" in names and "verify" in names and "pool" not in names
     bet = next(s for s in p.steps if s["step"] == "draft")["bet"]
     assert p.artist["name"] in bet
+
+
+def test_extend_route_is_loopback_only(client):
+    assert client.post("/api/admin/matrix/extend", json={"names": ["Adele"]}, headers={"x-forwarded-for": "8.8.8.8"}).status_code == 403
 
 
 def test_matrix_route_is_loopback_only(client):
@@ -160,3 +164,31 @@ def test_partial_coverage_does_not_outrank_full_coverage():
     assert abs(ps["half"] - (0.99 + 0.99 + 0.9 + 0.9) / 4) < 1e-9   # the two silent cards count as their floor, not as nothing
     assert ps["full"] == 0.9 and ps["half"] < 0.99
     assert matrix.partner_scores(m, [3, 4]) == {"full": 0.9}            # below half coverage: not ranked
+
+
+def test_within_a_point_the_better_known_artist_wins():
+    k = matrix.rank_key
+    assert sorted(["obscure", "famous"], key=lambda n: k(0.99, 0.0, 0.97) if n == "obscure" else k(0.987, 0.0, 0.9999))[0] == "famous"
+    assert sorted(["obscure", "famous"], key=lambda n: k(0.99, 0.0, 0.97) if n == "obscure" else k(0.90, 0.0, 0.9999))[0] == "obscure"
+
+
+def test_resolver_forgives_spelling_and_refuses_collaborations(fake_qloo, monkeypatch):
+    assert matrix._norm("Lil' Wayne") == "lil wayne" and matrix._norm("Dan + Shay") == "dan shay" and matrix._norm("Carin León") == "carin leon"
+    hits = {"Lil Wayne": [{"entity_id": "x1", "name": "Lil Wayne & Drake", "popularity": 0.93},
+                          {"entity_id": "x2", "name": "Lil' Wayne", "popularity": 0.999}],
+            "Selena Gomez": [{"entity_id": "x3", "name": "Selena Gomez & the Scene", "popularity": 0.99}]}
+    monkeypatch.setattr(fake_qloo, "search", lambda q, types=None, take=5: hits.get(q, []))
+    assert matrix._resolve_seed(fake_qloo, "Lil Wayne")["id"] == "x2"
+    assert matrix._resolve_seed(fake_qloo, "Selena Gomez") is None
+
+
+def test_extend_adds_new_names_and_scores_them_on_every_card(fake_qloo, tmp_path):
+    out = tmp_path / "matrix.json"
+    cards = list(deck.cards())[:3]
+    matrix.build(fake_qloo, out=out, cards=cards, seeds=["Adele"])
+    matrix._cache = None
+    r = matrix.extend(fake_qloo, ["Adele", "Brand New Band", "Nobody Here"], path=out)   # the fake's card pools already hold Shakira
+    assert r["added"] == ["Brand New Band"] and r["dropped"] == ["Nobody Here"]
+    m = json.loads(out.read_text())
+    assert "id:Brand New Band" in m["entities"] and all("id:Brand New Band" in col for col in m["scores"].values())
+    assert m["seeds"]["dropped"] == ["Nobody Here"] and m.get("extended")

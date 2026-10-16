@@ -20,8 +20,10 @@ from __future__ import annotations
 import json
 import os
 import pathlib
+import re
 import threading
 import time
+import unicodedata
 from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Callable
 
@@ -38,6 +40,7 @@ POOL_CAP = 2000         # the pool, most popular first
 POPULARITY_MIN = 0.9    # Qloo popularity is a percentile: the top tenth of artists
 PAGE = 50               # Qloo's page size for the pool pull
 BATCH = 50              # artists per scoring call
+SEARCH_TAKE = 20        # search hits to look through for an outside name (collaborations crowd the top)
 WORKERS = 4             # Qloo calls in flight at once while building
 RETRIES = 4             # tries per scoring batch before it is written off as a hole
 RETRY_PAUSE = 5.0       # seconds before the second try; doubles each time
@@ -101,8 +104,15 @@ def draft(m: dict, a_cards: list[int], b_cards: list[int], exclude: set[str] | N
     if not keep:
         return []
     ca, cb = _curve({e: ra[e] for e in keep}), _curve({e: rb[e] for e in keep})
-    ranked = sorted(keep, key=lambda e: (-min(ca[e], cb[e]), abs(ca[e] - cb[e])))
+    ranked = sorted(keep, key=lambda e: rank_key(min(ca[e], cb[e]), abs(ca[e] - cb[e]), m["entities"][e].get("popularity")))
     return [{"id": e, "name": m["entities"][e]["name"], "a": ca[e], "b": cb[e], "entity": m["entities"][e]} for e in ranked[:top]]
+
+
+def rank_key(weaker: float, gap: float, popularity: float | None) -> tuple:
+    """The weaker partner's curved score decides. Within one point of each other, Qloo cannot tell
+    two artists apart for this pair, so the one more people know wins (a jukebox is for a room),
+    then the smaller gap between the two partners."""
+    return (-round(weaker, 2), -(popularity or 0), gap)
 
 
 # ---- building ------------------------------------------------------------------------------
@@ -135,12 +145,21 @@ def _pull_card_pool(q: Qloo, card: dict, per_card: int, popularity_min: float) -
     return list(out.values())
 
 
+def _norm(name: str) -> str:
+    """'Lil\' Wayne', 'Dan + Shay', 'Carin León' -> 'lil wayne', 'dan shay', 'carin leon'."""
+    flat = "".join(ch for ch in unicodedata.normalize("NFKD", name) if not unicodedata.combining(ch))
+    return " ".join(re.sub(r"[^a-z0-9 ]", " ", flat.lower()).split())
+
+
 def _resolve_seed(q: Qloo, name: str) -> dict | None:
-    """One outside name -> the Qloo artist entity, or None when Qloo has never met them."""
-    for r in q.search(name, types=ARTIST, take=3):
-        if r.get("entity_id") and r.get("name", "").strip().lower() == name.lower():
-            return slim(r) | {"id": r["entity_id"]}
-    return None
+    """One outside name -> the Qloo artist entity with that exact name (spelling aside), the best
+    known one if several, or None when Qloo has never met them. Collaborations never stand in."""
+    want = _norm(name)
+    hits = [r for r in q.search(name, types=ARTIST, take=SEARCH_TAKE) if r.get("entity_id") and _norm(r.get("name", "")) == want]
+    if not hits:
+        return None
+    best = max(hits, key=lambda r: float(r.get("popularity") or 0))
+    return slim(best) | {"id": best["entity_id"]}
 
 
 def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path | None = None,
@@ -261,3 +280,52 @@ def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path 
         pass
     progress("done", artists=len(ids), seconds=round(time.time() - state["started"], 1))
     return m
+
+
+def extend(q: Qloo, names: list[str], *, path: pathlib.Path | None = None, popularity_min: float = POPULARITY_MIN,
+           on_progress: Callable[[dict], None] | None = None) -> dict:
+    """Add outside names to the built matrix: resolve them, score the new ones against every card
+    (one call per card), merge, write. The way new artists join after launch."""
+    path = path or FILE
+    m = load(path)
+    if not m:
+        raise RuntimeError("no matrix to extend")
+    names = list(dict.fromkeys(" ".join(n.split()) for n in names if n.strip()))
+    found: dict[str, dict] = {}
+    dropped: list[str] = []
+    for n in names:
+        e = _resolve_seed(q, n)
+        if e and (e.get("popularity") or 0) >= popularity_min:
+            found[n] = e
+        else:
+            dropped.append(n)
+    new = {e["id"]: e for e in found.values() if e["id"] not in m["entities"]}
+    if on_progress:
+        on_progress({"stage": "resolve", "wanted": len(names), "found": len(found), "new": len(new), "dropped": dropped})
+    ids = list(new)
+    cards = list(deck.cards())
+    for c in cards:
+        col = dict(m["scores"].get(str(c["id"]), {}))
+        for i in range(0, len(ids), BATCH):
+            try:
+                for e in q.insights(ARTIST, result_entities=ids[i:i + BATCH], take=len(ids[i:i + BATCH]), **c["signal"]):
+                    v = affinity(e)
+                    if abs(v - NO_SIGNAL) > 1e-6:
+                        col[e["entity_id"]] = round(v, 4)
+            except Exception as e:
+                if on_progress:
+                    on_progress({"stage": "score-error", "card": c["name"], "error": str(e)[:160]})
+        m["scores"][str(c["id"])] = col
+    for i, e in new.items():
+        m["entities"][i] = {k: e.get(k) for k in ("name", "popularity", "tags")}
+    seeds = m.setdefault("seeds", {"wanted": 0, "found": 0, "dropped": []})
+    still = [n for n in seeds.get("dropped", []) if n not in found]
+    seeds.update({"found": seeds.get("found", 0) + sum(1 for n in found if n in seeds.get("dropped", [])),
+                  "dropped": sorted(set(still) | {n for n in dropped if n not in found})})
+    m["extended"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(m, separators=(",", ":")), encoding="utf-8")
+    os.replace(tmp, path)
+    if on_progress:
+        on_progress({"stage": "done", "added": len(new), "artists": len(m["entities"])})
+    return {"added": [e["name"] for e in new.values()], "dropped": dropped, "artists": len(m["entities"])}
