@@ -364,7 +364,9 @@ class QLou:
             if t.get("name") and score > 0:
                 out.append({"name": t["name"], "score": round(score, 3), "genre": str(t.get("subtype", "")).endswith("genre:music")})
         out.sort(key=lambda x: (not x["genre"], -x["score"]))
-        out = [{"name": x["name"], "score": x["score"]} for x in out[:4]]
+        seen: set[str] = set()
+        out = [{"name": x["name"], "score": x["score"]} for x in out
+               if not (x["name"].lower() in seen or seen.add(x["name"].lower()))][:4]   # the same tag comes back under two ids
         if out:
             self.step("compare", f"What {a.name} and {b.name} share, by Qloo's compare: " + ", ".join(x["name"] for x in out) + ".")
         return out

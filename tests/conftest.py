@@ -63,7 +63,8 @@ class FakeQloo:
         self.calls += 1
         return {"results": {"tags": [{"name": "Soul", "subtype": "urn:tag:genre:music", "query": {"score": 0.88}},
                                      {"name": "Live Music", "subtype": "urn:tag:keyword:media", "query": {"score": 0.91}},
-                                     {"name": "Indie Rock", "subtype": "urn:tag:genre:music", "query": {"score": 0.61}}]}}
+                                     {"name": "Indie Rock", "subtype": "urn:tag:genre:music", "query": {"score": 0.61}},
+                                     {"name": "Soul", "subtype": "urn:tag:keyword:media", "query": {"score": 0.60}}]}}
 
     def search(self, query, types=None, take=5):
         self.calls += 1
