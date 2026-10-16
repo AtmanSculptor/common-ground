@@ -30,8 +30,8 @@ PLAYED_BONUS = 5
 ROOM_TTL = 6 * 3600
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"
 
-TITLES = [(90, "Common Ground, Fully Claimed"), (70, "Same Page, Different Chapters"),
-          (50, "Neighbors on the Same Street"), (30, "Different Roads, Same Town"), (0, "Opposites, Attracting")]
+TITLES = [(90, "Fully in tune"), (70, "Same page, different chapters"),
+          (50, "Neighbors on the same street"), (30, "Different roads, same town"), (0, "Opposites, attracting")]
 
 
 def make_code(rng: random.Random | None = None) -> str:

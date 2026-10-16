@@ -1,5 +1,12 @@
 # Brief: the feel layer for Our Song (branch `feel`, file `static/play.html` only)
 
+Start from the current `main` (pull first): `static/play.html` was reworked on Oct 16 after a design
+review. The screens you touch are now: the hand (`#hand`, cards `.card` with `.sel`), the reveal
+(`.card.flip` with `.back` and `.face`; the flip bug is fixed, do not reintroduce `overflow:hidden`
+on `.card.flip`), the thinking screen (Q-Lou at card size in `.qlou-big`, one line in `#say`, the
+bet in `#bet`), the jukebox (`#art` is the album art and the play button, `#yesBtn` is "Play it"),
+and the done screen (`#doneArt`). The small Q-Lou thumbnail in `.qlou` boxes is a secondary spot.
+
 Scope: five animations plus sound, in `static/play.html` and nothing else. No framework, no
 build step, no new files except small audio clips under `static/sfx/` (synthesize them with the
 Web Audio API if you can; otherwise tiny royalty-free clips, credited in README). Keep the page
@@ -14,11 +21,15 @@ Do these, in order, and stop when they are done:
    and a gold particle burst (canvas overlay, ~40 sparks, 700 ms) on the matched pair only.
 2. Hand: cards fan slightly (rotate the six around a shared pivot, 3 to 4 degrees each) and lift on
    touch (`translateY(-24px) scale(1.1)`, 150 ms ease-out). Tapping still selects; no drag needed.
-3. Tilt with parallax on the Q-Lou card (the `.qlou img` on the thinking and pick screens) and on
-   the hero track art: pointer-tracked on desktop, gyro on phones (DeviceOrientation, with the iOS
-   permission request inside the first tap). Low-pass the readings; first reading is neutral.
-4. Lock-in button: squash-and-stretch press (`scale(.96)` 80 ms, back with overshoot) and a radial
-   ring burst; on the partner's phone a banner slides down from the top bar: "<name> locked in".
+3. Tilt with parallax on the big Q-Lou card (`.qlou-big .card` on the lobby, room code, waiting and
+   thinking screens) and on the album art (`#art`, `#doneArt`): pointer-tracked on desktop, gyro on
+   phones (DeviceOrientation, with the iOS permission request inside the first tap). Low-pass the
+   readings; first reading is neutral. Q-Lou's flames may drift slowly on their own (a 6 s loop of
+   a few pixels of translate on the image) so the card never sits dead still.
+4. Lock-in button (`#lockBtn`): squash-and-stretch press (`scale(.96)` 80 ms, back with overshoot)
+   and a radial ring burst; on the partner's phone a banner slides down from the top bar:
+   "<name> locked in". "Play it" (`#yesBtn`) gets the same press plus a coin-drop: the coin in the
+   button falls into the credits pill and the count ticks from 5 to 4.
 5. Sound: five short cues, generated with the Web Audio API (no files if possible): card lift (soft
    tick), lock in (two-note), reveal flip (whoosh), exact match (chime), "Play it" (short stinger).
    AudioContext unlocked on the first tap. A mute toggle in the top bar next to "Aa".

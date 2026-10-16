@@ -10,24 +10,24 @@ h1{font-weight:800;font-size:1.7rem;letter-spacing:-.02em;margin:6px 0}h2{font-w
 .sub{color:var(--text3)}.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
 .tile{background:var(--surface);border-radius:var(--r);padding:14px}.tile b{display:block;font-size:1.9rem;font-weight:800;color:var(--gold);line-height:1}.tile span{color:var(--text3);font-size:.85rem}
 .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:.95rem}.row span:last-child{color:var(--text3)}
-a{color:var(--text3)}.sizer{position:fixed;right:10px;bottom:10px;display:flex;gap:6px}.sizer button{width:40px;height:40px;border-radius:50%;border:0;background:var(--surface);color:#fff;font-size:1.2rem}
+a{color:var(--text3)}.top{display:flex;justify-content:space-between;align-items:center}.pill{background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem;color:#DDD;border:0;font-family:inherit}
 </style></head><body>
-<h1>Results so far</h1>
+<div class="top"><h1>Results so far</h1><button class="pill" onclick="bump()" title="Bigger text">Aa</button></div>
 <p class="sub">Every game Q-Lou has played. Nothing personal is kept: first names, cards, the pick, and whether it played. <a href="play">Back to the game</a></p>
 <div class="tiles" id="tiles"></div>
-<h2>Guess vs. data</h2><div id="base" class="sub"></div>
+<h2>Guess, then data</h2><div id="base" class="sub"></div>
 <h2>Songs Q-Lou picked most</h2><div id="artists"></div>
 <h2>Cards played most</h2><div id="cards"></div>
 <h2>Recent games</h2><div id="recent"></div>
-<div class="sizer"><button onclick="bump(-1)">−</button><button onclick="bump(1)">+</button></div>
 <script>
 fetch("api/stats?_="+Date.now()).then(r=>r.json()).then(s=>{
   const t=(v,l)=>`<div class="tile"><b>${v==null?"–":v}</b><span>${l}</span></div>`;
-  document.getElementById("tiles").innerHTML=t(s.games,"games")+t(s.with_partner,"with a partner")+t(s.songs_played,"songs played")+t(s.play_rate==null?null:Math.round(s.play_rate*100)+"%","said yes to the song")+t(s.first_try,"yes on the first pick")+t(s.avg_meter,"average Common Ground")+t(s.avg_seconds==null?null:s.avg_seconds+"s","Q-Lou's thinking time")+t(s.avg_calls,"Qloo calls per pick");
+  document.getElementById("tiles").innerHTML=t(s.games,"games")+t(s.with_partner,"with a partner")+t(s.songs_played,"songs played")+t(s.play_rate==null?null:Math.round(s.play_rate*100)+"%","said yes to the song")+t(s.first_try,"yes on the first pick")+t(s.avg_meter,"average in common")+t(s.avg_seconds==null?null:s.avg_seconds+"s","Q-Lou's thinking time")+t(s.avg_calls,"Qloo calls per pick");
   const b=s.baseline;document.getElementById("base").textContent=b.n?`${b.n} games had a plain-LLM guess scored by Qloo: ${b.holds} held up, ${b.splits} would have split the two people, ${b.misses} missed both.`+(b.scored?` In ${b.scored} games with both scored, Q-Lou's pick out-scored the cold guess for both partners ${b.qlou_higher_both} times (${Math.round(100*b.qlou_higher_both/b.scored)}%) and on the weaker partner's score, the game's own test, ${b.qlou_higher_weaker} times (${Math.round(100*b.qlou_higher_weaker/b.scored)}%).`:""):"No scored guesses yet.";
   document.getElementById("artists").innerHTML=s.top_artists.map(([n,c])=>`<div class="row"><span>${n}</span><span>${c}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
   document.getElementById("cards").innerHTML=s.top_cards.map(([n,c])=>`<div class="row"><span>${n}</span><span>${c}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
-  document.getElementById("recent").innerHTML=s.recent.map(r=>`<div class="row"><span>${new Date(r.t*1000).toLocaleString()} ${r.house?"(solo)":""}</span><span>${r.artist||"no pick"} · ${r.played?"played":"skipped"} · ${r.meter}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
+  document.getElementById("recent").innerHTML=s.recent.map(r=>`<div class="row"><span>${when(r.t)} ${r.house?"(solo)":""}</span><span>${r.artist||"no pick"} · ${r.played?"played":"skipped"} · ${r.meter}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
 }).catch(()=>{document.getElementById("tiles").innerHTML="<p class='sub'>Could not load results.</p>"});
-function bump(d){const r=document.documentElement;const cur=parseFloat(getComputedStyle(r).fontSize);r.style.fontSize=Math.max(15,Math.min(30,cur+2*d))+"px"}
+const SIZES=[19,22,25,17];let sizeIx=0;function bump(){sizeIx=(sizeIx+1)%SIZES.length;document.documentElement.style.fontSize=SIZES[sizeIx]+"px"}
+function when(t){const d=new Date(t*1000),now=new Date();const time=d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});const day=d.toDateString()===now.toDateString()?"Today":d.toLocaleDateString(undefined,{month:"short",day:"numeric"});return `${day}, ${time}`}
 </script></body></html>
