@@ -1,0 +1,3699 @@
+{
+ "sources": [
+  {
+   "id": "touchtunes-2015",
+   "name": "TouchTunes 2015 Year-End Charts (via KMTS)",
+   "url": "https://www.kmts.com/country-music-news/country-still-rules-the-jukebox-according-to-touchtunes-year-end-tallies"
+  },
+  {
+   "id": "touchtunes-2016",
+   "name": "TouchTunes 2016 Year-End Charts",
+   "url": "https://www.touchtunes.com/2016yearendchartspress"
+  },
+  {
+   "id": "touchtunes-2017",
+   "name": "TouchTunes 2017 Year-End Charts",
+   "url": "https://www.touchtunes.com/2017yearendchartspress"
+  },
+  {
+   "id": "touchtunes-2018",
+   "name": "TouchTunes 2018 Year-End Charts",
+   "url": "https://www.touchtunes.com/2018yearendchartspress"
+  },
+  {
+   "id": "touchtunes-wisconsin-2019",
+   "name": "TouchTunes Wisconsin top 10 by year, 2015-2019 (via WPR)",
+   "url": "https://www.wpr.org/music/data-reveals-top-songs-played-wisconsin-jukeboxes-2019"
+  },
+  {
+   "id": "touchtunes-2020",
+   "name": "TouchTunes 2020 Year-End Charts (via RePlay Magazine)",
+   "url": "https://www.replaymag.com/touchtunes-releases-2020-end-of-year-jukebox-charts/"
+  },
+  {
+   "id": "touchtunes-2021",
+   "name": "TouchTunes 2021 Year-End Charts",
+   "url": "https://www.touchtunes.com/2021yearendcharts"
+  },
+  {
+   "id": "touchtunes-2022",
+   "name": "TouchTunes 2022 Year-End Charts",
+   "url": "https://www.touchtunes.com/2022yearendcharts"
+  },
+  {
+   "id": "touchtunes-2023",
+   "name": "TouchTunes 2023 Year-End Charts",
+   "url": "https://www.touchtunes.com/2023yearendcharts"
+  },
+  {
+   "id": "touchtunes-2024",
+   "name": "TouchTunes 2024 Year-End Charts",
+   "url": "https://www.touchtunes.com/hot-new/2024-year-end-charts"
+  },
+  {
+   "id": "touchtunes-2024-top50",
+   "name": "TouchTunes 2024 top 50 most-played songs (Billboard)",
+   "url": "https://www.billboard.com/music/chart-beat/shaboozey-bar-song-tipsy-morgan-wallen-2024-year-end-touchtunes-rankings-1235850545/"
+  },
+  {
+   "id": "touchtunes-philadelphia-2024",
+   "name": "TouchTunes 2024 Philadelphia and Pennsylvania charts (Philadelphia Inquirer)",
+   "url": "https://www.inquirer.com/news/philadelphia/taylor-swift-creed-touchtunes-jukeboxes-philadelphia-20250102.html"
+  },
+  {
+   "id": "touchtunes-2025",
+   "name": "TouchTunes 2025 Year-End Charts",
+   "url": "https://www.touchtunes.com/hot-new/2025-year-end-charts"
+  },
+  {
+   "id": "touchtunes-billboard-2024",
+   "name": "Billboard TouchTunes Frontline/Catalog charts, Q2-Q4 2024",
+   "url": "https://www.billboard.com/music/chart-beat/shaboozey-a-bar-song-tipsy-number-1-song-touchtunes-jukeboxes-1235732972/"
+  },
+  {
+   "id": "touchtunes-billboard-2025",
+   "name": "Billboard TouchTunes Artists/Frontline/Catalog charts, Q1-Q4 2025",
+   "url": "https://www.billboard.com/music/chart-beat/morgan-wallen-touchtunes-artist-chart-most-played-1235953914/"
+  },
+  {
+   "id": "touchtunes-billboard-2026",
+   "name": "Billboard TouchTunes Artists/Frontline/Catalog charts, Q1-Q2 2026",
+   "url": "https://www.billboard.com/music/chart-beat/ella-langley-choosin-texas-most-played-song-touchtunes-1236314166/"
+  },
+  {
+   "id": "ami-2013",
+   "name": "AMI Entertainment 2013 most popular jukebox music (ProSoundWeb)",
+   "url": "https://www.prosoundweb.com/ami-entertainment-releases-2013-list-of-most-popular-jukebox-music/"
+  },
+  {
+   "id": "ami-2016",
+   "name": "AMI Entertainment 2016 year-end charts (RePlay Magazine)",
+   "url": "https://www.replaymag.com/rock-and-country-reign-in-2016s-jukebox-music-charts/"
+  },
+  {
+   "id": "ami-2017",
+   "name": "AMI Entertainment 2017 year-end charts (RePlay Magazine)",
+   "url": "https://www.replaymag.com/amis-year-end-charts-juke-day-giveaway/"
+  },
+  {
+   "id": "ami-2018",
+   "name": "AMI Entertainment 2018 jukebox chart toppers",
+   "url": "https://amientertainment.com/?p=2220"
+  },
+  {
+   "id": "ami-2019",
+   "name": "AMI Entertainment 2019 year-end charts (RePlay Magazine)",
+   "url": "https://www.replaymag.com/ami-music-releases-end-of-year-charts/"
+  },
+  {
+   "id": "ami-2022",
+   "name": "AMI Entertainment 2022 year-end charts",
+   "url": "https://amientertainment.com/?p=4365"
+  },
+  {
+   "id": "ami-2024",
+   "name": "AMI Entertainment 2024 year-end charts",
+   "url": "https://amientertainment.com/?p=5416"
+  },
+  {
+   "id": "amoa-alltime",
+   "name": "AMOA top jukebox singles of all time (as reproduced by historyoftech.mcclurken.org)",
+   "url": "https://historyoftech.mcclurken.org/jukebox/top-songs-of-the-jukebox"
+  },
+  {
+   "id": "billboard-jukebox-1957",
+   "name": "Billboard 'Most Played in Jukeboxes' final chart, 1957 (as cited by djrobblog)",
+   "url": "https://djrobblog.com/archives/22524"
+  },
+  {
+   "id": "billboard-2015",
+   "name": "Billboard Year-End Top Artists 2015",
+   "url": "https://www.billboard.com/charts/year-end/2015/top-artists/"
+  },
+  {
+   "id": "billboard-2016",
+   "name": "Billboard Year-End Top Artists 2016",
+   "url": "https://www.billboard.com/charts/year-end/2016/top-artists/"
+  },
+  {
+   "id": "billboard-2017",
+   "name": "Billboard Year-End Top Artists 2017",
+   "url": "https://www.billboard.com/charts/year-end/2017/top-artists/"
+  },
+  {
+   "id": "billboard-2018",
+   "name": "Billboard Year-End Top Artists 2018",
+   "url": "https://www.billboard.com/charts/year-end/2018/top-artists/"
+  },
+  {
+   "id": "billboard-2019",
+   "name": "Billboard Year-End Top Artists 2019",
+   "url": "https://www.billboard.com/charts/year-end/2019/top-artists/"
+  },
+  {
+   "id": "billboard-2020",
+   "name": "Billboard Year-End Top Artists 2020",
+   "url": "https://www.billboard.com/charts/year-end/2020/top-artists/"
+  },
+  {
+   "id": "billboard-2021",
+   "name": "Billboard Year-End Top Artists 2021",
+   "url": "https://www.billboard.com/charts/year-end/2021/top-artists/"
+  },
+  {
+   "id": "billboard-2022",
+   "name": "Billboard Year-End Top Artists 2022",
+   "url": "https://www.billboard.com/charts/year-end/2022/top-artists/"
+  },
+  {
+   "id": "billboard-2023",
+   "name": "Billboard Year-End Top Artists 2023",
+   "url": "https://www.billboard.com/charts/year-end/2023/top-artists/"
+  },
+  {
+   "id": "billboard-2024",
+   "name": "Billboard Year-End Top Artists 2024",
+   "url": "https://www.billboard.com/charts/year-end/2024/top-artists/"
+  },
+  {
+   "id": "billboard-2025",
+   "name": "Billboard Year-End Top Artists 2025",
+   "url": "https://www.billboard.com/charts/year-end/2025/top-artists/"
+  }
+ ],
+ "artists": [
+  {
+   "name": "Chris Stapleton",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2020",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2016",
+    "ami-2017",
+    "ami-2018",
+    "ami-2019",
+    "ami-2022",
+    "ami-2024",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Drake",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2013",
+    "ami-2016",
+    "ami-2018",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Luke Combs",
+   "sources": [
+    "touchtunes-2020",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2017",
+    "ami-2019",
+    "ami-2024",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Lynyrd Skynyrd",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2020",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2013",
+    "ami-2016",
+    "ami-2017",
+    "ami-2018",
+    "ami-2019",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Post Malone",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2018",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "AC/DC",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2020",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2016",
+    "ami-2017",
+    "ami-2018",
+    "ami-2019",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Morgan Wallen",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2020",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2022",
+    "ami-2024",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Taylor Swift",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Bad Bunny",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2018",
+    "ami-2022",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Bruno Mars",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2017",
+    "ami-2018",
+    "billboard-2015",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Kendrick Lamar",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2022",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "ami-2017",
+    "billboard-2015",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Ed Sheeran",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2022",
+    "ami-2017",
+    "billboard-2015",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Garth Brooks",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Queen",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2019",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Guns N' Roses",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2013",
+    "ami-2016",
+    "ami-2017",
+    "billboard-2016",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "The Weeknd",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2021",
+    "touchtunes-2025",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Toby Keith",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Zach Bryan",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2024",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Cardi B",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-billboard-2025",
+    "ami-2017",
+    "ami-2018",
+    "ami-2019",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Journey",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Justin Bieber",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "The Rolling Stones",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "ami-2013",
+    "billboard-2015",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Beyoncé",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2018",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "George Strait",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2019"
+   ]
+  },
+  {
+   "name": "Jelly Roll",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "ami-2024",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Rihanna",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "ami-2016",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Steve Earle",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "SZA",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Billie Eilish",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2024",
+    "ami-2019",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Future",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Ariana Grande",
+   "sources": [
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Eric Church",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-billboard-2025",
+    "ami-2013",
+    "ami-2016",
+    "ami-2022",
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Jack Harlow",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-billboard-2024",
+    "ami-2024",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Jason Aldean",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2023",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-billboard-2024",
+    "ami-2013",
+    "ami-2017",
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Shaboozey",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Teddy Swims",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Van Morrison",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Doja Cat",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-billboard-2024",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Eagles",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2023",
+    "touchtunes-2025",
+    "ami-2018",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Eminem",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "billboard-2018",
+    "billboard-2020",
+    "billboard-2022",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Kid Rock",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2020",
+    "touchtunes-2021",
+    "touchtunes-2023",
+    "touchtunes-2024-top50"
+   ]
+  },
+  {
+   "name": "Lainey Wilson",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Nickelback",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Travis Scott",
+   "sources": [
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Benson Boone",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Chappell Roan",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Chris Brown",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Dua Lipa",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2018",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Florida Georgia Line",
+   "sources": [
+    "touchtunes-2018",
+    "ami-2013",
+    "ami-2016",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Hozier",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2015",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Lizzo",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2022",
+    "ami-2019",
+    "ami-2022",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Luke Bryan",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2021",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Maroon 5",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-wisconsin-2019",
+    "billboard-2015",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Midland",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Sabrina Carpenter",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "21 Savage",
+   "sources": [
+    "touchtunes-2024",
+    "ami-2018",
+    "billboard-2017",
+    "billboard-2019",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Creed",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Def Leppard",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Fleetwood Mac",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-2025",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "GloRilla",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Hank Williams Jr.",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "HARDY",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024"
+   ]
+  },
+  {
+   "name": "Jessie Murph",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Juice WRLD",
+   "sources": [
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Lady Gaga",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "billboard-2017",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Lil Baby",
+   "sources": [
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Lil Durk",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "ami-2022",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Lil Nas X",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021",
+    "ami-2019",
+    "billboard-2019",
+    "billboard-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Nicki Minaj",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-philadelphia-2024",
+    "billboard-2015",
+    "billboard-2018",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Otis Redding",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Rod Wave",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Sam Hunt",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019",
+    "ami-2017",
+    "billboard-2015",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Shawn Mendes",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Steve Miller Band",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-2023",
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "The Chainsmokers",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "ami-2016",
+    "billboard-2016",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Blake Shelton",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-billboard-2025",
+    "ami-2013",
+    "billboard-2015",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "BTS",
+   "sources": [
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Camila Cabello",
+   "sources": [
+    "touchtunes-2018",
+    "ami-2018",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Demi Lovato",
+   "sources": [
+    "touchtunes-2018",
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Fuerza Regida",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "billboard-2023",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Gunna",
+   "sources": [
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Imagine Dragons",
+   "sources": [
+    "ami-2018",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "J. Cole",
+   "sources": [
+    "billboard-2015",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Justin Timberlake",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2018",
+    "ami-2018",
+    "billboard-2016",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Kane Brown",
+   "sources": [
+    "touchtunes-billboard-2024",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Karol G",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Khalid",
+   "sources": [
+    "touchtunes-2017",
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Lil Uzi Vert",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2017",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Migos",
+   "sources": [
+    "touchtunes-2017",
+    "ami-2017",
+    "ami-2018",
+    "billboard-2017",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Neil Diamond",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Sexyy Red",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-philadelphia-2024",
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "YoungBoy Never Broke Again",
+   "sources": [
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Zach Top",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "50 Cent",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Adele",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2022",
+    "billboard-2016",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Alex Warren",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Bailey Zimmerman",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Big Sean",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-wisconsin-2019",
+    "billboard-2015",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "BigXthaPlug",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Brooks & Dunn",
+   "sources": [
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Coldplay",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "billboard-2016",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Creedence Clearwater Revival",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "DaBaby",
+   "sources": [
+    "touchtunes-billboard-2026",
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Daft Punk",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Disturbed",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "Earth, Wind & Fire",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Ella Langley",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Ella Mai",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-2025",
+    "ami-2018",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Elle King",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Elton John",
+   "sources": [
+    "billboard-2019",
+    "billboard-2020",
+    "billboard-2022",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Flo Rida",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-wisconsin-2019",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Grupo Frontera",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Halsey",
+   "sources": [
+    "billboard-2017",
+    "billboard-2018",
+    "billboard-2019",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Harry Styles",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "J Balvin",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2021",
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Johnny Cash",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Kodak Black",
+   "sources": [
+    "touchtunes-2022",
+    "billboard-2017",
+    "billboard-2019",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Led Zeppelin",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Little Big Town",
+   "sources": [
+    "touchtunes-2015",
+    "touchtunes-2016",
+    "touchtunes-wisconsin-2019",
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Megan Thee Stallion",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Metallica",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Miley Cyrus",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Olivia Rodrigo",
+   "sources": [
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Peso Pluma",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Phil Collins",
+   "sources": [
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Prince",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2021",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Riley Green",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Sam Smith",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2015",
+    "billboard-2018",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Selena Gomez",
+   "sources": [
+    "billboard-2015",
+    "billboard-2016",
+    "billboard-2017",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "T-Pain",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Twenty One Pilots",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "billboard-2016",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Whitney Houston",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "Wild Cherry",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2022",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Ye",
+   "sources": [
+    "billboard-2016",
+    "billboard-2021",
+    "billboard-2022",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Bob Seger",
+   "sources": [
+    "touchtunes-2023",
+    "ami-2013",
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Charli xcx",
+   "sources": [
+    "touchtunes-2024",
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Desiigner",
+   "sources": [
+    "touchtunes-2016",
+    "ami-2016",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Don Omar",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Elvis Presley",
+   "sources": [
+    "touchtunes-2017",
+    "amoa-alltime",
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Farruko",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Fetty Wap",
+   "sources": [
+    "touchtunes-2016",
+    "billboard-2015",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "G-Eazy",
+   "sources": [
+    "touchtunes-2018",
+    "billboard-2016",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Ginuwine",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "HUNTR/X",
+   "sources": [
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Jon Pardi",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "Keith Urban",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "LMFAO",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Mark Morrison",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2023",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Marshmello",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-billboard-2024",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Merle Haggard",
+   "sources": [
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Metro Boomin",
+   "sources": [
+    "ami-2018",
+    "billboard-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Michael Jackson",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Miranda Lambert",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-2022",
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Moneybagg Yo",
+   "sources": [
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Polo G",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "The Kid LAROI",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Thomas Rhett",
+   "sources": [
+    "billboard-2016",
+    "billboard-2018",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Tyler Childers",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024",
+    "touchtunes-2024-top50"
+   ]
+  },
+  {
+   "name": "Tyler, the Creator",
+   "sources": [
+    "billboard-2022",
+    "billboard-2023",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Vicente Fernández",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017",
+    "ami-2024"
+   ]
+  },
+  {
+   "name": "3 Doors Down",
+   "sources": [
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Alessia Cara",
+   "sources": [
+    "billboard-2016",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Alice Deejay",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Ariel Camacho y Los Plebes del Rancho",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Bad Wolves",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Banda Sinaloense MS de Sergio Lizárraga",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Bebe Rexha",
+   "sources": [
+    "touchtunes-2018",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Calvin Harris",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Carin León",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Daddy Yankee",
+   "sources": [
+    "touchtunes-2018",
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Disclosure",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "DJ Khaled",
+   "sources": [
+    "touchtunes-2017",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Doechii",
+   "sources": [
+    "touchtunes-2025",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Eslabon Armado",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Fall Out Boy",
+   "sources": [
+    "touchtunes-2024",
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Frank Reyes",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Fred again..",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Gabby Barrett",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Gavin Adcock",
+   "sources": [
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Giveon",
+   "sources": [
+    "touchtunes-2022",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Glass Animals",
+   "sources": [
+    "billboard-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Gracie Abrams",
+   "sources": [
+    "touchtunes-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Grupo Firme",
+   "sources": [
+    "touchtunes-2021",
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Jonas Brothers",
+   "sources": [
+    "billboard-2019",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Kehlani",
+   "sources": [
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Kenny Chesney",
+   "sources": [
+    "billboard-2015",
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Kevin Gates",
+   "sources": [
+    "touchtunes-2016",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Koe Wetzel",
+   "sources": [
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Latto",
+   "sources": [
+    "touchtunes-2022",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Leon Thomas",
+   "sources": [
+    "touchtunes-2025",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Linkin Park",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Lola Young",
+   "sources": [
+    "touchtunes-2025",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Luis Fonsi",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Luis R. Conriquez",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Lukas Graham",
+   "sources": [
+    "ami-2016",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Maluma",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Maren Morris",
+   "sources": [
+    "ami-2016",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Mariah Carey",
+   "sources": [
+    "touchtunes-billboard-2024",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Mark Ronson",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Meghan Trainor",
+   "sources": [
+    "billboard-2015",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "mgk",
+   "sources": [
+    "touchtunes-2025",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Miguel",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Muni Long",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Nathaniel Rateliff & The Night Sweats",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "Nicky Jam",
+   "sources": [
+    "touchtunes-2017",
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Noah Kahan",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Olivia Dean",
+   "sources": [
+    "touchtunes-billboard-2025",
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "One Direction",
+   "sources": [
+    "billboard-2015",
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "P!nk",
+   "sources": [
+    "billboard-2018",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Pitbull",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Pooh Shiesty",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Pop Smoke",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Rae Sremmurd",
+   "sources": [
+    "billboard-2015",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Rehab",
+   "sources": [
+    "touchtunes-2024-top50",
+    "touchtunes-billboard-2024"
+   ]
+  },
+  {
+   "name": "Rema",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Romeo Santos",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "ROSÉ",
+   "sources": [
+    "touchtunes-2025",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "RÜFÜS DU SOL",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Shania Twain",
+   "sources": [
+    "touchtunes-2023",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Shinedown",
+   "sources": [
+    "touchtunes-2022",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Skrillex",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Steve Lacy",
+   "sources": [
+    "touchtunes-2023",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Summer Walker",
+   "sources": [
+    "touchtunes-2024",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Swae Lee",
+   "sources": [
+    "touchtunes-wisconsin-2019",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Tate McRae",
+   "sources": [
+    "billboard-2024",
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "The Cranberries",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "The Red Clay Strays",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Tommy Richman",
+   "sources": [
+    "touchtunes-billboard-2024",
+    "billboard-2024"
+   ]
+  },
+  {
+   "name": "Tones and I",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Toto",
+   "sources": [
+    "touchtunes-2018",
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "Tyla",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-philadelphia-2024"
+   ]
+  },
+  {
+   "name": "U2",
+   "sources": [
+    "billboard-2015",
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Usher",
+   "sources": [
+    "touchtunes-2024",
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Walker Hayes",
+   "sources": [
+    "touchtunes-2021",
+    "billboard-2022"
+   ]
+  },
+  {
+   "name": "Willy William",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "XXXTENTACION",
+   "sources": [
+    "billboard-2018",
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Young Thug",
+   "sources": [
+    "billboard-2020",
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "Zedd",
+   "sources": [
+    "touchtunes-2017",
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "ZHU",
+   "sources": [
+    "touchtunes-2016",
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "24kGoldn",
+   "sources": [
+    "billboard-2021"
+   ]
+  },
+  {
+   "name": "5 Seconds of Summer",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "6ix9ine",
+   "sources": [
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "A Boogie Wit da Hoodie",
+   "sources": [
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Aaron Lewis",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Addison Rae",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "AJR",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Andy Williams",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Aretha Franklin",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Ari Lennox",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "ATLiens",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Audioslave",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Avicii",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "AWOLNATION",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Bazzi",
+   "sources": [
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Becky G",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Bill Haley & His Comets",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Black Sabbath",
+   "sources": [
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Blink-182",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Brantley Gilbert",
+   "sources": [
+    "touchtunes-2015"
+   ]
+  },
+  {
+   "name": "Brent Faiyaz",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Brett Young",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Brothers Osborne",
+   "sources": [
+    "touchtunes-wisconsin-2019"
+   ]
+  },
+  {
+   "name": "Bruce Springsteen",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Bryson Tiller",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Camilo",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Carrie Underwood",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Charlie Puth",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Chencho Corleone",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Childish Gambino",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Christian Nodal",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Chuck Berry",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Coco Jones",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Cody Jinks",
+   "sources": [
+    "touchtunes-2024-top50"
+   ]
+  },
+  {
+   "name": "Cody Johnson",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Cuco",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Dan + Shay",
+   "sources": [
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Daughtry",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "David Bowie",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Daya",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Dexter and the Moonrocks",
+   "sources": [
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Disco Lines",
+   "sources": [
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "DNCE",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Dropkick Murphys",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Dzeko",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "El Alfa",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "El Fantasma",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "El Komander",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Ellie Goulding",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Elvis Crespo",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Enrique Iglesias",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Excision",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Falling In Reverse",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Fifth Harmony",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Five Finger Death Punch",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Foals",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Gabito Ballesteros",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Gale Storm",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "GAYLE",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Ghost",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Glen Campbell",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Gucci Mane",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "H.E.R.",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Haddaway",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Ice Spice",
+   "sources": [
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "ILLENIUM",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "James Arthur",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Janis Joplin",
+   "sources": [
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Jason Derulo",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Jeremih",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Jhay Cortez",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Jimmie Allen",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Jimmy Dorsey",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Joe Diffie",
+   "sources": [
+    "touchtunes-2020"
+   ]
+  },
+  {
+   "name": "John Legend",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Jordan Davis",
+   "sources": [
+    "billboard-2023"
+   ]
+  },
+  {
+   "name": "Jungle",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Junior H",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "KATSEYE",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Katy Perry",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "KAYTRANADA",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Kenny Rogers",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Kim Petras",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Lenin Ramírez",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Lewis Capaldi",
+   "sources": [
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Lil Pump",
+   "sources": [
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Lil Wayne",
+   "sources": [
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Lil Yachty",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Logic",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Lorde",
+   "sources": [
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Los Tigres del Norte",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "M83",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Madonna",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Major Lazer",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Manuel Turizo",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Marc Anthony",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Marvin Gaye",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Mau P",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Meek Mill",
+   "sources": [
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Megan Moroney",
+   "sources": [
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Mike Posner",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Netón Vega",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "NF",
+   "sources": [
+    "billboard-2018"
+   ]
+  },
+  {
+   "name": "Niall Horan",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Nick Jonas",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Nicki Nicole",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Niko Moon",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "NLE Choppa",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "ODESZA",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Offset",
+   "sources": [
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "OMI",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Overmono",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Owl City",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Ozzy Osbourne",
+   "sources": [
+    "touchtunes-billboard-2025"
+   ]
+  },
+  {
+   "name": "Panic! at the Disco",
+   "sources": [
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Pat Boone",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Patsy Cline",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Paul Russell",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Pentatonix",
+   "sources": [
+    "billboard-2017"
+   ]
+  },
+  {
+   "name": "Perry Como",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "PlaqueBoyMax",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Playboi Carti",
+   "sources": [
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Preme",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Prince Royce",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Pérez Prado",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "Raul Vega",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Rauw Alejandro",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Red Hot Chili Peppers",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Rick Astley",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Ricky Nelson",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "Robin Thicke",
+   "sources": [
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "Roddy Ricch",
+   "sources": [
+    "billboard-2020"
+   ]
+  },
+  {
+   "name": "Russ",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Salt-N-Pepa",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Saweetie",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Shakira",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Sia",
+   "sources": [
+    "billboard-2016"
+   ]
+  },
+  {
+   "name": "Silento",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Skepta",
+   "sources": [
+    "touchtunes-2025"
+   ]
+  },
+  {
+   "name": "Sofi Tukker",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "sombr",
+   "sources": [
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "Soundgarden",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Stephen Wilson Jr.",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Stevie B",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "T.I.",
+   "sources": [
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Tai Verdes",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "The 1975",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "The Allman Brothers Band",
+   "sources": [
+    "ami-2013"
+   ]
+  },
+  {
+   "name": "The Beatles",
+   "sources": [
+    "amoa-alltime"
+   ]
+  },
+  {
+   "name": "The Black Keys",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "The Coasters",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "The Diamonds",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "The Everly Brothers",
+   "sources": [
+    "billboard-jukebox-1957"
+   ]
+  },
+  {
+   "name": "The Killers",
+   "sources": [
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "The Marías",
+   "sources": [
+    "billboard-2025"
+   ]
+  },
+  {
+   "name": "The Temptations",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Tinashe",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Tiësto",
+   "sources": [
+    "touchtunes-2018"
+   ]
+  },
+  {
+   "name": "Tom Petty",
+   "sources": [
+    "touchtunes-2017"
+   ]
+  },
+  {
+   "name": "Toosii",
+   "sources": [
+    "touchtunes-2023"
+   ]
+  },
+  {
+   "name": "Tove Lo",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Tucker Wetmore",
+   "sources": [
+    "touchtunes-billboard-2026"
+   ]
+  },
+  {
+   "name": "Tyga",
+   "sources": [
+    "ami-2018"
+   ]
+  },
+  {
+   "name": "Victoria Monét",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Walk the Moon",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "Warren Zeiders",
+   "sources": [
+    "touchtunes-billboard-2024"
+   ]
+  },
+  {
+   "name": "Weezer",
+   "sources": [
+    "touchtunes-2022"
+   ]
+  },
+  {
+   "name": "Wiz Khalifa",
+   "sources": [
+    "billboard-2015"
+   ]
+  },
+  {
+   "name": "WizKid",
+   "sources": [
+    "touchtunes-2021"
+   ]
+  },
+  {
+   "name": "Wooli",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "Xavi",
+   "sources": [
+    "touchtunes-2024"
+   ]
+  },
+  {
+   "name": "YNW Melly",
+   "sources": [
+    "billboard-2019"
+   ]
+  },
+  {
+   "name": "Yo Gotti",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Zac Brown Band",
+   "sources": [
+    "touchtunes-2024-top50"
+   ]
+  },
+  {
+   "name": "Zacarias Ferreira",
+   "sources": [
+    "touchtunes-2016"
+   ]
+  },
+  {
+   "name": "Zayn",
+   "sources": [
+    "billboard-2016"
+   ]
+  }
+ ]
+}
