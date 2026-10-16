@@ -210,6 +210,22 @@ def stats_archive(request: Request, label: str = ""):
     return {"archived": stats.archive(label)}
 
 
+@app.get("/api/admin/probe")
+def admin_probe(request: Request, what: str, a: str = "", b: str = "", q: str = ""):
+    """Maintenance: try a Qloo endpoint and see its raw shape. Loopback only."""
+    _local_only(request)
+    try:
+        if what == "compare":
+            return _q.compare(a.split(","), b.split(","), entity_type="urn:entity:artist", take=10)
+        if what == "trending":
+            return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "signal.interests.entities": q, "take": 5})
+        if what == "trending_id":
+            return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "filter.entities": q, "take": 5})
+        return {"error": "unknown probe"}
+    except Exception as e:
+        return {"error": str(e)[:400]}
+
+
 @app.get("/api/admin/matrix")
 def matrix_status(request: Request):
     _local_only(request)

@@ -145,7 +145,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .vs .r{display:flex;justify-content:space-between;gap:10px;padding:4px 0}
 .vs .r b{color:var(--gold)}.vs .r.llm b{color:var(--text3)}
 details{border-top:1px solid #1a1a1a;padding:4px 0}
-summary{cursor:pointer;font-weight:800;font-size:1.05rem;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary{cursor:pointer;font-weight:800;font-size:1rem;padding:12px 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:8px}
 summary::after{content:"+";color:var(--text3);font-weight:400;font-size:1.3rem}
 details[open] summary::after{content:"–"}
 .stick{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(transparent,#000 35%)}
@@ -249,7 +249,7 @@ details[open] summary::after{content:"–"}
   <button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button>
   <button id="againBtn" class="ghost" onclick="location.reload()">Play again</button>
   <div style="margin-top:18px">
-    <details><summary>Under the hood</summary>
+    <details><summary id="hoodTitle">Under the hood</summary>
       <h2>What you both played</h2><div id="both"></div>
       <h2>Q-Lou's shortlist</h2><p class="sub" style="font-size:.9rem;margin-top:0">Scored by Qloo for each of you. The lower score decides.</p><div id="ranked"></div>
       <h2>A cold guess, for comparison</h2><div id="baseline"></div>
@@ -402,6 +402,7 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   const them=(state.sides[theirKey]||{}).name||"partner";$("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${esc(x.name)} <span class="sub">you ${Math.round(x[who]*100)} · ${esc(them)} ${Math.round(x[theirKey]*100)}</span></p>`).join("")||"<p class='sub'>No shortlist this time.</p>";
   const b=p&&p.baseline;$("baseline").innerHTML=b?`<div class="vs"><div class="r llm"><span>A plain language model guessed</span><b>${esc(b.guess)}</b></div><div class="r llm"><span>Qloo scores that</span><b>${b.scores&&b.scores[who]!=null?Math.round(b.scores[who]*100)+" · "+Math.round(b.scores[theirKey]*100):"no data"}</b></div><div class="r"><span>Q-Lou's pick</span><b>${esc(p.artist.name)}</b></div><div class="r"><span>Qloo scores that</span><b>${Math.round(p.scores[who]*100)} · ${Math.round(p.scores[theirKey]*100)}</b></div><p class="sub" style="margin:8px 0 0">The guess ${b.verdict==="holds"?"held up":b.verdict==="splits"?"splits the two of you":b.verdict==="misses"?"misses you both":"could not be scored"}. ${p.why_source==="llm"?"Q-Lou's line was written by a language model from Qloo facts only, and checked.":"Q-Lou's line came straight from the facts."}</p></div>`:"<p class='sub'>The control did not run this time.</p>";
   const ex=p&&p.explain&&p.explain.both||[];
+  $("hoodTitle").textContent=p?`Under the hood: ${p.pool?Number(p.pool).toLocaleString()+" artists, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s`:"Under the hood";
   $("howBox").innerHTML=(p?`<p class="sub" style="margin-top:0">${p.pool?Number(p.pool).toLocaleString()+" artists in the running, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s. Every number is Qloo's, not a guess.</p>`:"")+
     (ex.length?`<p class="rank">What drove it: ${ex.map(d=>esc(d.label)+" "+Math.round(d.score*100)).join(", ")}</p>`:"")+
     `<div class="steps">${lastSteps.map(s=>`<div class="step${s.step==="error"?" error":""}"><b>${esc(s.step)}</b><span>${esc(s.text)}</span></div>`).join("")}</div>`;
