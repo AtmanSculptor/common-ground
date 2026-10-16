@@ -204,17 +204,22 @@ class Room:
             self.meter = min(100, self.meter + PLAYED_BONUS)
         title = next(t for m, t in TITLES if self.meter >= m)
         names = {k: (s.name or k) for k, s in self.sides.items()}
-        p = self.pick or {}
         self.result = {
             "meter": self.meter, "title": title,
             "plays": {names[k]: [deck.card(c)["name"] for c in s.all_plays()] for k, s in self.sides.items()},
             # across the whole game, not round by round: a card you both played in different rounds still counts
             "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].all_plays()) & set(self.sides["guest"].all_plays())}),
             "profiles": {names[k]: [quiz.label(x) for x in s.profile] for k, s in self.sides.items()},
-            "pick": {k: p.get(k) for k in ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "attempt", "calls", "seconds")} if p else None,
+            "pick": self._result_pick(),
         }
         self.phase = "done"
         return self.result
+
+    RESULT_PICK_KEYS = ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "live", "attempt", "calls", "seconds")
+
+    def _result_pick(self) -> dict | None:
+        """The pick as the done screen shows it. Read fresh each time: the control experiment may land late."""
+        return {k: self.pick.get(k) for k in self.RESULT_PICK_KEYS} if self.pick else None
 
     # ---- what a phone sees ---------------------------------------------------------------
     def public(self, who: str | None = None) -> dict:
@@ -234,7 +239,7 @@ class Room:
                 "more_allowed": self.rounds_left(), "pick_ready": bool(self.pick) and self.phase == "reveal",
                 "reveal": self.reveals[-1] if self.reveals and self.phase in ("reveal", "thinking", "jukebox", "done") else None,
                 "meter": self.meter, "thinking": self.thinking[-8:], "pick": pick, "log": self.log[-5:],
-                "result": self.result, "t": time.time()}
+                "result": {**self.result, "pick": self._result_pick()} if self.result else None, "t": time.time()}
 
 
 class Rooms:
