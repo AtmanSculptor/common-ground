@@ -73,7 +73,7 @@ static/
   matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
   jukebox_seeds.json       the outside list: artists bars actually play, resolved to Qloo entities at build time
   deck/                    card art (generated to a locked style brief, see probes/ and deck.md history)
-tests/                     42 tests, fake Qloo, no network; run in CI on every push
+tests/                     43 tests, fake Qloo, no network; run in CI on every push
 docs/                      the feel brief, the Snap study, the TouchTunes style notes, the pub night run sheet
 probes/                    the scripts and logs that verified every card's signal
 ```

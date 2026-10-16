@@ -69,3 +69,15 @@ def test_per_viewer_lines_and_pairing():
     ids = {c["name"]: c["id"] for c in deck.cards()}
     pairs = deck.pair_plays([ids["Whiskey"], ids["Country roads"]], [ids["Jazz hands"], ids["Craft beer"]])
     assert (ids["Country roads"], ids["Jazz hands"]) in pairs and (ids["Whiskey"], ids["Craft beer"]) in pairs
+
+
+def test_two_pairs_on_one_table_never_share_a_line():
+    import random
+    from common_ground import deck
+    life = [c for c in deck.cards() if c["cat"] == "life"]
+    for seed in range(30):
+        used = set()
+        rng = random.Random(seed)
+        one = deck.lines_for("Brent", life[0], "Josie", life[1], rng, used)
+        two = deck.lines_for("Brent", life[2], "Josie", life[3], rng, used)
+        assert one["host"].split(". ")[-1] != two["host"].split(". ")[-1]   # the tail of the template differs

@@ -168,13 +168,13 @@ class Room:
     def reveal(self, rng: random.Random | None = None) -> None:
         h, g = self.sides["host"], self.sides["guest"]
         ha, ga = h.plays[self.round], g.plays[self.round]
-        pairs, gained = [], 0
+        pairs, gained, used_lines = [], 0, set()
         for hc, gc in deck.pair_plays(ha, ga):
             ca, cb = deck.card(hc), deck.card(gc)
             kind = deck.match_kind(ca, cb)
             gained += deck.METER_GAIN[kind]
             pairs.append({"a": deck.public(ca), "b": deck.public(cb), "match": kind,
-                          "lines": deck.lines_for(h.name or "Your partner", ca, g.name or "Your partner", cb, rng)})
+                          "lines": deck.lines_for(h.name or "Your partner", ca, g.name or "Your partner", cb, rng, used_lines)})
         both = [deck.card(c)["name"] for c in ha if c in ga]
         self.meter = min(100, self.meter + gained)
         self.reveals.append({"round": self.round, "pairs": pairs, "both": both, "meter": self.meter})

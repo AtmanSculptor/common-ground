@@ -71,33 +71,53 @@ LINES_SAME = ["Both of you played {card}. That is not a coincidence.",
               "{card}, from both of you. Q-Lou noticed."]
 LINES_BY_CAT = {
     ("music", "music"): ["{a} led with {ca}. {b} answered with {cb}. Q-Lou hears a bridge.",
-                         "{ca} meets {cb}. Somewhere in the middle there is a song."],
+                         "{ca} meets {cb}. Somewhere in the middle there is a song.",
+                         "{ca} and {cb} in the same room. That is a setlist."],
     ("life", "life"): ["{a}: {ca}. {b}: {cb}. Different mornings, same bar.",
-                       "{ca} and {cb}. Two ways of spending a day."],
-    ("table", "table"): ["{ca} for {a}, {cb} for {b}. This round is on the house."],
-    ("heart", "heart"): ["{ca} and {cb}. Two homes, one jukebox."],
-    ("place", "place"): ["{ca} meets {cb}. Every town has a bar like this one."],
+                       "{ca} and {cb}. Two ways of spending a day.",
+                       "{ca} here, {cb} there. The week has room for both."],
+    ("table", "table"): ["{ca} for {a}, {cb} for {b}. This round is on the house.",
+                         "{ca} and {cb}. Same table, two orders."],
+    ("heart", "heart"): ["{ca} and {cb}. Two homes, one jukebox.",
+                         "{ca} on one side, {cb} on the other. Q-Lou hears a chorus."],
+    ("place", "place"): ["{ca} meets {cb}. Every town has a bar like this one.",
+                         "{ca} and {cb}. Two maps, one corner."],
 }
 LINES_MIX = ["{a} played {ca}. {b} played {cb}. Q-Lou is taking notes.",
              "{ca} on one side, {cb} on the other. The meter moved.",
-             "{a}: {ca}. {b}: {cb}. Keep going."]
+             "{a}: {ca}. {b}: {cb}. Keep going.",
+             "{ca} and {cb}. Q-Lou has a song for that.",
+             "{ca} meets {cb}. Unlikely pair, likely song."]
 
 
-def line_for(a_name: str, ca: dict, b_name: str, cb: dict, rng: random.Random | None = None) -> str:
+def line_for(a_name: str, ca: dict, b_name: str, cb: dict, rng: random.Random | None = None,
+             avoid: set[str] | None = None) -> str:
+    """One line for a pair. 'avoid' holds templates already used in this reveal, so two pairs on
+    one table never say the same thing; the chosen template is added to it."""
     rng = rng or random
     if ca["id"] == cb["id"]:
-        return rng.choice(LINES_SAME).format(card=ca["name"])
-    key = (ca["cat"], cb["cat"])
-    opts = LINES_BY_CAT.get(key) or LINES_BY_CAT.get((key[1], key[0])) or LINES_MIX
-    return rng.choice(opts).format(a=a_name, b=b_name, ca=ca["name"], cb=cb["name"])
+        opts = LINES_SAME
+    else:
+        key = (ca["cat"], cb["cat"])
+        opts = LINES_BY_CAT.get(key) or LINES_BY_CAT.get((key[1], key[0])) or LINES_MIX
+    fresh = [t for t in opts if avoid is None or t not in avoid] or list(opts)
+    t = rng.choice(fresh)
+    if avoid is not None:
+        avoid.add(t)
+    return t.format(card=ca["name"], a=a_name, b=b_name, ca=ca["name"], cb=cb["name"])
 
 
-def lines_for(host_name: str, ca: dict, guest_name: str, cb: dict, rng: random.Random | None = None) -> dict[str, str]:
+def lines_for(host_name: str, ca: dict, guest_name: str, cb: dict, rng: random.Random | None = None,
+              avoid: set[str] | None = None) -> dict[str, str]:
     """The same line twice: once for the host's phone (host is 'You'), once for the guest's."""
     rng = rng or random
     seed = rng.random()
-    return {"host": line_for("You", ca, guest_name, cb, random.Random(seed)),
-            "guest": line_for(host_name, ca, "You", cb, random.Random(seed))}
+    used = set(avoid) if avoid is not None else None
+    host = line_for("You", ca, guest_name, cb, random.Random(seed), used)
+    guest = line_for(host_name, ca, "You", cb, random.Random(seed), set(avoid) if avoid is not None else None)
+    if avoid is not None and used is not None:
+        avoid |= used
+    return {"host": host, "guest": guest}
 
 
 def pair_plays(host_cards: list[int], guest_cards: list[int]) -> list[tuple[int, int]]:
