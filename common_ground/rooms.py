@@ -208,7 +208,8 @@ class Room:
         self.result = {
             "meter": self.meter, "title": title,
             "plays": {names[k]: [deck.card(c)["name"] for c in s.all_plays()] for k, s in self.sides.items()},
-            "both_played": sorted({n for r in self.reveals for n in r["both"]}),
+            # across the whole game, not round by round: a card you both played in different rounds still counts
+            "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].all_plays()) & set(self.sides["guest"].all_plays())}),
             "profiles": {names[k]: [quiz.label(x) for x in s.profile] for k, s in self.sides.items()},
             "pick": {k: p.get(k) for k in ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "attempt", "calls", "seconds")} if p else None,
         }

@@ -66,6 +66,9 @@ def test_two_phones_full_game(client):
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
     assert st["phase"] == "done" and st["result"]["pick"]["played"] is True
     assert st["result"]["meter"] >= 20 and st["result"]["title"]
+    # "what you both played" spans the whole game, whichever round each card came out in
+    plays = st["result"]["plays"]
+    assert set(st["result"]["both_played"]) == set(plays["Brent"]) & set(plays["Josie"])
     assert client.get("/api/stats").json()["games"] == 1
 
 
