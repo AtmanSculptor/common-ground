@@ -32,7 +32,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hand .card{touch-action:none}
 .hand .card.played{opacity:.18;pointer-events:none}
 /* the playing field: their half at the top, yours below, a glowing line between */
-#s-table{position:relative;margin:0 -16px;padding:0 16px 8px;background:radial-gradient(ellipse 110% 60% at 50% 0%,rgba(138,43,226,.22),transparent 60%),radial-gradient(ellipse 110% 60% at 50% 100%,rgba(255,199,0,.10),transparent 60%),linear-gradient(#070309,#0b0612 50%,#070309)}
+#s-table{position:relative;margin:0 -16px;padding:0 16px 8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1' fill='%23ffffff' fill-opacity='0.045'/%3E%3C/svg%3E"),radial-gradient(ellipse 110% 60% at 50% 0%,rgba(138,43,226,.22),transparent 60%),radial-gradient(ellipse 110% 60% at 50% 100%,rgba(255,199,0,.10),transparent 60%),linear-gradient(#070309,#0b0612 50%,#070309)}
 #s-table .between{position:relative}
 #s-table .between::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(189,53,252,.6),rgba(255,199,0,.5),transparent)}
 #s-table.revealed .between::before{display:none}
@@ -54,6 +54,12 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.choosing .slot .card .frame,#s-table.waiting .slot .card .frame{border-width:1px}
 #s-table.choosing .field.them .slot .card,#s-table.waiting .field.them .slot .card{pointer-events:none}
 .between{min-height:8px;margin:2px 0}
+.quip{display:none;text-align:center;color:var(--text3);font-size:.85rem;margin:4px 0;min-height:1.2em;transition:opacity .4s}
+#s-table.choosing .quip,#s-table.waiting .quip{display:inline-block}
+.venue{font-size:.8rem;color:var(--gold);text-align:center;padding:5px 10px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
+.venue:empty{display:none}
+.between{text-align:center}
+.quip{position:relative;display:inline-block;background:#0a0510;padding:2px 12px;border-radius:999px}
 .between .line{display:none}
 #s-table.revealed .between .line{display:block}
 .between .meter{display:none}
@@ -174,9 +180,10 @@ details[open] summary::after{content:"–"}
 </section>
 
 <section class="screen" id="s-table">
+  <div class="venue" id="venue"></div>
   <div class="tablehead"><span class="sub" id="roundLabel">Round 1</span><span class="sub" id="tableHint"></span></div>
   <div class="field them"><div class="who"><span id="themName"></span> <span class="sub" id="themStatus"></span></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div></div></div>
-  <div class="between" id="between"><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter"><i id="meter"></i></div><p class="sub center" id="meterText"></p></div>
+  <div class="between" id="between"><p class="quip" id="quip"></p><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter"><i id="meter"></i></div><p class="sub center" id="meterText"></p></div>
   <div class="field me"><div class="who">You</div><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div></div></div>
   <div id="handArea"><p class="sub center" style="margin:6px 0 0;font-size:.85rem">Drag or tap two cards up. Your first pick leads.</p><div class="hand" id="hand"></div></div>
   <div id="waitArea" style="display:none"><div class="qlou-big" style="margin-top:8px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div><p class="wait pulse" id="waitMsg"></p></div>
@@ -249,6 +256,7 @@ async function poll(){try{state=await api(code);render()}catch(e){if(/no such ro
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"guest":"host"];
   $("roomPill").textContent="Room "+s.code;
+  $("venue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}${s.venue.line?" · "+s.venue.line:""}`:"";
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   if(s.phase==="quiz"){
     const partnerOut=who==="host"&&!other.joined;
@@ -269,7 +277,12 @@ function backHTML(){return `<div class="card flip"><div class="back"></div></div
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge">★</div>':''}<div class="name">${esc(c.name)}</div></div></div>`}
 // ---- the table: their field on top facing you, yours below, your hand under that ----
 let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1;
-function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;
+const QUIPS={choosing:["No wrong cards. Only true ones.","Q-Lou is humming something.","Two thousand artists are listening in.","The jukebox is warming up.","Pick the ones you would defend at the bar."],
+  waiting:["{them} is thinking it over.","Q-Lou is tuning the jukebox.","Good things take a second.","{them} has a tough hand too.","The coin is ready when you are."]};
+let quipTimer=null,quipIx=0;
+function quips(mode){clearInterval(quipTimer);const list=QUIPS[mode];if(!list){$("quip").textContent="";return}
+  const say=()=>{$("quip").style.opacity=0;setTimeout(()=>{$("quip").textContent=list[quipIx++%list.length].replace("{them}",partnerName());$("quip").style.opacity=1},300)};say();quipTimer=setInterval(say,5000)}
+function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;quips(mode);
   $("handArea").style.display=mode==="choosing"?"":"none";$("waitArea").style.display=mode==="waiting"?"":"none";
   $("lockBtn").style.display=mode==="choosing"?"":"none";$("nextBtn").style.display=mode==="revealed"?"":"none";$("moreBtn").style.display=mode==="revealed"&&state.more_allowed?"":"none"}
 function renderTable(s,me,other){const mode=s.phase==="reveal"?"revealed":(me.locked||lockedRound===s.round)?"waiting":"choosing";

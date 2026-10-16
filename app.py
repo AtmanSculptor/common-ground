@@ -62,6 +62,9 @@ def resources() -> dict:
 
 
 REFRESH_EVERY = int(os.environ.get("CG_REFRESH_CHECK_MINUTES", "60"))   # 0 turns the keeper off
+# The venue's own line on the playing field. In a jukebox app the bar sets this (TouchTunes already
+# sells venues promotion space); here it comes from the environment. Empty name turns it off.
+VENUE = {"name": os.environ.get("CG_VENUE", "Flapjack's"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7")}
 
 
 def _keeper() -> None:
@@ -376,6 +379,7 @@ def game_state(code: str, who: str = "host"):
     st = r.public(who)
     if r.phase == "quiz" and who in r.sides:
         st["question"] = r.question(who)
+    st["venue"] = VENUE if VENUE["name"] else None
     return st
 
 
