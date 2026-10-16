@@ -43,21 +43,33 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .field .who{text-align:center;color:var(--text3);font-size:.85rem;margin:4px 0}
 .slots{display:grid;grid-template-columns:repeat(2,var(--slot,88px));gap:12px;justify-content:center;transition:grid-template-columns .4s}
 .slot{aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.35);position:relative;transition:width .4s}
+.slot i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:1.3rem;color:rgba(189,53,252,.35)}
+.slot:has(.card){border-color:transparent}
+.slot:has(.card) i{display:none}
+#s-table.choosing .field.me .slots.untouched .slot{animation:slotpulse 2s ease-in-out infinite}
+@keyframes slotpulse{0%,100%{border-color:rgba(189,53,252,.35)}50%{border-color:rgba(189,53,252,.7);box-shadow:0 0 14px rgba(189,53,252,.25)}}
 .slot .card{position:absolute;inset:-2px;width:auto;height:auto;cursor:pointer}
 .slot.over{border-color:var(--gold);box-shadow:0 0 18px rgba(255,199,0,.35)}
 .field.me .slot:empty::after{content:"";position:absolute;inset:0;border-radius:var(--r);background:radial-gradient(circle at 50% 40%,rgba(42,13,68,.5),transparent 70%)}
 #s-table.choosing .field.them{--slot:58px}
 #s-table.choosing .field.me{--slot:78px}
-#s-table.revealed{--slot:150px}
+#s-table.revealed .field.them{--slot:150px}
+#s-table.revealed .field.me{--slot:104px}
+#s-table.revealed .field.me .slot .card .name{font-size:.82rem;padding:6px 3px 7px}
+.qlou-big .card img,.qlou img{animation:breathe 4s ease-in-out infinite}
+.qlou-big .card{animation:glow 4s ease-in-out infinite}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.03)}}
+@keyframes glow{0%,100%{box-shadow:0 0 26px rgba(189,53,252,.35)}50%{box-shadow:0 0 44px rgba(189,53,252,.6)}}
+.line .qmark{display:inline-block;width:24px;height:24px;border-radius:6px;vertical-align:-7px;margin-right:6px;object-fit:cover}
 #s-table.choosing .field .who,#s-table.waiting .field .who{margin:2px 0}
-#s-table.choosing .slot .card .name,#s-table.waiting .slot .card .name{font-size:.68rem;padding:6px 3px 7px;line-height:1.05}
+#s-table.choosing .slot .card .name,#s-table.waiting .slot .card .name{font-size:.82rem;padding:6px 3px 7px;line-height:1.05}
 #s-table.choosing .slot .card .frame,#s-table.waiting .slot .card .frame{border-width:1px}
 #s-table.choosing .field.them .slot .card,#s-table.waiting .field.them .slot .card{pointer-events:none}
 .between{min-height:8px;margin:2px 0}
 .quip{display:none;text-align:center;color:var(--text3);font-size:.85rem;margin:4px 0;min-height:1.2em;transition:opacity .4s}
 #s-table.choosing .quip,#s-table.waiting .quip{display:inline-block}
-.venue{font-size:.8rem;color:var(--gold);text-align:center;padding:5px 10px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:.01em}
-.venue:empty{display:none}
+.venueLine{font-size:.9rem;color:var(--text3)}
+.venueLine:empty{display:none}
 .between{text-align:center}
 .quip{position:relative;display:inline-block;background:#0a0510;padding:2px 12px;border-radius:999px}
 .between .line{display:none}
@@ -111,8 +123,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .art.big{width:220px;height:220px}
 .song-title{font-size:1.7rem;line-height:1.05;margin:8px 0 2px;text-align:center}
 .song-artist{text-align:center;color:var(--text2);font-size:1.05rem;margin:0}
-.song-album{text-align:center;color:var(--text3);font-size:.85rem;margin:2px 0 0}
-.scores{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.song-album{text-align:center;color:var(--text3);font-size:.95rem;margin:2px 0 0}
+.scores{display:flex;justify-content:center;gap:8px;margin:4px 0 8px}
 .track{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a}
 .track img{width:56px;height:56px;border-radius:8px;flex:none;background:var(--surface2)}
 .track .t{flex:1;min-width:0}.track .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -120,7 +132,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .track button{width:48px;height:48px;padding:0;margin:0;border-radius:50%;flex:none;font-size:1rem}
 .rank{color:var(--text3);font-size:.9rem;margin:2px 0}
 .tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:4px 10px;margin:4px 4px 0 0;font-size:.9rem}
-.code{font-size:2.4rem;font-weight:800;letter-spacing:.2em;text-align:center;margin:8px 0;color:var(--gold);cursor:pointer}
+.code{font-size:3.4rem;font-weight:800;letter-spacing:.18em;text-align:center;margin:8px 0;color:var(--gold);cursor:pointer;line-height:1}
 .joinbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border-radius:12px;padding:8px 8px 8px 14px;margin:0 0 12px}
 .joinbar .l{display:flex;flex-direction:column;line-height:1.15;min-width:0}
 .joinbar small{color:var(--text3);font-size:.75rem}
@@ -137,7 +149,13 @@ summary{cursor:pointer;font-weight:800;font-size:1.05rem;padding:12px 0;list-sty
 summary::after{content:"+";color:var(--text3);font-weight:400;font-size:1.3rem}
 details[open] summary::after{content:"–"}
 .stick{position:sticky;bottom:0;padding:10px 0 4px;background:linear-gradient(transparent,#000 35%)}
-.foot{color:var(--text3);font-size:.8rem;margin-top:24px;text-align:center}
+.foot{color:var(--text3);font-size:.9rem;margin-top:24px;text-align:center}
+.keepsake{border:1px solid rgba(189,53,252,.35);border-radius:20px;padding:14px 12px 12px;background:radial-gradient(ellipse 100% 70% at 50% 0%,rgba(138,43,226,.18),transparent 70%),#07040a;box-shadow:0 0 30px rgba(189,53,252,.15)}
+.names{text-align:center;font-weight:800;font-size:1.2rem;margin:10px 0 6px}
+.fourcards{display:flex;justify-content:center;gap:6px;margin:0 0 8px}
+.fourcards .card{width:58px;cursor:default}
+.fourcards .card .name{font-size:.55rem;padding:4px 2px 5px}
+.fourcards .gap{width:10px}
 .foot a{color:var(--text3)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
@@ -146,11 +164,12 @@ details[open] summary::after{content:"–"}
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center">Two strangers, one jukebox. Play your cards. Q-Lou finds the song you both love.</p>
+  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people, one jukebox. Play your cards. Q-Lou finds the song you both love.</p>
+  <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
   <button class="ghost" onclick="show('join')">Join with a code</button>
-  <button class="ghost" onclick="newGame(true)">Demo with a stranger</button>
+  <button class="ghost" onclick="newGame(true)">Try it solo</button>
 </section>
 
 <section class="screen" id="s-join">
@@ -180,17 +199,17 @@ details[open] summary::after{content:"–"}
 </section>
 
 <section class="screen" id="s-table">
-  <div class="venue" id="venue"></div>
   <div class="tablehead"><span class="sub" id="roundLabel">Round 1</span><span class="sub" id="tableHint"></span></div>
   <div class="field them"><div class="who"><span id="themName"></span> <span class="sub" id="themStatus"></span></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div></div></div>
   <div class="between" id="between"><p class="quip" id="quip"></p><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter"><i id="meter"></i></div><p class="sub center" id="meterText"></p></div>
-  <div class="field me"><div class="who">You</div><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div></div></div>
-  <div id="handArea"><p class="sub center" style="margin:6px 0 0;font-size:.85rem">Drag or tap two cards up. Your first pick leads.</p><div class="hand" id="hand"></div></div>
+  <div class="field me"><div class="who">You</div><div class="slots" id="meSlots"><div class="slot" data-i="0"><i>1</i></div><div class="slot" data-i="1"><i>2</i></div></div></div>
+  <div id="handArea"><p class="center" id="handHint" style="margin:8px 0 0;font-size:1rem;color:var(--text2)">Drag or tap two cards up.</p><div class="hand" id="hand"></div></div>
   <div id="waitArea" style="display:none"><div class="qlou-big" style="margin-top:8px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div><p class="wait pulse" id="waitMsg"></p></div>
-  <div class="stick">
+  <div class="stick" id="tableStick">
     <button id="lockBtn" disabled onclick="lockIn()">Pick two cards</button>
     <button id="nextBtn" onclick="next(false)" style="display:none">Hear Q-Lou's pick</button>
     <button id="moreBtn" class="ghost" onclick="next(true)" style="display:none">Deal another round</button>
+    <p class="sub center venueLine" id="waitVenue" style="display:none;margin:4px 0 0"></p>
   </div>
 </section>
 
@@ -208,31 +227,37 @@ details[open] summary::after{content:"–"}
   <p class="song-album" id="album"></p>
   <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p id="why"></p></div>
   <h1 class="center" style="margin-top:18px" id="askPlay">Play it for a credit?</h1>
+  <p class="center" style="margin:0 0 4px;font-size:.95rem;color:var(--text2)">Both of you say yes and it plays. One credit, shared.</p>
   <button class="big" id="yesBtn" onclick="vote(true)">Play it <svg class="coin"><use href="#coin"/></svg></button>
   <button class="ghost" id="noBtn" onclick="vote(false)">Try another</button>
   <p class="wait" id="voteMsg"></p>
-  <div class="scores" id="scores"></div>
-  <details id="moreBox" style="margin-top:14px"><summary id="moreTitle">More by this artist</summary><div id="tracks"></div></details>
+  <details id="moreBox" style="margin-top:14px"><summary id="moreTitle">More by this artist</summary><div class="scores" id="scores"></div><div id="tracks"></div></details>
   <audio id="preview" preload="none"></audio>
 </section>
 
 <section class="screen" id="s-done">
-  <p class="sub center" id="doneKicker"></p>
-  <div class="art big" id="doneArt" onclick="playHero()"></div>
-  <h1 class="song-title" id="doneTitle"></h1>
-  <p class="song-artist" id="doneArtist"></p>
-  <p class="song-album" id="doneWho"></p>
-  <div class="meter"><i id="meterDone"></i></div><p class="sub" id="meterDoneText"></p>
-  <button id="saveBtn" class="ghost" onclick="shareResult()" style="display:none">Save it</button>
-  <button onclick="location.reload()">Play again</button>
-  <div style="margin-top:18px">
-    <details><summary>What you both played</summary><div id="both"></div></details>
-    <details><summary>Q-Lou's shortlist</summary><p class="sub" style="font-size:.85rem;margin-top:0">Scored by Qloo for each of you. The lower score decides.</p><div id="ranked"></div></details>
-    <details><summary>Guess, then data</summary><div id="baseline"></div></details>
-    <details><summary>How Q-Lou got there</summary><div id="howBox"></div></details>
-    <details><summary>How we read you</summary><div id="profiles"></div></details>
+  <div class="keepsake">
+    <p class="center" id="doneKicker" style="margin:0;font-size:1rem;color:var(--text2)"></p>
+    <div class="art big" id="doneArt" onclick="playHero()"></div>
+    <h1 class="song-title" id="doneTitle"></h1>
+    <p class="song-artist" id="doneArtist"></p>
+    <p class="names" id="doneNames"></p>
+    <div class="fourcards" id="fourCards"></div>
+    <p class="song-album" id="doneWho"></p>
+    <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
-  <p class="foot">Artists and scores from Qloo. Tracks from the demo catalog. <a href="stats">Results so far</a></p>
+  <button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button>
+  <button id="againBtn" class="ghost" onclick="location.reload()">Play again</button>
+  <div style="margin-top:18px">
+    <details><summary>Under the hood</summary>
+      <h2>What you both played</h2><div id="both"></div>
+      <h2>Q-Lou's shortlist</h2><p class="sub" style="font-size:.9rem;margin-top:0">Scored by Qloo for each of you. The lower score decides.</p><div id="ranked"></div>
+      <h2>A cold guess, for comparison</h2><div id="baseline"></div>
+      <h2>How Q-Lou got there</h2><div id="howBox"></div>
+      <h2>How we read you</h2><div id="profiles"></div>
+    </details>
+  </div>
+  <p class="foot">Artists and taste scores by Qloo. <a href="stats">Results so far</a></p>
 </section>
 
 <script>
@@ -256,7 +281,7 @@ async function poll(){try{state=await api(code);render()}catch(e){if(/no such ro
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"guest":"host"];
   $("roomPill").textContent="Room "+s.code;
-  $("venue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}${s.venue.line?" · "+s.venue.line:""}`:"";
+  $("lobbyVenue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}`:"";
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   if(s.phase==="quiz"){
     const partnerOut=who==="host"&&!other.joined;
@@ -276,28 +301,34 @@ function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}">
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge">★</div>':''}<div class="name">${esc(c.name)}</div></div></div>`}
 // ---- the table: their field on top facing you, yours below, your hand under that ----
-let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1;
-const QUIPS={choosing:["No wrong cards. Only true ones.","Q-Lou is humming something.","Two thousand artists are listening in.","The jukebox is warming up.","Pick the ones you would defend at the bar."],
-  waiting:["{them} is thinking it over.","Q-Lou is tuning the jukebox.","Good things take a second.","{them} has a tough hand too.","The coin is ready when you are."]};
-let quipTimer=null,quipIx=0;
-function quips(mode){clearInterval(quipTimer);const list=QUIPS[mode];if(!list){$("quip").textContent="";return}
-  const say=()=>{$("quip").style.opacity=0;setTimeout(()=>{$("quip").textContent=list[quipIx++%list.length].replace("{them}",partnerName());$("quip").style.opacity=1},300)};say();quipTimer=setInterval(say,5000)}
-function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;quips(mode);
+let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1;const ALL_CARDS={};
+let quipTimer=null;
+function quips(mode){clearTimeout(quipTimer);if(mode!=="waiting"){$("quip").textContent="";return}
+  const mine=selected.map(id=>(hand.find(c=>c.id===id)||{}).name).filter(Boolean);const them=partnerName();
+  const first=mine.length===2?`${mine[0]} and ${mine[1]}. ${them} is still thinking.`:`${them} is still thinking.`;
+  $("quip").textContent=first;quipTimer=setTimeout(()=>{$("quip").textContent=`${them} has a tough hand too.`},20000)}
+function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;quips(mode);$("tableStick").style.display=mode==="waiting"&&!(state.venue&&state.venue.line)?"none":"";
   $("handArea").style.display=mode==="choosing"?"":"none";$("waitArea").style.display=mode==="waiting"?"":"none";
   $("lockBtn").style.display=mode==="choosing"?"":"none";$("nextBtn").style.display=mode==="revealed"?"":"none";$("moreBtn").style.display=mode==="revealed"&&state.more_allowed?"":"none"}
 function renderTable(s,me,other){const mode=s.phase==="reveal"?"revealed":(me.locked||lockedRound===s.round)?"waiting":"choosing";
   $("themName").textContent=partnerName();$("roundLabel").textContent=`Round ${s.round+1}`;
-  if(lastPhase!=="table"+s.round){lastPhase="table"+s.round;selected=[];hand=me.hand||[];themShown="";revealedRound=-1;renderHand();renderMySlots();$("themSlots").innerHTML='<div class="slot"></div><div class="slot"></div>';["ln0","ln1"].forEach(id=>{$(id).textContent="";$(id).classList.remove("shown")});$("meter").style.width="0%";$("meterText").textContent=""}
-  if(mode!=="revealed"){const st=other.locked?"locked":"choosing";if(themShown!==st){themShown=st;$("themSlots").innerHTML=other.locked?backHTML()+backHTML():'<div class="slot"></div><div class="slot"></div>';if(other.locked)$("themSlots").querySelectorAll(".slot").forEach(x=>x.remove())}
-    $("themStatus").textContent=other.locked?"locked in":"is choosing…";$("tableHint").textContent=mode==="choosing"?`${selected.length} of 2`:"";
+  (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);
+  if(lastPhase!=="table"+s.round){lastPhase="table"+s.round;selected=[];placedSent=-1;hand=me.hand||[];themShown="";revealedRound=-1;renderHand();renderMySlots();$("themSlots").innerHTML='<div class="slot"></div><div class="slot"></div>';["ln0","ln1"].forEach(id=>{$(id).textContent="";$(id).classList.remove("shown")});$("meter").style.width="0%";$("meterText").textContent=""}
+  if(mode!=="revealed"){const n=other.locked?2:(other.placed||0);const st=(other.locked?"L":"")+n;if(themShown!==st){themShown=st;$("themSlots").innerHTML=[0,1].map(i=>i<n?`<div class="slot">${backHTML()}</div>`:'<div class="slot"></div>').join("")}
+    $("themStatus").textContent=other.locked?"locked in":(n===0?"is choosing…":n===1?"put one down":"has two down");$("tableHint").textContent="";
     if(mode==="waiting"){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";if(!me.plays||!me.plays.length)selected=selected;renderMySlots(me.plays&&me.plays.length?me.plays:selected)}}
   else if(revealedRound!==s.round){revealedRound=s.round;renderReveal(s.reveal,me)}
-  if(mode==="revealed")$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";
+  if(mode==="revealed"){$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";$("roundLabel").textContent="The reveal"}
+  $("waitVenue").style.display=mode==="waiting"&&s.venue&&s.venue.line?"":"none";$("waitVenue").textContent=s.venue&&s.venue.line?`${s.venue.name}: ${s.venue.line}`:"";
   if(tableMode!==mode)setTable(mode);else if(mode==="revealed")$("moreBtn").style.display=state.more_allowed?"":"none"}
 function renderHand(){$("hand").innerHTML=hand.map(c=>cardHTML(c,selected.includes(c.id)?"played":"")).join("");
   $("hand").querySelectorAll(".card").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>startDrag(e,el,id)})}
-function renderMySlots(ids){ids=ids||selected;const slots=$("meSlots").querySelectorAll(".slot");slots.forEach((sl,i)=>{const c=hand.find(x=>x.id===ids[i]);sl.innerHTML=c?faceHTML(c,"kin"):"";if(c&&tableMode!=="waiting"){sl.firstChild.onclick=()=>unplay(c.id)}});
-  const ready=selected.length===2;$("lockBtn").disabled=!ready;$("lockBtn").textContent=ready?"Lock it in":(selected.length===1?"Pick one more":"Pick two cards");$("tableHint").textContent=`${selected.length} of 2`}
+let placedSent=-1;
+function tellPlaced(){const n=selected.length;if(n===placedSent||!code)return;placedSent=n;api(code+"/placed",{who,n}).catch(()=>{})}
+function renderMySlots(ids){ids=ids||selected;const slots=$("meSlots").querySelectorAll(".slot");slots.forEach((sl,i)=>{const c=hand.find(x=>x.id===ids[i]);sl.innerHTML=c?faceHTML(c,"kin"):`<i>${i+1}</i>`;if(c&&tableMode!=="waiting"){sl.firstChild.onclick=()=>unplay(c.id)}});
+  $("meSlots").classList.toggle("untouched",selected.length===0);
+  const ready=selected.length===2;$("lockBtn").disabled=!ready;$("lockBtn").textContent=ready?"Lock it in":(selected.length===1?"Pick one more":"Pick two cards");
+  $("handHint").textContent=ready?"Tap a card to put it back, or lock it in.":"Drag or tap two cards up.";if(tableMode==="choosing")tellPlaced()}
 function play(id,fromEl){if(selected.includes(id)||selected.length>=2)return;selected.push(id);const slot=$("meSlots").querySelectorAll(".slot")[selected.length-1];
   if(fromEl){const c=hand.find(x=>x.id===id);fly(fromEl.getBoundingClientRect(),slot.getBoundingClientRect(),c.img,()=>{renderHand();renderMySlots()})}else{renderHand();renderMySlots()}
   if(navigator.vibrate)navigator.vibrate(10)}
@@ -310,7 +341,7 @@ function fly(from,to,img,done){const f=document.createElement("div");f.className
 let drag=null;
 function startDrag(e,el,id){if(tableMode!=="choosing"||selected.includes(id))return;e.preventDefault();drag={el,id,x0:e.clientX,y0:e.clientY,moved:false,ghost:null};el.setPointerCapture&&el.setPointerCapture(e.pointerId);
   el.onpointermove=ev=>{if(!drag)return;const dx=ev.clientX-drag.x0,dy=ev.clientY-drag.y0;if(!drag.moved&&Math.hypot(dx,dy)<10)return;
-    if(!drag.moved){drag.moved=true;const r=el.getBoundingClientRect();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=`<img src="${esc(hand.find(x=>x.id===id).img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;document.body.appendChild(g);drag.ghost=g;el.style.opacity=.3}
+    if(!drag.moved){drag.moved=true;const r=el.getBoundingClientRect();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=faceHTML(hand.find(x=>x.id===id),"");g.firstChild.style.position="absolute";g.firstChild.style.inset="0";document.body.appendChild(g);drag.ghost=g;el.style.opacity=.3}
     drag.ghost.style.transform=`translate(${dx}px,${dy}px) scale(1.08)`;const over=overMyField(ev.clientX,ev.clientY);$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.toggle("over",over&&!x.firstChild))};
   el.onpointerup=ev=>{if(!drag)return;const d=drag;drag=null;el.onpointermove=null;el.onpointerup=null;el.style.opacity="";$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.remove("over"));
     if(!d.moved){play(id,el);return}
@@ -319,14 +350,14 @@ function startDrag(e,el,id){if(tableMode!=="choosing"||selected.includes(id))ret
   el.onpointercancel=el.onpointerup}
 function overMyField(x,y){const r=$("meSlots").getBoundingClientRect();return y<r.bottom+20&&y>r.top-60&&x>r.left-40&&x<r.right+40}
 async function lockIn(){if(selected.length!==2)return;try{$("lockBtn").disabled=true;await api(code+"/play",{who,cards:selected});lockedRound=state.round;poll()}catch(e){alert(e.message);$("lockBtn").disabled=false}}
-function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";
+function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";rv.pairs.forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
   // my cards stay where I put them; theirs flip in place across from mine
   $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=rv.pairs[i];if(!p)return;const c=p[mine];const cls=p.match==="exact"?"match":(p.match==="kin"?"kin":"");sl.innerHTML=faceHTML(c,cls)+(p.match==="exact"?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':'')});
   $("themSlots").innerHTML=rv.pairs.map(p=>`<div class="slot">${flipHTML(p[theirs],p.match==="exact"?"match":(p.match==="kin"?"kin":""),p.match==="exact")}</div>`).join("");
-  $("themStatus").textContent="";$("tableHint").textContent="the reveal";
+  $("themStatus").textContent="";$("tableHint").textContent="";
   const flips=$("themSlots").querySelectorAll(".card.flip");
   rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},500+i*800);
-    setTimeout(()=>{$("ln"+i).textContent=(p.lines&&p.lines[who])||p.line||"";$("ln"+i).classList.add("shown")},1100+i*800)});
+    setTimeout(()=>{$("ln"+i).innerHTML=(i===0?'<img class="qmark" src="static/deck/qlou.jpg" alt="">':"")+esc((p.lines&&p.lines[who])||p.line||"");$("ln"+i).classList.add("shown")},1100+i*800)});
   setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},700+rv.pairs.length*800)}
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;saidStep=-1;$("say").textContent="Listening to both of you.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice on the thinking screen. The raw steps stay behind a fold on the done screen; the pick is never named here.
@@ -340,14 +371,14 @@ function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" al
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
 function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+p.why_source;const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
-    $("betVerdict").textContent=p.attempt>1?"Second pick, last one tonight:":(myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with:"):"Q-Lou's pick for the two of you:");
+    $("betVerdict").textContent=p.attempt>1?"Second pick, last one tonight":(myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with"):"Q-Lou's pick for the two of you");
     $("noBtn").textContent=p.attempt>1?"Not tonight":"Try another";
     $("art").innerHTML=artHTML(t0);
     $("songTitle").textContent=t0?t0.track:p.artist.name;
     $("artist").textContent=t0?p.artist.name:"";
     $("album").textContent=t0?`${t0.album||""}${t0.year?" · "+t0.year:""}`:`No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.`;
     $("why").innerHTML="<b>Q-Lou:</b> "+esc(p.why);
-    $("scores").innerHTML=`<span class="pill">You ${Math.round((p.scores[who]||0)*100)}</span><span class="pill">${esc(them)} ${Math.round((p.scores[theirKey]||0)*100)}</span>`;
+    $("scores").innerHTML=`<span class="pill">Fit: you ${Math.round((p.scores[who]||0)*100)}</span><span class="pill">${esc(them)} ${Math.round((p.scores[theirKey]||0)*100)}</span>`;
     $("moreTitle").textContent=`More by ${p.artist.name}`;$("moreBox").style.display=p.tracks&&p.tracks.length>1?"":"none";
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?p.tracks.slice(1).map(trackHTML).join(""):"";
     if(fresh){$("voteMsg").textContent="";["yesBtn","noBtn"].forEach(id=>{$(id).disabled=false;$(id).classList.remove("chosen")});window.scrollTo(0,0)}}
@@ -361,8 +392,11 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   heroUrl=t&&t.preview||"";$("doneArt").innerHTML=artHTML(t);$("doneArt").style.display=p&&p.artist?"":"none";
   $("doneTitle").textContent=p&&p.artist?(t?t.track:p.artist.name):"";
   $("doneArtist").textContent=p&&p.artist&&t?p.artist.name:"";
-  $("doneWho").textContent=`${names.join(" and ")} · ${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric"})}`;
-  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`In common: ${r.meter}. ${r.title}.`;
+  $("doneNames").textContent=names.join(" and ");
+  const mineN=names[who==="host"?0:1],theirsN=names[who==="host"?1:0];const cardsOf=n=>(r.plays[n]||[]).slice(-2).map(nm=>ALL_CARDS[nm]).filter(Boolean);
+  $("fourCards").innerHTML=cardsOf(mineN).map(c=>faceHTML(c,"")).join("")+'<span class="gap"></span>'+cardsOf(theirsN).map(c=>faceHTML(c,"")).join("");
+  $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
+  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`In common: ${r.meter}. ${r.title}.${p&&p.scores?` Song fit: you ${Math.round(p.scores[who]*100)}, ${esc(theirKey==="guest"?(state.sides.guest.name||"partner"):(state.sides.host.name||"partner"))} ${Math.round(p.scores[theirKey]*100)}.`:""}`;
   $("saveBtn").style.display=navigator.share&&p&&p.artist?"":"none";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["No card in common, and still a song."]).map(n=>`<span class="tag">${esc(n)}</span>`).join("");
   const them=(state.sides[theirKey]||{}).name||"partner";$("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${esc(x.name)} <span class="sub">you ${Math.round(x[who]*100)} · ${esc(them)} ${Math.round(x[theirKey]*100)}</span></p>`).join("")||"<p class='sub'>No shortlist this time.</p>";

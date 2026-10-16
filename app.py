@@ -300,6 +300,21 @@ class Play(BaseModel):
     cards: list[int]
 
 
+class Placed(BaseModel):
+    who: str
+    n: int = Field(ge=0, le=2)
+
+
+@app.post("/api/game/{code}/placed")
+def game_placed(code: str, body: Placed):
+    """A card set down (or picked back up) before locking: the partner's field shows it face-down."""
+    r = _room(code, body.who)
+    with r.lock:
+        if r.phase == "cards" and not r.sides[body.who].locked(r.round):
+            r.sides[body.who].placed = body.n
+    return {"ok": True}
+
+
 class Vote(BaseModel):
     who: str
     up: bool

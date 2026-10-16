@@ -67,7 +67,7 @@ def test_two_phones_full_game(client):
     client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True})
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
     assert st["phase"] == "done" and st["result"]["pick"]["played"] is True
-    assert st["result"]["meter"] >= 20 and st["result"]["title"]
+    assert st["result"]["meter"] > 0 and st["result"]["title"]
     # "what you both played" spans the whole game, whichever round each card came out in
     plays = st["result"]["plays"]
     assert set(st["result"]["both_played"]) == set(plays["Brent"]) & set(plays["Josie"])
@@ -157,3 +157,16 @@ def test_old_pickled_rooms_get_new_fields(tmp_path):
     rs2 = rooms.Rooms(tmp_path / "rooms.pkl", random.Random(1))
     g = rs2.rooms[r.code].sides["guest"]
     assert g.pending is None and g.due == 0.0 and rs2.rooms[r.code].tick() is None
+
+
+def test_placed_cards_show_face_down_to_the_partner(client):
+    code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
+    client.post(f"/api/game/{code}/join", json={"name": "Josie"})
+    _answer_all(client, code, "host"); _answer_all(client, code, "guest")
+    client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 1})
+    assert client.get(f"/api/game/{code}", params={"who": "guest"}).json()["sides"]["host"]["placed"] == 1
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    hand = [c["id"] for c in st["sides"]["host"]["hand"]]
+    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
+    assert client.get(f"/api/game/{code}", params={"who": "guest"}).json()["sides"]["host"]["placed"] == 2
+    assert client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 3}).status_code == 422

@@ -54,6 +54,7 @@ class Side:
     seen: list[int] = field(default_factory=list)
     pending: list[int] | None = None   # a house partner's next plays, waiting for their moment
     due: float = 0.0                   # when that moment is (epoch seconds)
+    placed: int = 0                    # cards set down this round before locking: the partner sees them face-down
 
     @property
     def profile(self) -> list[str]:
@@ -109,6 +110,7 @@ class Room:
             hand = deck.deal(set(s.seen), rng)
             s.hands.append(hand)
             s.plays.append([])
+            s.placed = 0
             s.seen += hand
             if s.house:
                 s.pending = self._house_plays(s, hand, rng)
@@ -228,9 +230,8 @@ class Room:
 
     # ---- result --------------------------------------------------------------------------
     def finish(self) -> dict:
-        """Common Ground is Q-Lou's find: the pick's weaker score, if that beats the card meter."""
-        if self.pick:
-            self.meter = max(self.meter, int(min(self.pick["scores"].values()) * 100))
+        """The meter keeps the meaning it had on the table (what the cards had in common, plus a
+        little for a song you both said yes to). The song's own fit is shown beside it, not folded in."""
         if self.pick and self.pick.get("played"):
             self.meter = min(100, self.meter + PLAYED_BONUS)
         title = next(t for m, t in TITLES if self.meter >= m)
@@ -257,7 +258,8 @@ class Room:
         sides = {}
         for k, s in self.sides.items():
             d = {"name": s.name, "joined": s.joined, "house": s.house, "answered": len(s.quiz.answers),
-                 "profile_labels": [quiz.label(x) for x in s.profile], "locked": s.locked(self.round)}
+                 "profile_labels": [quiz.label(x) for x in s.profile], "locked": s.locked(self.round),
+                 "placed": deck.PLAYS if s.locked(self.round) else s.placed}
             if k == who and 0 <= self.round < len(s.hands):
                 d["hand"] = [deck.public(deck.card(c)) for c in s.hands[self.round]]
                 d["plays"] = s.plays[self.round]
