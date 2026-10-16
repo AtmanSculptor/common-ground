@@ -110,9 +110,6 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .step{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:.9rem}
 .step b{color:var(--aura);min-width:5.2em;text-transform:lowercase;font-size:.8rem;letter-spacing:.04em;padding-top:2px}
 .step.error b{color:var(--coral)}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
-.tile{margin:0;aspect-ratio:4/5;border-radius:var(--r);background:radial-gradient(circle at 50% 35%,#2a0d44,#000 75%);border:2px solid rgba(189,53,252,.45);color:#fff;font-size:1.15rem;font-weight:800;line-height:1.15;padding:14px;white-space:normal;box-shadow:0 0 18px rgba(189,53,252,.25)}
-.tile:active{background:linear-gradient(160deg,var(--aura),var(--deep));border-color:var(--gold)}
 .choice{display:grid;gap:10px;margin-top:10px}
 .choice button{margin:0;padding:16px;font-size:1.05rem}
 .bet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -133,11 +130,6 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .rank{color:var(--text3);font-size:.9rem;margin:2px 0}
 .tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:4px 10px;margin:4px 4px 0 0;font-size:.9rem}
 .code{font-size:3.4rem;font-weight:800;letter-spacing:.18em;text-align:center;margin:8px 0;color:var(--gold);cursor:pointer;line-height:1}
-.joinbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border-radius:12px;padding:8px 8px 8px 14px;margin:0 0 12px}
-.joinbar .l{display:flex;flex-direction:column;line-height:1.15;min-width:0}
-.joinbar small{color:var(--text3);font-size:.75rem}
-.joinbar b{color:var(--gold);letter-spacing:.14em;font-size:1.15rem;white-space:nowrap}
-.joinbar button{flex:none}
 .pulse{animation:pulse 1.4s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.5}50%{opacity:1}}
 .wait{color:var(--text3);text-align:center;margin-top:14px}
@@ -185,17 +177,8 @@ details[open] summary::after{content:"–"}
   <div class="code" id="codeBig" onclick="copyCode()" title="Tap to copy"></div>
   <p class="sub center" id="codeHint">Your partner opens Our Song and joins with it. Tap the code to copy it.</p>
   <button class="ghost" id="shareBtn" onclick="shareCode()">Share the code</button>
-  <button id="quizEarlyBtn" onclick="quizEarly=true;poll()">Three quick questions while you wait</button>
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
   <p class="wait pulse" id="lobbyWaitMsg">Waiting for your partner…</p>
-</section>
-
-<section class="screen" id="s-quiz">
-  <div class="joinbar" id="joinBar" style="display:none"><div class="l"><small>Code for your partner</small><b id="joinBarCode"></b></div><button class="small ghost" onclick="shareCode()">Share</button></div>
-  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou:</b> Three quick ones, then the cards. Which is more you?</p></div>
-  <p class="sub" id="qn">1 of 3</p>
-  <div class="tiles"><button class="tile" id="qa"></button><button class="tile" id="qb"></button></div>
-  <button class="ghost" id="qn0">Neither, really</button>
 </section>
 
 <section class="screen" id="s-table">
@@ -256,7 +239,6 @@ details[open] summary::after{content:"–"}
       <h2>Q-Lou's shortlist</h2><p class="sub" style="font-size:.9rem;margin-top:0">Scored by Qloo for each of you. The lower score decides.</p><div id="ranked"></div>
       <h2>A cold guess, for comparison</h2><div id="baseline"></div>
       <h2>How Q-Lou got there</h2><div id="howBox"></div>
-      <h2>How we read you</h2><div id="profiles"></div>
     </details>
   </div>
   <p class="foot">Artists and taste scores by Qloo. <a href="stats">Results so far</a></p>
@@ -265,7 +247,7 @@ details[open] summary::after{content:"–"}
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let code=null, who=null, state=null, timer=null, selected=[], lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", quizEarly=false;
+let code=null, who=null, state=null, timer=null, selected=[], lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="";
 try{const s=JSON.parse(localStorage.getItem("oursong")||"null");if(s&&s.code){code=s.code;who=s.who;startPoll()}}catch(e){}
 try{const j=new URLSearchParams(location.search).get("join");if(j&&!code){$("joinCode").value=j.toUpperCase();show("join")}}catch(e){}
 function show(id){const was=document.querySelector(".screen.on");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");window.scrollTo(0,0)}
@@ -285,19 +267,11 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
   $("roomPill").textContent="Room "+s.code;
   $("lobbyVenue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}`:"";
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
-  if(s.phase==="quiz"){
-    const partnerOut=who==="host"&&!other.joined;
-    if(partnerOut&&!quizEarly){$("codeBig").textContent=s.code;$("quizEarlyBtn").style.display=s.question?"":"none";$("lobbyWaitMsg").textContent=s.question?"Waiting for your partner…":"You're set. Waiting for your partner to join…";show("lobbywait");return}
-    if(s.question){const q=s.question;$("qn").textContent=`${q.n} of ${q.of}`;$("qa").textContent=q.a.text;$("qb").textContent=q.b.text;
-      $("qa").onclick=()=>answer(q,q.a.id);$("qb").onclick=()=>answer(q,q.b.id);$("qn0").onclick=()=>answer(q,null);
-      $("joinBar").style.display=partnerOut?"":"none";$("joinBarCode").textContent=s.code;show("quiz");return}
-    if(partnerOut){$("codeBig").textContent=s.code;$("quizEarlyBtn").style.display="none";$("lobbyWaitMsg").textContent="You're set. Waiting for your partner to join…";show("lobbywait");return}
-    $("waitMsg").textContent="Waiting for "+partnerName()+" to finish the questions…";$("waitArea").style.display="";$("handArea").style.display="none";$("lockBtn").style.display="none";$("s-table").className="screen on quizwait";tableMode="quizwait";show("table");return}
+  if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,me,other);show("table");return}
   if(s.phase==="thinking"){renderThinking(s.thinking||[]);show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s.pick,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
-async function answer(q,chose){try{await api(code+"/answer",{who,a:q.a.id,b:q.b.id,chose});poll()}catch(e){}}
 function cardHTML(c,cls){return `<div class="scene"><div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name">${esc(c.name)}</div></div></div>`}
 function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="name">${esc(c.name)}</div></div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
@@ -410,7 +384,7 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   $("howBox").innerHTML=(p?`<p class="sub" style="margin-top:0">${p.pool?Number(p.pool).toLocaleString()+" artists in the running, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s. Every number is Qloo's, not a guess.</p>`:"")+
     (ex.length?`<p class="rank">What drove it: ${ex.map(d=>esc(d.label)+" "+Math.round(d.score*100)).join(", ")}</p>`:"")+
     `<div class="steps">${lastSteps.map(s=>`<div class="step${s.step==="error"?" error":""}"><b>${esc(s.step)}</b><span>${esc(s.text)}</span></div>`).join("")}</div>`;
-  $("profiles").innerHTML=Object.entries(r.profiles).map(([n,pr])=>`<p><b>${esc(n)}</b>: ${pr.map(esc).join(", ")||"a mystery"}</p>`).join("")}
+}
 function shareResult(){const r=state&&state.result;const p=r&&r.pick;if(!p||!p.artist)return;const t=p.tracks&&p.tracks[0];const names=Object.keys(r.plays||{}).join(" and ");
   const text=`Our Song: ${t?t.track+" by ":""}${p.artist.name}. ${names}, in common ${r.meter}.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}}
 </script></body></html>

@@ -166,10 +166,13 @@ def test_partial_coverage_does_not_outrank_full_coverage():
     assert matrix.partner_scores(m, [3, 4]) == {"full": 0.9}            # below half coverage: not ranked
 
 
-def test_within_a_point_the_better_known_artist_wins():
+def test_within_a_few_points_the_better_known_artist_wins():
     k = matrix.rank_key
-    assert sorted(["obscure", "famous"], key=lambda n: k(0.99, 0.0, 0.97) if n == "obscure" else k(0.987, 0.0, 0.9999))[0] == "famous"
-    assert sorted(["obscure", "famous"], key=lambda n: k(0.99, 0.0, 0.97) if n == "obscure" else k(0.90, 0.0, 0.9999))[0] == "obscure"
+    def first(obscure, famous):
+        return sorted(["obscure", "famous"], key=lambda n: k(obscure, 0.0, 0.97) if n == "obscure" else k(famous, 0.0, 0.9999))[0]
+    assert first(0.99, 0.987) == "famous"
+    assert first(0.99, 0.976) == "famous"      # the Lissie case: 98 for a name nobody knows loses to 97 for one they all do
+    assert first(0.99, 0.90) == "obscure"      # nine points is a real difference
 
 
 def test_resolver_forgives_spelling_and_refuses_collaborations(fake_qloo, monkeypatch):

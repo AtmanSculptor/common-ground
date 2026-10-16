@@ -6,7 +6,7 @@ Built for the Qloo Agentic Hackathon 2026. Live demo: see the Devpost submission
 
 ## What it is
 
-Our Song is a social game for a bar's pay-to-play jukebox, in the shape of a phone app feature. Two people at the bar, each on their own phone, join one room. Each answers three quick "which is more you?" questions and is dealt six taste cards (Night owl, Country roads, Whiskey, Dog person...). The screen is a table: your partner's side faces you across a glowing line. You drag the two cards that are most you up onto your side; theirs appear face-down across from yours as they place them. When both lock, their cards flip in place, a line from Q-Lou lands between each pair, and the meter climbs with what the cards had in common.
+Our Song is a social game for a bar's pay-to-play jukebox, in the shape of a phone app feature. Two people at the bar, each on their own phone, join one room. Each is dealt six taste cards (Night owl, Country roads, Whiskey, Dog person...). The screen is a table: your partner's side faces you across a glowing line. You drag the two cards that are most you up onto your side; theirs appear face-down across from yours as they place them. When both lock, their cards flip in place, a line from Q-Lou lands between each pair, and the meter climbs with what the cards had in common.
 
 Then Q-Lou, the genie in the jukebox, goes to work: it turns both players' cards into Qloo signals, pulls a pool of artists, scores every one for each person, grades on a curve, and picks the artist whose *weaker* score is highest. Common ground, not a compromise. It says why, in one line written from Qloo facts and checked against them, and brings back the artist's top tracks. "Play it for a credit?" Both say yes and it plays.
 
@@ -28,7 +28,7 @@ Sources: TouchTunes' March 17, 2026 release and its advertising page; Buzztime's
 
 **The fast path, which is what a bar sees.** Qloo scores every card against a shared pool of artists once, at build time, into `static/matrix.json` (`common_ground/matrix.py`). The pool is the union of each card's own top artists from Qloo and an outside list of what bars actually play (`static/jukebox_seeds.json`, TouchTunes most-played and Billboard year-end), every name resolved to a Qloo entity; an artist Qloo has never met is dropped and counted, never guessed at. Per game:
 
-1. **read** – the played cards and quiz profile, as below.
+1. **read** – the played cards, as below.
 2. **draft** – local arithmetic over the matrix: a partner's affinity to an artist is the mean of that artist's Qloo scores on the cards they played (a card Qloo was silent on counts as that card's weakest real score), curved per partner, ranked by the weaker score. No call, no wait. Four names from the top of the list go to the phones as a bet.
 3. **verify** – the top three are scored live with `filter.results.entities`, for both partners, in parallel. Q-Lou takes the first with a real live signal. If Qloo is having a slow minute (past 8 s), it goes with the matrix and the live check attaches itself when it lands.
 4. **why**, **baseline**, **tracks**, **compare** – as below, with a deadline: a slow extra never holds the song; it attaches itself to the pick when it arrives and the phones pick it up on their next poll. The control experiment and the compare are for the results screen and are never waited on. **compare** is `/v2/analysis/compare` on each partner's own top three artists from the matrix: the tags the two tastes share ("You share: Soul, Indie rock"), music genres first.
@@ -39,7 +39,7 @@ Live, two phones, the song arrives in 5 to 10 seconds. Before the matrix the sam
 
 **The full loop**, used when the matrix is missing or has nothing for a pair:
 
-1. **read** – each partner's played cards and quiz profile become one Qloo signal (`signal.interests.tags` + `signal.demographics.audiences`). Every card maps to a tag or audience verified against the live API (`probes/`).
+1. **read** – each partner's played cards become one Qloo signal (a house partner in solo play adds a few audiences) (`signal.interests.tags` + `signal.demographics.audiences`). Every card maps to a tag or audience verified against the live API (`probes/`).
 2. **pool** – candidate artists: `/v2/insights` for partner A, for partner B, and for the two signals combined.
 3. **score** – every candidate scored for A, then for B, with `filter.results.entities`. Qloo returns exactly 0.765 when it has no signal for an entity; that is treated as no data, never as agreement.
 4. **curve** – min-max within each partner. Raw affinities sit near 1.0 and some signals skew high; the spread inside one person's scores is what carries information.
@@ -69,7 +69,7 @@ common_ground/
   matrix.py                the card matrix: every card scored by Qloo against a shared pool of artists, once; Q-Lou drafts from it in no time
   rooms.py                 game state: rooms, sides, phases, votes
   deck.py                  the 45 cards, dealing, the lines under each pair
-  quiz.py                  four adaptive "which is more you?" questions over Qloo audiences
+  quiz.py                  the house partners for solo play (a name, a few Qloo audiences each)
   catalog.py               artist -> top tracks (the seam to a real jukebox catalog)
   stats.py                 one JSON line per game; the /stats summary
   llm.py                   OpenRouter client with a daily spend cap

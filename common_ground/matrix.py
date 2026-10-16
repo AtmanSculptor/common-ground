@@ -114,11 +114,15 @@ def draft(m: dict, a_cards: list[int], b_cards: list[int], exclude: set[str] | N
     return [{"id": e, "name": m["entities"][e]["name"], "a": ca[e], "b": cb[e], "entity": m["entities"][e]} for e in ranked[:top]]
 
 
+NEAR_TIE = 0.03          # curved scores this close are the same answer for this pair
+
+
 def rank_key(weaker: float, gap: float, popularity: float | None) -> tuple:
-    """The weaker partner's curved score decides. Within one point of each other, Qloo cannot tell
-    two artists apart for this pair, so the one more people know wins (a jukebox is for a room),
-    then the smaller gap between the two partners."""
-    return (-round(weaker, 2), -(popularity or 0), gap)
+    """The weaker partner's curved score decides. Scores within a few points of each other are
+    one band: Qloo cannot really tell those artists apart for this pair, so the one more people
+    know wins (a jukebox is for a room; a 98 for an artist nobody at the bar has heard of is not
+    a better night than a 97 for one they all know), then the smaller gap between the partners."""
+    return (-round(weaker / NEAR_TIE), -(popularity or 0), gap)
 
 
 # ---- building ------------------------------------------------------------------------------

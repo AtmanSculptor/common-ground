@@ -105,7 +105,7 @@ async function poll(){
   const s=state,A=s.sides.host,B=s.sides.guest;
   $("venue").textContent=s.venue&&s.venue.name?`${s.venue.name}${s.venue.line?" · "+s.venue.line:""}`:"";
   $("foot").textContent=`Room ${s.code} · artists and taste scores by Qloo`;
-  if(s.phase==="quiz"){$("idleSay").textContent=B.joined?`${A.name} and ${B.name} are answering four quick questions.`:`${A.name} is waiting for a partner.`;$("idleSub").innerHTML=B.joined?"":`Join with the code <span class="code">${esc(s.code)}</span>`;stage("st-idle");return}
+  if(s.phase==="lobby"){$("idleSay").textContent=`${A.name} is waiting for a partner.`;$("idleSub").innerHTML=B.joined?"":`Join with the code <span class="code">${esc(s.code)}</span>`;stage("st-idle");return}
   if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,A,B);stage("st-table");return}
   if(s.phase==="thinking"){const steps=s.thinking||[];const last=steps[steps.length-1]||{};$("say").textContent=({read:"Reading both hands.",draft:"Narrowing two thousand artists.",verify:"Checking with Qloo.",pick:"Got it."})[last.step]||"Q-Lou is listening to both of you.";stage("st-thinking");return}
   if(s.phase==="jukebox"&&s.pick){renderJukebox(s.pick,A,B);stage("st-jukebox");return}

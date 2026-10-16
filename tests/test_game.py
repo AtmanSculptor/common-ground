@@ -6,15 +6,6 @@ import pytest
 from fastapi.testclient import TestClient
 
 
-def _answer_all(client, code, who):
-    while True:
-        st = client.get(f"/api/game/{code}", params={"who": who}).json()
-        q = st.get("question")
-        if not q:
-            return
-        client.post(f"/api/game/{code}/answer", json={"who": who, "a": q["a"]["id"], "b": q["b"]["id"], "chose": q["a"]["id"]})
-
-
 def _wait_pick(client, code):
     import time
     for _ in range(100):
@@ -27,12 +18,11 @@ def _wait_pick(client, code):
 
 def test_two_phones_full_game(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
-    assert client.get(f"/api/game/{code}", params={"who": "host"}).json()["sides"]["guest"]["joined"] is False
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and "question" not in st
     assert client.post(f"/api/game/{code}/join", json={"name": "Josie"}).json()["who"] == "guest"
     assert client.post(f"/api/game/{code}/join", json={"name": "Third"}).status_code == 404
-    _answer_all(client, code, "host")
-    assert client.get(f"/api/game/{code}", params={"who": "host"}).json()["phase"] == "quiz"
-    _answer_all(client, code, "guest")
+    # the partner joining is the whole setup: cards are on the table at once
     for rnd in range(2):
         st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
         assert st["phase"] == "cards" and st["round"] == rnd
@@ -83,7 +73,6 @@ def test_solo_against_the_house(client, monkeypatch):
     r = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()
     code = r["code"]
     assert r["house"]
-    _answer_all(client, code, "host")
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
     assert st["phase"] == "cards" and st["sides"]["guest"]["locked"]
     for _ in range(2):
@@ -114,7 +103,6 @@ def test_one_round_is_enough(client, monkeypatch):
     from common_ground import rooms
     monkeypatch.setattr(rooms, "HOUSE_LOCK_PAUSE", (0, 0))
     code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
-    _answer_all(client, code, "host")
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
     client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
@@ -131,7 +119,6 @@ def test_the_house_moves_on_a_human_clock(client, monkeypatch):
     monkeypatch.setattr(rooms, "HOUSE_LOCK_PAUSE", (0.3, 0.3))
     monkeypatch.setattr(rooms, "HOUSE_VOTE_PAUSE", (0.3, 0.3))
     code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
-    _answer_all(client, code, "host")
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
     assert st["phase"] == "cards" and not st["sides"]["guest"]["locked"]      # the stranger is still choosing
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
@@ -164,7 +151,6 @@ def test_old_pickled_rooms_get_new_fields(tmp_path):
 def test_placed_cards_show_face_down_to_the_partner(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
-    _answer_all(client, code, "host"); _answer_all(client, code, "guest")
     client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 1})
     assert client.get(f"/api/game/{code}", params={"who": "guest"}).json()["sides"]["host"]["placed"] == 1
     st = client.get(f"/api/game/{code}", params={"who": "host"}).json()

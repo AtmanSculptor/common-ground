@@ -1,7 +1,7 @@
 """Rooms: the state of one game between two phones.
 
 Phases:
-  quiz      both partners tap through four "which is more you" questions
+  lobby     the host has a code; the partner has not joined yet
   cards     each is dealt six, plays two, locks in           (CARD_ROUNDS times)
   reveal    both hands flip; a line lands under each pair; the meter moves
   thinking  Q-Lou is working (steps stream to both phones)
@@ -9,7 +9,7 @@ Phases:
   done      meter, title, what you share, Q-Lou's shortlist, the LLM-vs-Qloo control
 
 State lives in memory and is mirrored to a pickle so a restart does not end a game.
-No accounts, no cookies: a room is a code and two first names, swept after six hours.
+No accounts, no cookies: a room is a code and two nicknames, swept after six hours.
 """
 from __future__ import annotations
 
@@ -74,7 +74,7 @@ class Side:
 class Room:
     code: str
     created: float = field(default_factory=time.time)
-    phase: str = "quiz"
+    phase: str = "lobby"
     round: int = -1
     sides: dict[str, Side] = field(default_factory=lambda: {"host": Side(), "guest": Side()})
     reveals: list[dict] = field(default_factory=list)
@@ -91,16 +91,6 @@ class Room:
 
     def __setstate__(self, d):
         self.__dict__.update(d); self.lock = threading.Lock()
-
-    # ---- quiz ----------------------------------------------------------------------------
-    def question(self, who: str) -> dict | None:
-        return self.sides[who].quiz.next_question()
-
-    def answer(self, who: str, a: str, b: str, chose: str | None) -> None:
-        self.sides[who].quiz.answer(a, b, chose)
-
-    def both_quizzed(self) -> bool:
-        return all(s.joined and s.quiz.done for s in self.sides.values())
 
     # ---- cards ---------------------------------------------------------------------------
     def deal(self, rng: random.Random | None = None) -> None:
@@ -257,7 +247,7 @@ class Room:
     def public(self, who: str | None = None) -> dict:
         sides = {}
         for k, s in self.sides.items():
-            d = {"name": s.name, "joined": s.joined, "house": s.house, "answered": len(s.quiz.answers),
+            d = {"name": s.name, "joined": s.joined, "house": s.house,
                  "profile_labels": [quiz.label(x) for x in s.profile], "locked": s.locked(self.round),
                  "placed": deck.PLAYS if s.locked(self.round) else s.placed}
             if k == who and 0 <= self.round < len(s.hands):
@@ -315,8 +305,9 @@ class Rooms:
                 h = self.rng.choice(quiz.HOUSE)
                 g = r.sides["guest"]
                 g.name, g.joined, g.house = h["name"], True, True
-                g.quiz = quiz.Quiz.preset(h["profile"])
+                g.quiz = quiz.Quiz.preset(h["profile"])      # the house keeps a taste profile; it drives which cards it plays
                 r.log.append(f"Q-Lou seats you with {h['name']}")
+                r.deal(self.rng)
             self.rooms[code] = r
             self.save()
             return r
@@ -329,6 +320,9 @@ class Rooms:
         if not r or r.sides["guest"].joined:
             return None
         r.sides["guest"].name, r.sides["guest"].joined = name, True
+        with r.lock:
+            if r.phase == "lobby":
+                r.deal(self.rng)
         self.save()
         return r
 

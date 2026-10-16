@@ -319,13 +319,6 @@ class JoinGame(BaseModel):
     name: str = "guest"
 
 
-class Answer(BaseModel):
-    who: str
-    a: str
-    b: str
-    chose: str | None = None
-
-
 class Play(BaseModel):
     who: str
     cards: list[int]
@@ -423,21 +416,8 @@ def game_state(code: str, who: str = "host"):
         if moved in ("reveal", "redeal"):
             _think(r)
     st = r.public(who)
-    if r.phase == "quiz" and who in r.sides:
-        st["question"] = r.question(who)
     st["venue"] = VENUE if VENUE["name"] else None
     return st
-
-
-@app.post("/api/game/{code}/answer")
-def game_answer(code: str, body: Answer):
-    r = _room(code, body.who)
-    with r.lock:
-        r.answer(body.who, body.a, body.b, body.chose)
-        if r.phase == "quiz" and r.both_quizzed():
-            r.deal(ROOMS.rng)
-    ROOMS.save()
-    return {"ok": True}
 
 
 @app.post("/api/game/{code}/play")
