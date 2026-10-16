@@ -28,14 +28,46 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .screen{display:none}.screen.on{display:block}
 .meter{height:14px;background:var(--surface2);border-radius:999px;overflow:hidden;margin:8px 0 2px}
 .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--aura),var(--gold));transition:width .9s cubic-bezier(.2,.8,.2,1)}
-.hand{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px}
+.hand{display:grid;grid-template-columns:repeat(3,minmax(0,104px));justify-content:center;gap:8px;margin-top:8px}
+.hand .card{touch-action:none}
+.hand .card.played{opacity:.18;pointer-events:none}
+/* the playing field: their half at the top, yours below, a glowing line between */
+#s-table{position:relative;margin:0 -16px;padding:0 16px 8px;background:radial-gradient(ellipse 110% 60% at 50% 0%,rgba(138,43,226,.22),transparent 60%),radial-gradient(ellipse 110% 60% at 50% 100%,rgba(255,199,0,.10),transparent 60%),linear-gradient(#070309,#0b0612 50%,#070309)}
+#s-table .between{position:relative}
+#s-table .between::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(189,53,252,.6),rgba(255,199,0,.5),transparent)}
+#s-table.revealed .between::before{display:none}
+.field{position:relative;border-radius:18px;padding:6px 0 8px}
+.field.them{background:rgba(138,43,226,.06)}
+.field.me{background:rgba(255,199,0,.04)}
+.tablehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:2px;padding-top:4px}
+.field .who{text-align:center;color:var(--text3);font-size:.85rem;margin:4px 0}
+.slots{display:grid;grid-template-columns:repeat(2,var(--slot,88px));gap:12px;justify-content:center;transition:grid-template-columns .4s}
+.slot{aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.35);position:relative;transition:width .4s}
+.slot .card{position:absolute;inset:-2px;width:auto;height:auto;cursor:pointer}
+.slot.over{border-color:var(--gold);box-shadow:0 0 18px rgba(255,199,0,.35)}
+.field.me .slot:empty::after{content:"";position:absolute;inset:0;border-radius:var(--r);background:radial-gradient(circle at 50% 40%,rgba(42,13,68,.5),transparent 70%)}
+#s-table.choosing .field.them{--slot:58px}
+#s-table.choosing .field.me{--slot:78px}
+#s-table.revealed{--slot:150px}
+#s-table.choosing .field .who,#s-table.waiting .field .who{margin:2px 0}
+#s-table.choosing .slot .card .name,#s-table.waiting .slot .card .name{font-size:.68rem;padding:6px 3px 7px;line-height:1.05}
+#s-table.choosing .slot .card .frame,#s-table.waiting .slot .card .frame{border-width:1px}
+#s-table.choosing .field.them .slot .card,#s-table.waiting .field.them .slot .card{pointer-events:none}
+.between{min-height:8px;margin:2px 0}
+.between .line{display:none}
+#s-table.revealed .between .line{display:block}
+.between .meter{display:none}
+#s-table.revealed .between .meter{display:block;margin-top:6px}
+#s-table.revealed #meterText{display:block}
+#meterText{display:none;font-size:.85rem;margin:2px 0 0}
+.flyer{position:fixed;z-index:50;pointer-events:none;border-radius:var(--r);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.6);transition:transform .32s cubic-bezier(.2,.8,.2,1),width .32s,height .32s}
+.dragging{position:fixed;z-index:60;pointer-events:none;border-radius:var(--r);overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.7)}
 .scene{perspective:900px}
 .card{position:relative;aspect-ratio:2/3;border-radius:var(--r);overflow:hidden;background:radial-gradient(circle at 50% 40%,#2a0d44,#000 70%);transform-style:preserve-3d;transition:transform .2s cubic-bezier(.2,.8,.2,1),box-shadow .2s;cursor:pointer}
 .card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .card .frame{position:absolute;inset:0;border:2px solid rgba(189,53,252,.35);border-radius:var(--r);pointer-events:none}
 .card .name{position:absolute;left:0;right:0;bottom:0;padding:10px 6px 10px;text-align:center;font-weight:800;font-size:1rem;line-height:1.1;text-shadow:0 2px 8px #000;background:linear-gradient(transparent,rgba(0,0,0,.85))}
 .card .badge{position:absolute;top:6px;right:6px;width:28px;height:28px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:none;place-items:center;font-weight:800;font-size:.85rem;background:rgba(0,0,0,.5)}
-.hand .card .badge{display:grid}
 .card.sel{transform:translateY(-6px) scale(1.05);box-shadow:0 0 22px var(--aura)}
 .card.sel .badge{background:var(--aura);border-color:var(--aura)}
 .card.match{box-shadow:0 0 26px rgba(255,199,0,.6)}
@@ -44,9 +76,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 /* the flip: the card itself must not clip, or the 3D is flattened and the face renders mirrored */
 .card.flip{overflow:visible;transition:transform .6s cubic-bezier(.2,.8,.2,1);transform:rotateY(180deg);background:none}
 .card.flip.shown{transform:rotateY(0)}
-.flip .back{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:radial-gradient(circle at 50% 40%,#2a0d44,#000 70%);border:2px solid rgba(189,53,252,.35);transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center;color:var(--aura);font-weight:800;font-size:2rem}
+.flip .back{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:#000 url(static/deck/back.jpg) center/cover;border:2px solid rgba(189,53,252,.35);transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .flip .face{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:#000}
-.pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;margin:6px auto 0;max-width:330px}
 .line{text-align:center;color:var(--text2);font-size:.95rem;margin:8px 4px 2px;min-height:1.3em;opacity:0;transition:opacity .5s}
 .line.shown{opacity:1}
 .who{text-align:center;color:var(--text3);font-size:.85rem;margin-bottom:4px}
@@ -142,31 +173,17 @@ details[open] summary::after{content:"–"}
   <button class="ghost" id="qn0">Neither, really</button>
 </section>
 
-<section class="screen" id="s-cards">
-  <p class="sub" id="roundLabel">Round 1</p>
-  <h1>Play the two that are most you</h1>
-  <p class="sub" style="margin:0">Your first pick leads.</p>
-  <div class="hand" id="hand"></div>
-  <button id="lockBtn" disabled onclick="lockIn()">Pick two cards</button>
-</section>
-
-<section class="screen" id="s-wait">
-  <h1>Locked in</h1>
-  <p class="wait pulse" id="waitMsg">Waiting for your partner…</p>
-  <p class="sub" style="margin-top:18px">You played</p>
-  <div class="pair" id="waitCards"></div>
-  <div id="waitMeterBox" style="display:none"><div class="meter"><i id="meterWait"></i></div><p class="sub" id="meterWaitText"></p></div>
-  <div class="qlou-big" style="margin-top:22px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center">Q-Lou is warming up the jukebox.</p>
-</section>
-
-<section class="screen" id="s-reveal">
-  <p class="sub" id="revealLabel">The reveal</p>
-  <div class="meter"><i id="meter"></i></div><p class="sub" id="meterText"></p>
-  <div id="pairs"></div>
+<section class="screen" id="s-table">
+  <div class="tablehead"><span class="sub" id="roundLabel">Round 1</span><span class="sub" id="tableHint"></span></div>
+  <div class="field them"><div class="who"><span id="themName"></span> <span class="sub" id="themStatus"></span></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div></div></div>
+  <div class="between" id="between"><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter"><i id="meter"></i></div><p class="sub center" id="meterText"></p></div>
+  <div class="field me"><div class="who">You</div><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div></div></div>
+  <div id="handArea"><p class="sub center" style="margin:6px 0 0;font-size:.85rem">Drag or tap two cards up. Your first pick leads.</p><div class="hand" id="hand"></div></div>
+  <div id="waitArea" style="display:none"><div class="qlou-big" style="margin-top:8px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div><p class="wait pulse" id="waitMsg"></p></div>
   <div class="stick">
-    <button id="nextBtn" onclick="next(false)">Hear Q-Lou's pick</button>
-    <button id="moreBtn" class="ghost" onclick="next(true)">Deal another round</button>
+    <button id="lockBtn" disabled onclick="lockIn()">Pick two cards</button>
+    <button id="nextBtn" onclick="next(false)" style="display:none">Hear Q-Lou's pick</button>
+    <button id="moreBtn" class="ghost" onclick="next(true)" style="display:none">Deal another round</button>
   </div>
 </section>
 
@@ -214,10 +231,10 @@ details[open] summary::after{content:"–"}
 <script>
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let code=null, who=null, state=null, timer=null, selected=[], shownReveal=-1, lastPhase=null, lockedRound=-1, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", quizEarly=false;
+let code=null, who=null, state=null, timer=null, selected=[], lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", quizEarly=false;
 try{const s=JSON.parse(localStorage.getItem("oursong")||"null");if(s&&s.code){code=s.code;who=s.who;startPoll()}}catch(e){}
 try{const j=new URLSearchParams(location.search).get("join");if(j&&!code){$("joinCode").value=j.toUpperCase();show("join")}}catch(e){}
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");window.scrollTo(0,0)}
+function show(id){const was=document.querySelector(".screen.on");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");window.scrollTo(0,0)}
 function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
   return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)throw new Error("Easy there, slow down a second.");if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
 function remember(){try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
@@ -240,30 +257,64 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
       $("qa").onclick=()=>answer(q,q.a.id);$("qb").onclick=()=>answer(q,q.b.id);$("qn0").onclick=()=>answer(q,null);
       $("joinBar").style.display=partnerOut?"":"none";$("joinBarCode").textContent=s.code;show("quiz");return}
     if(partnerOut){$("codeBig").textContent=s.code;$("quizEarlyBtn").style.display="none";$("lobbyWaitMsg").textContent="You're set. Waiting for your partner to join…";show("lobbywait");return}
-    $("waitMsg").textContent="Waiting for "+partnerName()+" to finish the questions…";$("waitCards").innerHTML="";$("waitMeterBox").style.display="none";show("wait");return}
-  if(s.phase==="cards"){if(me.locked||lockedRound===s.round){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";
-      const mine=(me.hand||[]).filter(c=>(me.plays||selected).includes(c.id));$("waitCards").innerHTML=mine.map(c=>cardHTML(c,"kin")).join("");
-      $("waitMeterBox").style.display=s.round>0?"":"none";$("meterWait").style.width=s.meter+"%";$("meterWaitText").textContent=`In common so far: ${s.meter}`;show("wait");return}
-    if(lastPhase!=="cards"+s.round){selected=[];renderHand(me.hand||[]);$("roundLabel").textContent=`Round ${s.round+1}`;lastPhase="cards"+s.round}show("cards");return}
-  if(s.phase==="reveal"){if(shownReveal!==s.round){shownReveal=s.round;renderReveal(s.reveal)}$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";show("reveal");return}
+    $("waitMsg").textContent="Waiting for "+partnerName()+" to finish the questions…";$("waitArea").style.display="";$("handArea").style.display="none";$("lockBtn").style.display="none";$("s-table").className="screen on quizwait";tableMode="quizwait";show("table");return}
+  if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,me,other);show("table");return}
   if(s.phase==="thinking"){renderThinking(s.thinking||[]);show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s.pick,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);clearInterval(timer);forget();show("done")}}
 async function answer(q,chose){try{await api(code+"/answer",{who,a:q.a.id,b:q.b.id,chose});poll()}catch(e){}}
-function cardHTML(c,cls){return `<div class="scene"><div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt=""><div class="frame"></div><div class="badge"></div><div class="name">${esc(c.name)}</div></div></div>`}
-function renderHand(hand){$("hand").innerHTML=hand.map(c=>cardHTML(c)).join("");$("lockBtn").disabled=true;$("lockBtn").textContent="Pick two cards";
-  $("hand").querySelectorAll(".card").forEach(el=>{el.onclick=()=>{const id=+el.dataset.id;const i=selected.indexOf(id);if(i>=0)selected.splice(i,1);else{if(selected.length>=2)selected.shift();selected.push(id)}
-    $("hand").querySelectorAll(".card").forEach(x=>{const k=selected.indexOf(+x.dataset.id);x.classList.toggle("sel",k>=0);x.querySelector(".badge").textContent=k>=0?(k+1):""});
-    const ready=selected.length===2;$("lockBtn").disabled=!ready;$("lockBtn").textContent=ready?"Lock it in":(selected.length===1?"Pick one more":"Pick two cards");if(navigator.vibrate)navigator.vibrate(10)}})}
-async function lockIn(){try{$("lockBtn").disabled=true;await api(code+"/play",{who,cards:selected});lockedRound=state.round;poll()}catch(e){alert(e.message);$("lockBtn").disabled=false}}
-function renderReveal(rv){const them=partnerName();$("revealLabel").textContent=`Round ${rv.round+1}: the reveal`;$("meter").style.width="0%";$("meterText").textContent="";
-  $("pairs").innerHTML=rv.pairs.map((p,i)=>{const a=who==="host"?p.a:p.b,b=who==="host"?p.b:p.a;const cls=p.match==="exact"?"match":(p.match==="kin"?"kin":"");
-    const face=(c)=>`<div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${p.match==="exact"?'<div class="badge">★</div>':''}<div class="name">${esc(c.name)}</div></div>`;
-    return `<div class="pair"><div><div class="who">You</div><div class="scene"><div class="card flip ${cls}" id="fa${i}"><div class="back">?</div>${face(a)}</div></div></div>
-    <div><div class="who">${esc(them)}</div><div class="scene"><div class="card flip ${cls}" id="fb${i}"><div class="back">?</div>${face(b)}</div></div></div></div><p class="line" id="ln${i}">${esc((p.lines&&p.lines[who])||p.line||"")}</p>`}).join("");
-  rv.pairs.forEach((p,i)=>{setTimeout(()=>{$("fa"+i).classList.add("shown");$("fb"+i).classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},400+i*900);setTimeout(()=>$("ln"+i).classList.add("shown"),1000+i*900)});
-  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},600+rv.pairs.length*900);
-  $("moreBtn").style.display=state.more_allowed?"":"none"}
+function cardHTML(c,cls){return `<div class="scene"><div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name">${esc(c.name)}</div></div></div>`}
+function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="name">${esc(c.name)}</div></div>`}
+function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
+function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge">★</div>':''}<div class="name">${esc(c.name)}</div></div></div>`}
+// ---- the table: their field on top facing you, yours below, your hand under that ----
+let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1;
+function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;
+  $("handArea").style.display=mode==="choosing"?"":"none";$("waitArea").style.display=mode==="waiting"?"":"none";
+  $("lockBtn").style.display=mode==="choosing"?"":"none";$("nextBtn").style.display=mode==="revealed"?"":"none";$("moreBtn").style.display=mode==="revealed"&&state.more_allowed?"":"none"}
+function renderTable(s,me,other){const mode=s.phase==="reveal"?"revealed":(me.locked||lockedRound===s.round)?"waiting":"choosing";
+  $("themName").textContent=partnerName();$("roundLabel").textContent=`Round ${s.round+1}`;
+  if(lastPhase!=="table"+s.round){lastPhase="table"+s.round;selected=[];hand=me.hand||[];themShown="";revealedRound=-1;renderHand();renderMySlots();$("themSlots").innerHTML='<div class="slot"></div><div class="slot"></div>';["ln0","ln1"].forEach(id=>{$(id).textContent="";$(id).classList.remove("shown")});$("meter").style.width="0%";$("meterText").textContent=""}
+  if(mode!=="revealed"){const st=other.locked?"locked":"choosing";if(themShown!==st){themShown=st;$("themSlots").innerHTML=other.locked?backHTML()+backHTML():'<div class="slot"></div><div class="slot"></div>';if(other.locked)$("themSlots").querySelectorAll(".slot").forEach(x=>x.remove())}
+    $("themStatus").textContent=other.locked?"locked in":"is choosing…";$("tableHint").textContent=mode==="choosing"?`${selected.length} of 2`:"";
+    if(mode==="waiting"){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";if(!me.plays||!me.plays.length)selected=selected;renderMySlots(me.plays&&me.plays.length?me.plays:selected)}}
+  else if(revealedRound!==s.round){revealedRound=s.round;renderReveal(s.reveal,me)}
+  if(mode==="revealed")$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";
+  if(tableMode!==mode)setTable(mode);else if(mode==="revealed")$("moreBtn").style.display=state.more_allowed?"":"none"}
+function renderHand(){$("hand").innerHTML=hand.map(c=>cardHTML(c,selected.includes(c.id)?"played":"")).join("");
+  $("hand").querySelectorAll(".card").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>startDrag(e,el,id)})}
+function renderMySlots(ids){ids=ids||selected;const slots=$("meSlots").querySelectorAll(".slot");slots.forEach((sl,i)=>{const c=hand.find(x=>x.id===ids[i]);sl.innerHTML=c?faceHTML(c,"kin"):"";if(c&&tableMode!=="waiting"){sl.firstChild.onclick=()=>unplay(c.id)}});
+  const ready=selected.length===2;$("lockBtn").disabled=!ready;$("lockBtn").textContent=ready?"Lock it in":(selected.length===1?"Pick one more":"Pick two cards");$("tableHint").textContent=`${selected.length} of 2`}
+function play(id,fromEl){if(selected.includes(id)||selected.length>=2)return;selected.push(id);const slot=$("meSlots").querySelectorAll(".slot")[selected.length-1];
+  if(fromEl){const c=hand.find(x=>x.id===id);fly(fromEl.getBoundingClientRect(),slot.getBoundingClientRect(),c.img,()=>{renderHand();renderMySlots()})}else{renderHand();renderMySlots()}
+  if(navigator.vibrate)navigator.vibrate(10)}
+function unplay(id){const i=selected.indexOf(id);if(i<0||tableMode!=="choosing")return;selected.splice(i,1);renderHand();renderMySlots()}
+function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
+  f.style.left=from.left+"px";f.style.top=from.top+"px";f.style.width=from.width+"px";f.style.height=from.height+"px";document.body.appendChild(f);
+  requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-from.left}px,${to.top-from.top}px)`;f.style.width=to.width+"px";f.style.height=to.height+"px"});
+  setTimeout(()=>{f.remove();done&&done()},330)}
+// drag a card from the hand up onto your field; a short tap plays it too
+let drag=null;
+function startDrag(e,el,id){if(tableMode!=="choosing"||selected.includes(id))return;e.preventDefault();drag={el,id,x0:e.clientX,y0:e.clientY,moved:false,ghost:null};el.setPointerCapture&&el.setPointerCapture(e.pointerId);
+  el.onpointermove=ev=>{if(!drag)return;const dx=ev.clientX-drag.x0,dy=ev.clientY-drag.y0;if(!drag.moved&&Math.hypot(dx,dy)<10)return;
+    if(!drag.moved){drag.moved=true;const r=el.getBoundingClientRect();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=`<img src="${esc(hand.find(x=>x.id===id).img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;document.body.appendChild(g);drag.ghost=g;el.style.opacity=.3}
+    drag.ghost.style.transform=`translate(${dx}px,${dy}px) scale(1.08)`;const over=overMyField(ev.clientX,ev.clientY);$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.toggle("over",over&&!x.firstChild))};
+  el.onpointerup=ev=>{if(!drag)return;const d=drag;drag=null;el.onpointermove=null;el.onpointerup=null;el.style.opacity="";$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.remove("over"));
+    if(!d.moved){play(id,el);return}
+    const ok=overMyField(ev.clientX,ev.clientY);if(ok){selected.push(id);const slot=$("meSlots").querySelectorAll(".slot")[selected.length-1];const r=d.ghost.getBoundingClientRect();d.ghost.remove();fly(r,slot.getBoundingClientRect(),hand.find(x=>x.id===id).img,()=>{renderHand();renderMySlots()});if(navigator.vibrate)navigator.vibrate(10)}
+    else{d.ghost.style.transition="transform .25s";d.ghost.style.transform="";setTimeout(()=>d.ghost.remove(),260)}};
+  el.onpointercancel=el.onpointerup}
+function overMyField(x,y){const r=$("meSlots").getBoundingClientRect();return y<r.bottom+20&&y>r.top-60&&x>r.left-40&&x<r.right+40}
+async function lockIn(){if(selected.length!==2)return;try{$("lockBtn").disabled=true;await api(code+"/play",{who,cards:selected});lockedRound=state.round;poll()}catch(e){alert(e.message);$("lockBtn").disabled=false}}
+function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";
+  // my cards stay where I put them; theirs flip in place across from mine
+  $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=rv.pairs[i];if(!p)return;const c=p[mine];const cls=p.match==="exact"?"match":(p.match==="kin"?"kin":"");sl.innerHTML=faceHTML(c,cls)+(p.match==="exact"?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':'')});
+  $("themSlots").innerHTML=rv.pairs.map(p=>`<div class="slot">${flipHTML(p[theirs],p.match==="exact"?"match":(p.match==="kin"?"kin":""),p.match==="exact")}</div>`).join("");
+  $("themStatus").textContent="";$("tableHint").textContent="the reveal";
+  const flips=$("themSlots").querySelectorAll(".card.flip");
+  rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},500+i*800);
+    setTimeout(()=>{$("ln"+i).textContent=(p.lines&&p.lines[who])||p.line||"";$("ln"+i).classList.add("shown")},1100+i*800)});
+  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},700+rv.pairs.length*800)}
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;saidStep=-1;$("say").textContent="Listening to both of you.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice on the thinking screen. The raw steps stay behind a fold on the done screen; the pick is never named here.
 function sayFor(s){switch(s.step){case"read":return"Reading your cards.";case"draft":return`Narrowing ${s.pool?Number(s.pool).toLocaleString():"the"} artists.`;case"pool":return`Pulling ${s.pool||"the"} artists from Qloo.`;
