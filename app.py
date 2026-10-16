@@ -20,6 +20,13 @@ app = FastAPI(title="Common Ground")
 from fastapi.middleware.cors import CORSMiddleware
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 ROOT = Path(__file__).resolve().parent
+from fastapi.staticfiles import StaticFiles
+app.mount("/static", StaticFiles(directory=str(ROOT / "static")), name="static")
+
+
+@app.get("/cards")
+def cards_page():
+    return FileResponse(ROOT / "static" / "cardtest.html")
 _q = Qloo()
 _audiences_cache: dict = {}
 _jobs: dict[str, dict] = {}

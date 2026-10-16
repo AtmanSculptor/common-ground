@@ -31,12 +31,12 @@ button:active{background:linear-gradient(90deg,var(--aura),var(--deep));color:#f
 <h1>Common Ground cards</h1>
 <p class="sub">Tilt your phone or drag across a card. Tap a card to toggle match / yours / plain.</p>
 <div class="bar"><button onclick="bump(1)">Bigger text</button><button onclick="bump(-1)">Smaller</button><button onclick="matchRandom()">Light up 2 matches</button></div>
-<div class="hero scene"><div class="card tilt" id="qlou"><img src="deck/qlou.jpg" alt=""><div class="glare"></div><div class="frame"></div><div class="name">Q-Lou</div></div><p class="line">The genie in the jukebox. One wish, the song you both love.</p></div>
+<div class="hero scene"><div class="card tilt" id="qlou"><img src="static/deck/qlou.jpg" alt=""><div class="glare"></div><div class="frame"></div><div class="name">Q-Lou</div></div><p class="line">The genie in the jukebox. One wish, the song you both love.</p></div>
 <div class="grid" id="grid"></div>
 <script>
 const ICON={life:"✦",music:"♪",film:"▶",screen:"▣",mic:"🎙",book:"▤",game:"◎",table:"◒",place:"⌂",heart:"♥"};
 let cards=[];
-fetch("cards.json").then(r=>r.json()).then(d=>{cards=d;render()});
+fetch("static/cards.json?_="+Date.now()).then(r=>r.json()).then(d=>{cards=d;render()});
 function render(){const g=document.getElementById("grid");g.innerHTML="";for(const c of cards){const s=document.createElement("div");s.className="scene";s.innerHTML=`<div class="card tilt" data-id="${c.id}"><img src="${c.img}" alt=""><div class="glare"></div><div class="frame"></div><div class="cat">${ICON[c.cat]||"✦"}</div><div class="badge"></div><div class="name">${c.name}</div></div>`;g.appendChild(s)}wire()}
 function wire(){document.querySelectorAll(".tilt").forEach(card=>{card.addEventListener("pointermove",e=>{const r=card.getBoundingClientRect();const px=(e.clientX-r.left)/r.width-.5,py=(e.clientY-r.top)/r.height-.5;set(card,px,py)});card.addEventListener("pointerleave",()=>set(card,0,0));card.addEventListener("click",()=>{if(card.classList.contains("match")){card.classList.remove("match");card.classList.add("yours")}else if(card.classList.contains("yours")){card.classList.remove("yours")}else{card.classList.add("match")}const b=card.querySelector(".badge");if(b)b.textContent=card.classList.contains("match")?"★":card.classList.contains("yours")?"you":""})})}
 function set(card,px,py){card.style.setProperty("--px",px);card.style.setProperty("--py",py);card.style.setProperty("--ry",(px*18)+"deg");card.style.setProperty("--rx",(-py*18)+"deg")}
