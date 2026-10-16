@@ -148,6 +148,15 @@ def matrix_build(request: Request):
     return {"ok": True, "status": "running"}
 
 
+@app.get("/api/admin/search")
+def admin_search(request: Request, q: str):
+    """Maintenance: what Qloo's /search returns for a name (to tune the seed resolver). Loopback only."""
+    _local_only(request)
+    hits = _q.search(q, types="urn:entity:artist", take=5)
+    return {"query": q, "resolved": matrix._resolve_seed(_q, q),
+            "hits": [{"name": h.get("name"), "id": h.get("entity_id"), "types": h.get("types"), "popularity": h.get("popularity")} for h in hits]}
+
+
 @app.get("/api/admin/matrix")
 def matrix_status(request: Request):
     _local_only(request)

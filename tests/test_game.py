@@ -54,7 +54,8 @@ def test_two_phones_full_game(client):
     assert st["phase"] == "jukebox"
     pick = st["pick"]
     assert pick["artist"]["name"] and pick["tracks"] and pick["why"] and "votes" not in pick
-    assert [s["step"] for s in st["thinking"]][-1] == "tracks"
+    steps = [s["step"] for s in st["thinking"]]
+    assert "tracks" in steps and steps[-1] in ("tracks", "baseline")   # the control may land after the song, by design
     # one no: Q-Lou tries again with that artist excluded
     first = pick["artist"]["id"]
     client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
