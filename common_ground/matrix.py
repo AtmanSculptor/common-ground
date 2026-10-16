@@ -116,20 +116,28 @@ def rank_key(weaker: float, gap: float, popularity: float | None) -> tuple:
 
 
 # ---- building ------------------------------------------------------------------------------
+def _seed_file(path: pathlib.Path | None = None) -> dict:
+    try:
+        return json.loads((path or SEEDS).read_text(encoding="utf-8"))
+    except (FileNotFoundError, ValueError):
+        return {}
+
+
 def seed_names(path: pathlib.Path | None = None) -> list[str]:
     """The outside list: artists bars actually play. Empty when the file is missing."""
-    path = path or SEEDS
-    try:
-        d = json.loads(path.read_text(encoding="utf-8"))
-    except (FileNotFoundError, ValueError):
-        return []
     seen: dict[str, str] = {}
-    for a in d.get("artists", []):
+    for a in _seed_file(path).get("artists", []):
         name = (a.get("name") if isinstance(a, dict) else a) or ""
         name = " ".join(name.split())
         if name and name.lower() not in seen:
             seen[name.lower()] = name
     return list(seen.values())
+
+
+def seed_aliases(path: pathlib.Path | None = None) -> dict[str, str]:
+    """Outside name -> the spelling Qloo uses, for the few the resolver cannot be trusted to guess
+    (an entry's "qloo" field: {"name": "Giveon", "qloo": "GIVĒON"})."""
+    return {a["name"]: a["qloo"] for a in _seed_file(path).get("artists", []) if isinstance(a, dict) and a.get("qloo") and a.get("name")}
 
 
 def _pull_card_pool(q: Qloo, card: dict, per_card: int, popularity_min: float) -> list[dict]:
@@ -151,9 +159,11 @@ def _norm(name: str) -> str:
     return " ".join(re.sub(r"[^a-z0-9 ]", " ", flat.lower()).split())
 
 
-def _resolve_seed(q: Qloo, name: str) -> dict | None:
+def _resolve_seed(q: Qloo, name: str, aliases: dict[str, str] | None = None) -> dict | None:
     """One outside name -> the Qloo artist entity with that exact name (spelling aside), the best
     known one if several, or None when Qloo has never met them. Collaborations never stand in."""
+    aliases = seed_aliases() if aliases is None else aliases
+    name = aliases.get(name, name)
     want = _norm(name)
     hits = q.search(name, types=ARTIST, take=SEARCH_TAKE)
     if len(want.split()) == 1:
@@ -217,10 +227,11 @@ def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path 
 
     # 1b. the outside list, resolved by name; what Qloo has never met is dropped, never guessed at
     wanted = [n for n in seeds if n not in state["seeds"]]
+    aliases = seed_aliases()
 
     def resolve(name: str) -> None:
         try:
-            found = _resolve_seed(q, name)
+            found = _resolve_seed(q, name, aliases)
         except Exception as e:
             progress("seed-error", name=name, error=str(e))
             found = None
@@ -298,8 +309,9 @@ def extend(q: Qloo, names: list[str], *, path: pathlib.Path | None = None, popul
     names = list(dict.fromkeys(" ".join(n.split()) for n in names if n.strip()))
     found: dict[str, dict] = {}
     dropped: list[str] = []
+    aliases = seed_aliases()
     for n in names:
-        e = _resolve_seed(q, n)
+        e = _resolve_seed(q, n, aliases)
         if e and (e.get("popularity") or 0) >= popularity_min:
             found[n] = e
         else:

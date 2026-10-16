@@ -196,3 +196,12 @@ def test_extend_adds_new_names_and_scores_them_on_every_card(fake_qloo, tmp_path
     m = json.loads(out.read_text())
     assert "id:Brand New Band" in m["entities"] and all("id:Brand New Band" in col for col in m["scores"].values())
     assert m["seeds"]["dropped"] == ["Nobody Here"] and m.get("extended")
+
+
+def test_seed_aliases_carry_qloo_spellings(fake_qloo, tmp_path, monkeypatch):
+    f = tmp_path / "seeds.json"
+    f.write_text(json.dumps({"artists": [{"name": "Giveon", "qloo": "GIVĒON"}, {"name": "Adele"}]}), encoding="utf-8")
+    assert matrix.seed_aliases(f) == {"Giveon": "GIVĒON"} and matrix.seed_names(f) == ["Giveon", "Adele"]
+    monkeypatch.setattr(fake_qloo, "search", lambda q, types=None, take=5: [{"entity_id": "x9", "name": "GIVĒON", "popularity": 0.95}] if q == "GIVĒON" else [])
+    assert matrix._resolve_seed(fake_qloo, "Giveon", aliases={}) is None
+    assert matrix._resolve_seed(fake_qloo, "Giveon", aliases=matrix.seed_aliases(f))["id"] == "x9"
