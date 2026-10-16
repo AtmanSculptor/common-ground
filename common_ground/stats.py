@@ -92,3 +92,16 @@ def guess_vs_data(base: list[dict]) -> dict:
     verdicts = Counter(r["baseline"].get("verdict") for r in base)
     return {"n": len(base), "holds": verdicts.get("holds", 0), "splits": verdicts.get("splits", 0), "misses": verdicts.get("misses", 0),
             "scored": len(scored), "qlou_higher_both": both, "qlou_higher_weaker": weaker}
+
+
+def archive(label: str = "") -> str | None:
+    """Move the log aside (games-<stamp>[-label].jsonl) so the next night starts on a clean slate.
+    Returns the archive's name, or None when there was nothing to move."""
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    safe = "".join(ch for ch in label if ch.isalnum() or ch in "-_")[:40]
+    target = FILE.with_name(f"games-{stamp}{'-' + safe if safe else ''}.jsonl")
+    with _lock:
+        if not FILE.exists():
+            return None
+        os.replace(FILE, target)
+    return target.name

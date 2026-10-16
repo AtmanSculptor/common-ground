@@ -22,3 +22,12 @@ def test_record_keeps_scores_and_the_control(tmp_path, monkeypatch):
     r = stats.rows()[0]
     assert r["scores"] == {"host": 0.95, "guest": 0.94} and r["baseline"] == {"guess": "G", "verdict": "holds", "scores": {"host": 0.6, "guest": 0.8}}
     assert stats.summary()["baseline"]["qlou_higher_both"] == 1
+
+
+def test_archive_moves_the_log_aside(tmp_path, monkeypatch):
+    monkeypatch.setattr(stats, "FILE", tmp_path / "games.jsonl")
+    assert stats.archive("pub") is None
+    stats.record("ABCD", {"meter": 1, "title": "t", "plays": {}, "both_played": [], "pick": None}, False)
+    name = stats.archive("pub night!")
+    assert name and name.startswith("games-") and name.endswith("-pubnight.jsonl") and not (tmp_path / "games.jsonl").exists()
+    assert stats.summary()["games"] == 0 and (tmp_path / name).exists()

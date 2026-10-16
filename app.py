@@ -200,6 +200,13 @@ def matrix_extend(request: Request, body: ExtendIn):
     return {**out, "log": log[-3:]}
 
 
+@app.post("/api/admin/stats/archive")
+def stats_archive(request: Request, label: str = ""):
+    """Maintenance: move the results log aside so a pub night starts at zero. Loopback only."""
+    _local_only(request)
+    return {"archived": stats.archive(label)}
+
+
 @app.get("/api/admin/matrix")
 def matrix_status(request: Request):
     _local_only(request)
