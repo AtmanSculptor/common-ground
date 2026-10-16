@@ -70,6 +70,26 @@ def fake_qloo():
     return FakeQloo()
 
 
+@pytest.fixture
+def client(fake_qloo, monkeypatch, tmp_path):
+    """The app over HTTP with the fake Qloo, fresh rooms and a fresh results log."""
+    from fastapi.testclient import TestClient
+    import app as appmod
+    from common_ground import rooms as rooms_mod, stats
+    monkeypatch.setattr(appmod, "Qloo", lambda **kw: fake_qloo)
+    appmod.ROOMS = rooms_mod.Rooms(tmp_path / "rooms.pkl", random.Random(7))
+    monkeypatch.setattr(stats, "FILE", tmp_path / "games.jsonl")
+    return TestClient(appmod.app)
+
+
+@pytest.fixture(autouse=True)
+def no_matrix(monkeypatch, tmp_path):
+    """Game tests run the full live loop unless a test builds a matrix itself."""
+    from common_ground import matrix
+    monkeypatch.setattr(matrix, "FILE", tmp_path / "no-matrix.json")
+    matrix._cache = None
+
+
 @pytest.fixture(autouse=True)
 def no_network(monkeypatch):
     """Nothing in the tests touches the internet: catalog and LLM are stubbed."""

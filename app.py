@@ -17,13 +17,13 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from common_ground import stats
+from common_ground import matrix, stats
 from common_ground.agent import DOMAINS, run
 from common_ground.engine import Group
 from common_ground.llm import budget_status
@@ -77,12 +77,50 @@ def stats_page():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status()}
+    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status(), "matrix": matrix.available()}
 
 
 @app.get("/api/stats")
 def stats_api():
     return stats.summary()
+
+
+# ============================ maintenance (loopback only) ============================
+# The card matrix is built by the running app because only it holds the Qloo key. The route
+# answers only to the server's own loopback with no proxy headers, so the public cannot
+# trigger a 300-call build.
+_matrix_job: dict = {"status": "idle", "progress": []}
+
+
+def _local_only(request: Request) -> None:
+    host = request.client.host if request.client else ""
+    if host not in ("127.0.0.1", "::1") or request.headers.get("x-forwarded-for") or request.headers.get("x-real-ip"):
+        raise HTTPException(404, "not found")
+
+
+@app.post("/api/admin/matrix")
+def matrix_build(request: Request):
+    _local_only(request)
+    if _matrix_job["status"] == "running":
+        return {"ok": False, "status": "running"}
+    _matrix_job.update({"status": "running", "progress": [], "started": time.time()})
+
+    def work():
+        try:
+            m = matrix.build(Qloo(timeout=60), on_progress=lambda d: _matrix_job["progress"].append(d))
+            _matrix_job.update({"status": "done", "artists": len(m["entities"]), "cards": m["cards"], "calls": m["calls"]})
+        except Exception as e:
+            _matrix_job.update({"status": "error", "error": str(e)})
+
+    threading.Thread(target=work, daemon=True).start()
+    return {"ok": True, "status": "running"}
+
+
+@app.get("/api/admin/matrix")
+def matrix_status(request: Request):
+    _local_only(request)
+    return {**{k: v for k, v in _matrix_job.items() if k != "progress"}, "progress": _matrix_job["progress"][-6:],
+            "steps": len(_matrix_job["progress"]), "available": matrix.available()}
 
 
 # ============================ the organizer ============================

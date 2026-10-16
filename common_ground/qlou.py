@@ -15,6 +15,8 @@ The loop, every step logged so the phones can watch it think:
   8. why      - one short line for the two of them, written by the LLM from Qloo facts only,
                 checked: it must name the pick and nothing Qloo did not return
   9. tracks   - the artist's top tracks from the catalog
+When the card matrix exists (static/matrix.json, see matrix.py), steps 2 to 5 become a local
+draft over scores Qloo already gave us, followed by a live verification of the top three.
 Steps 2 and 3 run their calls in parallel. Steps 6 to 9 run together under one deadline:
 the song is never kept waiting on an extra.
 
@@ -27,7 +29,7 @@ from concurrent.futures import ThreadPoolExecutor, wait
 from dataclasses import dataclass, field, asdict
 from typing import Any, Callable
 
-from . import catalog, deck
+from . import catalog, deck, matrix
 from .llm import BudgetExceeded, chat_json
 from .qloo import Qloo, affinity, slim
 
@@ -76,6 +78,8 @@ class Pick:
     pool: int
     calls: int
     seconds: float
+    source: str = "live"                          # "matrix" (drafted from the card matrix, verified live) | "live"
+    live: dict[str, float] = field(default_factory=dict)   # partner key -> raw live affinity of the pick
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -123,8 +127,108 @@ class QLou:
 
     # ---- the loop -------------------------------------------------------------------
     def pick(self, a: Partner, b: Partner, exclude: set[str] | None = None) -> Pick | None:
+        """Draft from the card matrix and verify live when the matrix exists; else the full live loop."""
         exclude = exclude or set()
         self._t0 = time.time()
+        m = matrix.load()
+        if m and a.cards and b.cards:
+            p = self._pick_matrix(m, a, b, exclude)
+            if p is not None:
+                return p
+            self.step("draft", "The matrix had nothing for this pair; going to Qloo for everything.")
+        return self._pick_live(a, b, exclude)
+
+    def _pick_matrix(self, m: dict, a: Partner, b: Partner, exclude: set[str]) -> Pick | None:
+        sa, sb = a.signal(), b.signal()
+        self.step("read", f"{a.name} played {', '.join(a.card_names())}. {b.name} played {', '.join(b.card_names())}.",
+                  signals={a.key: sa, b.key: sb})
+        ranked = matrix.draft(m, a.cards, b.cards, exclude, top=SHORTLIST)
+        if not ranked:
+            return None
+        names = [r["name"] for r in ranked[:4]]
+        import random as _r
+        _r.shuffle(names)
+        self.step("draft", f"Ranked {len(m['entities'])} artists from the card matrix, no waiting: Qloo scored every card against every one of them once.",
+                  pool=len(m["entities"]), bet=names)
+        top3 = [r["id"] for r in ranked[:3]]
+        with ThreadPoolExecutor(max_workers=6) as ex:
+            fa, fb = ex.submit(self._score, top3, sa), ex.submit(self._score, top3, sb)
+            la, lb = fa.result(), fb.result()
+            self.step("verify", f"Checked the top three live with Qloo, for {a.name} and for {b.name}.", calls=self.q.calls)
+            chosen = next((r for r in ranked[:3] if abs(la.get(r["id"], NO_SIGNAL) - NO_SIGNAL) > 1e-6
+                           and abs(lb.get(r["id"], NO_SIGNAL) - NO_SIGNAL) > 1e-6), None)
+            if chosen is None:
+                self.step("verify", "Qloo had no live signal for the top three; falling back to the full loop.")
+                return None
+            artist = dict(chosen["entity"]); artist["id"] = chosen["id"]
+            self.step("pick", f"{artist['name']}. {a.name} {int(chosen['a'] * 100)}, {b.name} {int(chosen['b'] * 100)}. "
+                      f"Live: {la[chosen['id']]:.2f} and {lb[chosen['id']]:.2f}. The weaker score is the one that counts.",
+                      artist=artist["name"], id=chosen["id"])
+            shortlist = [{"id": r["id"], "name": r["name"], a.key: r["a"], b.key: r["b"]} for r in ranked]
+            explain: dict = {}
+            f_tracks = ex.submit(catalog.top_tracks, artist["name"])
+            f_why = ex.submit(self._why, a, b, artist, chosen["a"], chosen["b"], shortlist)
+            f_base = ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None
+            futures = [f for f in (f_tracks, f_why, f_base) if f]
+            done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
+            for f in pending:
+                f.cancel()
+            tracks = f_tracks.result() if f_tracks in done else []
+            why, src = f_why.result() if f_why in done else self._facts_line(a, b, artist)
+            baseline = f_base.result() if (f_base and f_base in done) else None
+            if pending:
+                self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} left behind so the song is not kept waiting.")
+            self.step("tracks", f"{len(tracks)} tracks by {artist['name']} in the catalog." if tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
+        return Pick(artist=artist, scores={a.key: chosen["a"], b.key: chosen["b"]}, ranked=shortlist, tracks=tracks, why=why, why_source=src,
+                    explain=explain, baseline=baseline, steps=self.steps, pool=len(m["entities"]), calls=self.q.calls,
+                    seconds=round(time.time() - self._t0, 1), source="matrix",
+                    live={a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)})
+
+    def _baseline_matrix(self, a: Partner, b: Partner, m: dict) -> dict | None:
+        """The control, scored against the matrix when the guess is in it, else live for both."""
+        try:
+            j = chat_json(GUESS_SYSTEM, f"{a.name} likes: {', '.join(a.card_names())}. {b.name} likes: {', '.join(b.card_names())}. "
+                          f"Name ONE musical artist both would enjoy.", temperature=0.3, max_tokens=200)
+            guess = str(j.get("artist", "")).strip()
+        except BudgetExceeded:
+            self.step("baseline", "Skipped the plain-LLM control: daily LLM cap reached.")
+            return None
+        except Exception as e:
+            self.step("baseline", f"Plain-LLM control failed: {e}")
+            return None
+        if not guess:
+            return None
+        res = self.q.search(guess, types=ARTIST, take=1)
+        if not res:
+            self.step("baseline", f"A plain LLM guessed {guess}. Qloo could not find them.")
+            return {"guess": guess, "id": None, "scores": {}, "verdict": "unknown"}
+        gid, gname = res[0].get("entity_id"), res[0].get("name", guess)
+        ra, rb = matrix.partner_scores(m, a.cards), matrix.partner_scores(m, b.cards)
+        if gid in ra and gid in rb:
+            ca, cb = matrix._curve(ra), matrix._curve(rb)
+            pa, pb = ca[gid], cb[gid]
+        else:
+            la, lb = self._score([gid], a.signal()), self._score([gid], b.signal())
+            va, vb = la.get(gid), lb.get(gid)
+            if va is None or vb is None or abs(va - NO_SIGNAL) < 1e-6 or abs(vb - NO_SIGNAL) < 1e-6:
+                self.step("baseline", f"A plain LLM guessed {gname}. Qloo has no signal on them for the two of you.")
+                return {"guess": gname, "id": gid, "scores": {}, "verdict": "no data"}
+            # place the live raw score inside each partner's matrix range
+            def place(v: float, d: dict[str, float]) -> float:
+                lo, hi = min(d.values()), max(d.values())
+                return round(max(0.0, min(1.0, (v - lo) / (hi - lo))) if hi - lo > 1e-9 else 1.0, 3)
+            pa, pb = place(va, ra), place(vb, rb)
+        if min(pa, pb) >= 0.6:
+            verdict = "holds"
+        elif max(pa, pb) >= 0.6:
+            verdict = "splits"
+        else:
+            verdict = "misses"
+        self.step("baseline", f"A plain LLM guessed {gname}. Qloo scores that {a.name} {int(pa * 100)}, {b.name} {int(pb * 100)}: "
+                  + {"holds": "it holds up.", "splits": "it splits the two of you.", "misses": "it misses you both."}[verdict])
+        return {"guess": gname, "id": gid, "scores": {a.key: pa, b.key: pb}, "verdict": verdict}
+
+    def _pick_live(self, a: Partner, b: Partner, exclude: set[str]) -> Pick | None:
         sa, sb = a.signal(), b.signal()
         self.step("read", f"{a.name} played {', '.join(a.card_names()) or 'nothing yet'}. {b.name} played {', '.join(b.card_names()) or 'nothing yet'}.",
                   signals={a.key: sa, b.key: sb})
