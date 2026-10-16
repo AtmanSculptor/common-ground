@@ -17,6 +17,7 @@ import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import anyio
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
@@ -32,9 +33,36 @@ from common_ground.rooms import Room, Rooms
 
 ROOT = Path(__file__).resolve().parent
 
+# Small hosts cap virtual memory (ulimit -v). Every thread costs its stack plus a glibc arena in
+# address space, so keep threads cheap and few: 1 MB stacks (the app is shallow) and a dozen
+# request workers instead of anyio's forty. MALLOC_ARENA_MAX is set by the launcher.
+THREAD_STACK = 1 << 20
+REQUEST_WORKERS = 12
+threading.stack_size(THREAD_STACK)
+
+
+def resources() -> dict:
+    """Threads and memory, for /api/health: the numbers that explain a 'cannot allocate memory'."""
+    out: dict = {"threads": threading.active_count()}
+    try:
+        import resource
+        soft, _ = resource.getrlimit(resource.RLIMIT_AS)
+        out["vm_limit_mb"] = None if soft == resource.RLIM_INFINITY else soft // (1 << 20)
+    except Exception:
+        pass
+    try:
+        for line in Path("/proc/self/status").read_text().splitlines():
+            if line.startswith(("VmSize:", "VmRSS:")):
+                key, val = line.split(":", 1)
+                out[key.lower() + "_mb"] = int(val.split()[0]) // 1024
+    except Exception:
+        pass
+    return out
+
 
 @asynccontextmanager
 async def _lifespan(_: FastAPI):
+    anyio.to_thread.current_default_thread_limiter().total_tokens = REQUEST_WORKERS
     threading.Thread(target=audiences, daemon=True).start()  # warm the audience list for the organizer
     yield
 
@@ -80,7 +108,8 @@ def stats_page():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status(), "matrix": matrix.available()}
+    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status(), "matrix": matrix.available(),
+            "resources": resources()}
 
 
 @app.get("/api/stats")
