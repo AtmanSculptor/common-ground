@@ -216,15 +216,15 @@ function renderSteps(steps){const box=$("steps");for(let i=stepsShown;i<steps.le
   stepsShown=steps.length}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.style.background="linear-gradient(90deg,var(--aura),var(--deep))";btn.style.color="#fff"}
 function trackHTML(t,i){return `<div class="track ${i===0?"pick":""}"><img src="${t.art||""}" alt=""><div class="t"><b>${i===0?"▶ ":""}${t.track}</b><span>${t.album||""}${t.year?" · "+t.year:""}</span></div><button class="ghost" onclick="playPreview('${(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
-function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt;const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
-  if(lastPick!==key){lastPick=key;const t0=p.tracks&&p.tracks[0];
+function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+p.why_source;const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
+  if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];
     $("betVerdict").textContent=myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with:"):"Q-Lou's pick for the two of you:";
     $("artist").textContent=p.artist.name;
     $("hero").innerHTML=t0?`${t0.art?`<img src="${t0.art}" alt="">`:""}<div class="t"><b>${t0.track}</b><span>${t0.album||""}${t0.year?" · "+t0.year:""}</span><br><button class="small ghost" style="margin-top:8px" onclick="playPreview('${(t0.preview||"").replace(/'/g,"")}',this)">▶ 30s preview</button></div>`:`<p class="sub">No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.</p>`;
     $("why").innerHTML="<b>Q-Lou:</b> "+p.why;
     $("scores").textContent=`Qloo scores ${p.artist.name} ${Math.round((p.scores[who]||0)*100)} for you and ${Math.round((p.scores[theirKey]||0)*100)} for ${them}, out of ${p.pool} artists, in ${p.seconds}s.`;
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?`<p class="sub" style="margin-top:14px">More by ${p.artist.name}, in case you two disagree:</p>`+p.tracks.slice(1).map((t,i)=>trackHTML(t,i+1)).join(""):"";
-    $("voteMsg").textContent="";document.querySelectorAll("#s-jukebox .row button").forEach(b=>b.disabled=false);window.scrollTo(0,0)}
+    if(fresh){$("voteMsg").textContent="";document.querySelectorAll("#s-jukebox .row button").forEach(b=>b.disabled=false);window.scrollTo(0,0)}}
   if(p.voted&&p.voted[who]){$("voteMsg").textContent="Waiting for "+them+"…";document.querySelectorAll("#s-jukebox .row button").forEach(b=>b.disabled=true)}}
 function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.src=u;a.play().catch(()=>{});btn&&(btn.textContent="❚❚");return}if(a.paused){a.play().catch(()=>{});btn&&(btn.textContent="❚❚")}else{a.pause();btn&&(btn.textContent="▶")}}
 async function vote(up){try{document.querySelectorAll("#s-jukebox .row button").forEach(b=>b.disabled=true);await api(code+"/vote",{who,up});$("steps").innerHTML="";$("bet").innerHTML="";myBet=null;stepsShown=0;poll()}catch(e){alert(e.message)}}
