@@ -3,324 +3,512 @@
   "id": 1,
   "name": "Early bird",
   "cat": "life",
-  "img": "static/deck/01_early_bird.jpg"
+  "img": "static/deck/01_early_bird.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:acoustic"
+   ]
+  }
  },
  {
   "id": 2,
   "name": "Night owl",
   "cat": "life",
-  "img": "static/deck/02_night_owl.jpg"
+  "img": "static/deck/02_night_owl.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:dance"
+   ]
+  }
  },
  {
   "id": 3,
   "name": "Road trips",
   "cat": "life",
-  "img": "static/deck/03_road_trips.jpg"
+  "img": "static/deck/03_road_trips.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:travel",
+    "urn:audience:hobbies_and_interests:automotive"
+   ]
+  }
  },
  {
   "id": 4,
   "name": "Live music",
   "cat": "life",
-  "img": "static/deck/04_live_music.jpg"
+  "img": "static/deck/04_live_music.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:music_festivals"
+   ]
+  }
  },
  {
   "id": 5,
   "name": "Dog person",
   "cat": "life",
-  "img": "static/deck/05_dog_person.jpg"
+  "img": "static/deck/05_dog_person.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:global_issues:animal_issues"
+   ]
+  }
  },
  {
   "id": 6,
   "name": "Cat person",
   "cat": "life",
-  "img": "static/deck/06_cat_person.jpg"
+  "img": "static/deck/06_cat_person.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:global_issues:animal_issues",
+    "urn:audience:leisure:avid_reader"
+   ]
+  }
  },
  {
   "id": 7,
   "name": "Home cook",
   "cat": "life",
-  "img": "static/deck/07_home_cook.jpg"
+  "img": "static/deck/07_home_cook.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:cooking"
+   ]
+  }
  },
  {
   "id": 8,
   "name": "Takeout night",
   "cat": "life",
-  "img": "static/deck/08_takeout_night.jpg"
+  "img": "static/deck/08_takeout_night.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:foodie"
+   ]
+  }
  },
  {
   "id": 9,
   "name": "Gym rat",
   "cat": "life",
-  "img": "static/deck/09_gym_rat.jpg"
+  "img": "static/deck/09_gym_rat.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:exercising",
+    "urn:audience:hobbies_and_interests:running"
+   ]
+  }
  },
  {
   "id": 10,
   "name": "Trail head",
   "cat": "life",
-  "img": "static/deck/10_trail_head.jpg"
+  "img": "static/deck/10_trail_head.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:hiking",
+    "urn:audience:hobbies_and_interests:outdoors"
+   ]
+  }
  },
  {
   "id": 11,
   "name": "Bookworm",
   "cat": "book",
-  "img": "static/deck/11_bookworm.jpg"
+  "img": "static/deck/11_bookworm.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:avid_reader"
+   ]
+  }
  },
  {
   "id": 12,
   "name": "Gamer",
   "cat": "game",
-  "img": "static/deck/12_gamer.jpg"
+  "img": "static/deck/12_gamer.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:video_gamer"
+   ]
+  }
  },
  {
   "id": 13,
   "name": "Fix it myself",
   "cat": "life",
-  "img": "static/deck/13_fix_it_myself.jpg"
+  "img": "static/deck/13_fix_it_myself.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:home_organization",
+    "urn:audience:hobbies_and_interests:automotive"
+   ]
+  }
  },
  {
   "id": 14,
   "name": "Thrift find",
   "cat": "life",
-  "img": "static/deck/14_thrift_find.jpg"
+  "img": "static/deck/14_thrift_find.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:spending_habits:vintage_apparel",
+    "urn:audience:spending_habits:discount_shoppers"
+   ]
+  }
  },
  {
   "id": 15,
   "name": "Big spender",
   "cat": "life",
-  "img": "static/deck/15_big_spender.jpg"
+  "img": "static/deck/15_big_spender.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:spending_habits:gourmand_fine_dining",
+    "urn:audience:spending_habits:boutique_hotels"
+   ]
+  }
  },
  {
   "id": 16,
   "name": "Saver",
   "cat": "life",
-  "img": "static/deck/16_saver.jpg"
+  "img": "static/deck/16_saver.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:spending_habits:discount_shoppers"
+   ]
+  }
  },
  {
   "id": 17,
   "name": "Spiritual",
   "cat": "life",
-  "img": "static/deck/17_spiritual.jpg"
+  "img": "static/deck/17_spiritual.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:lifestyle_preferences_beliefs:spirituality",
+    "urn:audience:hobbies_and_interests:meditation"
+   ]
+  }
  },
  {
   "id": 18,
   "name": "Science nerd",
   "cat": "life",
-  "img": "static/deck/18_science_nerd.jpg"
+  "img": "static/deck/18_science_nerd.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:spending_habits:technology_enthusiast",
+    "urn:audience:leisure:museums"
+   ]
+  }
  },
  {
   "id": 19,
   "name": "Country roads",
   "cat": "music",
-  "img": "static/deck/19_country_roads.jpg"
+  "img": "static/deck/19_country_roads.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:country"
+   ]
+  }
  },
  {
   "id": 20,
   "name": "Hip hop head",
   "cat": "music",
-  "img": "static/deck/20_hip_hop_head.jpg"
+  "img": "static/deck/20_hip_hop_head.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:hip_hop"
+   ]
+  }
  },
  {
   "id": 21,
   "name": "Rock and roll",
   "cat": "music",
-  "img": "static/deck/21_rock_and_roll.jpg"
+  "img": "static/deck/21_rock_and_roll.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:rock"
+   ]
+  }
  },
  {
   "id": 22,
   "name": "Pop star",
   "cat": "music",
-  "img": "static/deck/22_pop_star.jpg"
+  "img": "static/deck/22_pop_star.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:pop"
+   ]
+  }
  },
  {
   "id": 23,
   "name": "Jazz hands",
   "cat": "music",
-  "img": "static/deck/23_jazz_hands.jpg"
+  "img": "static/deck/23_jazz_hands.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:jazz"
+   ]
+  }
  },
  {
   "id": 24,
   "name": "Metal",
   "cat": "music",
-  "img": "static/deck/24_metal.jpg"
+  "img": "static/deck/24_metal.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:metal"
+   ]
+  }
  },
  {
   "id": 25,
   "name": "Indie kid",
   "cat": "music",
-  "img": "static/deck/25_indie_kid.jpg"
+  "img": "static/deck/25_indie_kid.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:indie_rock"
+   ]
+  }
  },
  {
   "id": 26,
   "name": "EDM",
   "cat": "music",
-  "img": "static/deck/26_edm.jpg"
+  "img": "static/deck/26_edm.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:electronic"
+   ]
+  }
  },
  {
   "id": 27,
   "name": "Oldies",
   "cat": "music",
-  "img": "static/deck/27_oldies.jpg"
+  "img": "static/deck/27_oldies.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:classic_rock",
+    "urn:tag:genre:music:oldies"
+   ]
+  }
  },
  {
   "id": 28,
   "name": "Latin heat",
   "cat": "music",
-  "img": "static/deck/28_latin_heat.jpg"
+  "img": "static/deck/28_latin_heat.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:musica_latina"
+   ]
+  }
  },
  {
   "id": 29,
   "name": "Gospel",
   "cat": "music",
-  "img": "static/deck/29_gospel.jpg"
+  "img": "static/deck/29_gospel.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:gospel"
+   ]
+  }
  },
  {
   "id": 30,
   "name": "Singer songwriter",
   "cat": "music",
-  "img": "static/deck/30_singer_songwriter.jpg"
- },
- {
-  "id": 31,
-  "name": "Horror fan",
-  "cat": "film",
-  "img": "static/deck/31_horror_fan.jpg"
- },
- {
-  "id": 32,
-  "name": "Rom com",
-  "cat": "film",
-  "img": "static/deck/32_rom_com.jpg"
- },
- {
-  "id": 33,
-  "name": "Action junkie",
-  "cat": "film",
-  "img": "static/deck/33_action_junkie.jpg"
- },
- {
-  "id": 34,
-  "name": "Sci fi",
-  "cat": "film",
-  "img": "static/deck/34_sci_fi.jpg"
- },
- {
-  "id": 35,
-  "name": "True crime",
-  "cat": "mic",
-  "img": "static/deck/35_true_crime.jpg"
- },
- {
-  "id": 36,
-  "name": "Comedy",
-  "cat": "screen",
-  "img": "static/deck/36_comedy.jpg"
+  "img": "static/deck/30_singer_songwriter.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:singer_songwriter",
+    "urn:tag:genre:music:folk"
+   ]
+  }
  },
  {
   "id": 37,
   "name": "Sports fan",
   "cat": "screen",
-  "img": "static/deck/37_sports_fan.jpg"
- },
- {
-  "id": 38,
-  "name": "Reality TV",
-  "cat": "screen",
-  "img": "static/deck/38_reality_tv.jpg"
- },
- {
-  "id": 39,
-  "name": "Documentary",
-  "cat": "film",
-  "img": "static/deck/39_documentary.jpg"
- },
- {
-  "id": 40,
-  "name": "Cartoons",
-  "cat": "screen",
-  "img": "static/deck/40_cartoons.jpg"
+  "img": "static/deck/37_sports_fan.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:american_football",
+    "urn:audience:hobbies_and_interests:basketball"
+   ]
+  }
  },
  {
   "id": 41,
   "name": "Whiskey",
   "cat": "table",
-  "img": "static/deck/41_whiskey.jpg"
+  "img": "static/deck/41_whiskey.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:blues"
+   ]
+  }
  },
  {
   "id": 42,
   "name": "Craft beer",
   "cat": "table",
-  "img": "static/deck/42_craft_beer.jpg"
+  "img": "static/deck/42_craft_beer.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:jam_band"
+   ]
+  }
  },
  {
   "id": 43,
   "name": "Wine night",
   "cat": "table",
-  "img": "static/deck/43_wine_night.jpg"
+  "img": "static/deck/43_wine_night.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:wine_enthusiast"
+   ]
+  }
  },
  {
   "id": 44,
   "name": "Coffee snob",
   "cat": "table",
-  "img": "static/deck/44_coffee_snob.jpg"
+  "img": "static/deck/44_coffee_snob.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:coffee",
+    "urn:audience:leisure:avid_reader"
+   ]
+  }
  },
  {
   "id": 45,
   "name": "Taco Tuesday",
   "cat": "table",
-  "img": "static/deck/45_taco_tuesday.jpg"
+  "img": "static/deck/45_taco_tuesday.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:latin_rock",
+    "urn:tag:genre:music:reggaeton"
+   ]
+  }
  },
  {
   "id": 46,
   "name": "Pizza",
   "cat": "table",
-  "img": "static/deck/46_pizza.jpg"
+  "img": "static/deck/46_pizza.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:pop_punk"
+   ]
+  }
  },
  {
   "id": 47,
   "name": "Small town",
   "cat": "place",
-  "img": "static/deck/47_small_town.jpg"
+  "img": "static/deck/47_small_town.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:americana"
+   ]
+  }
  },
  {
   "id": 48,
   "name": "Big city",
   "cat": "place",
-  "img": "static/deck/48_big_city.jpg"
+  "img": "static/deck/48_big_city.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:soul",
+    "urn:tag:genre:music:house"
+   ]
+  }
  },
  {
   "id": 49,
   "name": "Family first",
   "cat": "heart",
-  "img": "static/deck/49_family_first.jpg"
+  "img": "static/deck/49_family_first.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:life_stage:parents_with_young_children"
+   ]
+  }
  },
  {
   "id": 50,
   "name": "Single and fine",
   "cat": "heart",
-  "img": "static/deck/50_single_and_fine.jpg"
+  "img": "static/deck/50_single_and_fine.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:life_stage:single"
+   ]
+  }
  },
  {
   "id": 51,
   "name": "Old soul",
   "cat": "heart",
-  "img": "static/deck/51_old_soul.jpg"
+  "img": "static/deck/51_old_soul.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:life_stage:retirement"
+   ]
+  }
  },
  {
   "id": 52,
   "name": "Wanderlust",
   "cat": "place",
-  "img": "static/deck/52_wanderlust.jpg"
+  "img": "static/deck/52_wanderlust.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:travel",
+    "urn:audience:hobbies_and_interests:adventuring"
+   ]
+  }
  },
  {
   "id": 53,
   "name": "Homebody",
   "cat": "heart",
-  "img": "static/deck/53_homebody.jpg"
+  "img": "static/deck/53_homebody.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:home_decor"
+   ]
+  }
  },
  {
   "id": 54,
   "name": "Volunteer",
   "cat": "heart",
-  "img": "static/deck/54_volunteer.jpg"
+  "img": "static/deck/54_volunteer.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:global_issues:education_issues",
+    "urn:audience:global_issues:sustainability"
+   ]
+  }
  }
 ]
