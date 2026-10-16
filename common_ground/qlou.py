@@ -188,13 +188,13 @@ class QLou:
         """The control, scored against the matrix when the guess is in it, else live for both."""
         try:
             j = chat_json(GUESS_SYSTEM, f"{a.name} likes: {', '.join(a.card_names())}. {b.name} likes: {', '.join(b.card_names())}. "
-                          f"Name ONE musical artist both would enjoy.", temperature=0.3, max_tokens=200)
+                          f"Name ONE musical artist both would enjoy.", temperature=0.3, max_tokens=600)
             guess = str(j.get("artist", "")).strip()
         except BudgetExceeded:
             self.step("baseline", "Skipped the plain-LLM control: daily LLM cap reached.")
             return None
         except Exception as e:
-            self.step("baseline", f"Plain-LLM control failed: {e}")
+            self.step("baseline", "The plain-LLM control did not answer this time.", error=str(e)[:160])
             return None
         if not guess:
             return None
@@ -330,13 +330,13 @@ class QLou:
         """The control: a plain LLM's cold guess, scored by Qloo against both partners."""
         try:
             j = chat_json(GUESS_SYSTEM, f"{a.name} likes: {', '.join(a.card_names())}. {b.name} likes: {', '.join(b.card_names())}. "
-                          f"Name ONE musical artist both would enjoy.", temperature=0.3, max_tokens=200)
+                          f"Name ONE musical artist both would enjoy.", temperature=0.3, max_tokens=600)
             guess = str(j.get("artist", "")).strip()
         except BudgetExceeded:
             self.step("baseline", "Skipped the plain-LLM control: daily LLM cap reached.")
             return None
         except Exception as e:
-            self.step("baseline", f"Plain-LLM control failed: {e}")
+            self.step("baseline", "The plain-LLM control did not answer this time.", error=str(e)[:160])
             return None
         if not guess:
             return None

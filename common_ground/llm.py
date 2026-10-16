@@ -113,6 +113,10 @@ def _parse_json(text: str) -> dict:
                     return v
             except Exception:
                 pass
+    # A reply cut off mid-value ('{"artist": "Manu Chao') still carries its string fields.
+    pairs = re.findall(r'"([A-Za-z_][\w]*)"\s*:\s*"([^"\n]*)', t)
+    if pairs:
+        return {k: v.strip() for k, v in pairs}
     raise ValueError(f"not JSON: {t[:120]!r}")
 
 
