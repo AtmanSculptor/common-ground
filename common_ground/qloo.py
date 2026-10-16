@@ -56,16 +56,23 @@ class Qloo:
     # ---- low level -------------------------------------------------------
     def _get(self, path: str, params: dict[str, Any]) -> dict:
         self.calls += 1
+        last: Exception | None = None
         for attempt in range(3):
-            r = requests.get(self.base + path, headers={"X-Api-Key": self.key},
-                             params=params, timeout=self.timeout)
+            try:
+                r = requests.get(self.base + path, headers={"X-Api-Key": self.key},
+                                 params=params, timeout=self.timeout)
+            except requests.exceptions.Timeout as e:  # one more try on a slow call, then give up
+                last = e
+                if attempt >= 1:
+                    break
+                continue
             if r.status_code == 429:
                 time.sleep(1.5 * (attempt + 1))
                 continue
             if r.status_code >= 400:
                 raise QlooError(f"{r.status_code} {path}: {r.text[:200]}")
             return r.json()
-        raise QlooError(f"rate limited on {path}")
+        raise QlooError(f"{'timed out' if last else 'rate limited'} on {path}")
 
     # ---- lookups ---------------------------------------------------------
     def audiences(self, parent_type: str, take: int = 50) -> list[dict]:

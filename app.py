@@ -185,7 +185,7 @@ def _think(room: Room) -> None:
     def work():
         with room.lock:
             try:
-                if room.think(Qloo()) is None:
+                if room.think(Qloo(timeout=25)) is None:
                     room.finish()
                     stats.record(room.code, room.result, room.sides["guest"].house)
             except Exception as e:

@@ -9,7 +9,7 @@ from fastapi.testclient import TestClient
 def client(fake_qloo, monkeypatch, tmp_path):
     import app as appmod
     from common_ground import rooms as rooms_mod
-    monkeypatch.setattr(appmod, "Qloo", lambda: fake_qloo)
+    monkeypatch.setattr(appmod, "Qloo", lambda **kw: fake_qloo)
     appmod.ROOMS = rooms_mod.Rooms(tmp_path / "rooms.pkl", random.Random(7))
     from common_ground import stats
     monkeypatch.setattr(stats, "FILE", tmp_path / "games.jsonl")
