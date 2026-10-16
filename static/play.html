@@ -61,6 +61,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .step{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:.9rem}
 .step b{color:var(--aura);min-width:5.2em;text-transform:lowercase;font-size:.8rem;letter-spacing:.04em;padding-top:2px}
 .step.error b{color:var(--coral)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.tile{margin:0;aspect-ratio:4/5;border-radius:var(--r);background:radial-gradient(circle at 50% 35%,#2a0d44,#000 75%);border:2px solid rgba(189,53,252,.45);color:#fff;font-size:1.15rem;font-weight:800;line-height:1.15;padding:14px;white-space:normal;box-shadow:0 0 18px rgba(189,53,252,.25)}
+.tile:active{background:linear-gradient(160deg,var(--aura),var(--deep));border-color:var(--gold)}
 .choice{display:grid;gap:10px;margin-top:10px}
 .choice button{margin:0;padding:16px;font-size:1.05rem}
 .bet{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
@@ -107,7 +110,7 @@ details[open] summary::after{content:"–"}
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
   <p class="sub center">Two strangers, one jukebox. Play your cards. Q-Lou finds the song you both love.</p>
-  <input id="name" placeholder="Your first name" maxlength="24">
+  <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
   <button class="ghost" onclick="show('join')">Join with a code</button>
   <button class="ghost" onclick="newGame(true)">Demo with a stranger</button>
@@ -115,7 +118,7 @@ details[open] summary::after{content:"–"}
 
 <section class="screen" id="s-join">
   <h1>Join a challenge</h1>
-  <input id="joinName" placeholder="Your first name" maxlength="24">
+  <input id="joinName" placeholder="Your nickname" maxlength="24">
   <input id="joinCode" placeholder="Room code" maxlength="4" style="text-transform:uppercase;letter-spacing:.2em">
   <button onclick="joinGame()">Let's go</button>
   <button class="ghost" onclick="show('lobby')">Back</button>
@@ -133,9 +136,10 @@ details[open] summary::after{content:"–"}
 
 <section class="screen" id="s-quiz">
   <div class="joinbar" id="joinBar" style="display:none"><div class="l"><small>Code for your partner</small><b id="joinBarCode"></b></div><button class="small ghost" onclick="shareCode()">Share</button></div>
-  <p class="sub" id="qn">Question 1 of 4</p>
-  <h1>Which is more you?</h1>
-  <div class="choice"><button id="qa"></button><button id="qb"></button><button class="ghost" id="qn0">Neither, really</button></div>
+  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou:</b> Four quick ones, then the cards. Which is more you?</p></div>
+  <p class="sub" id="qn">1 of 4</p>
+  <div class="tiles"><button class="tile" id="qa"></button><button class="tile" id="qb"></button></div>
+  <button class="ghost" id="qn0">Neither, really</button>
 </section>
 
 <section class="screen" id="s-cards">
@@ -232,7 +236,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
   if(s.phase==="quiz"){
     const partnerOut=who==="host"&&!other.joined;
     if(partnerOut&&!quizEarly){$("codeBig").textContent=s.code;$("quizEarlyBtn").style.display=s.question?"":"none";$("lobbyWaitMsg").textContent=s.question?"Waiting for your partner…":"You're set. Waiting for your partner to join…";show("lobbywait");return}
-    if(s.question){const q=s.question;$("qn").textContent=`Question ${q.n} of ${q.of}`;$("qa").textContent=q.a.text;$("qb").textContent=q.b.text;
+    if(s.question){const q=s.question;$("qn").textContent=`${q.n} of ${q.of}`;$("qa").textContent=q.a.text;$("qb").textContent=q.b.text;
       $("qa").onclick=()=>answer(q,q.a.id);$("qb").onclick=()=>answer(q,q.b.id);$("qn0").onclick=()=>answer(q,null);
       $("joinBar").style.display=partnerOut?"":"none";$("joinBarCode").textContent=s.code;show("quiz");return}
     if(partnerOut){$("codeBig").textContent=s.code;$("quizEarlyBtn").style.display="none";$("lobbyWaitMsg").textContent="You're set. Waiting for your partner to join…";show("lobbywait");return}
@@ -272,7 +276,8 @@ function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" al
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
 function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+p.why_source;const them=other.name||"your partner",theirKey=who==="host"?"guest":"host";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
-    $("betVerdict").textContent=myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with:"):"Q-Lou's pick for the two of you:";
+    $("betVerdict").textContent=p.attempt>1?"Second pick, last one tonight:":(myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with:"):"Q-Lou's pick for the two of you:");
+    $("noBtn").textContent=p.attempt>1?"Not tonight":"Try another";
     $("art").innerHTML=artHTML(t0);
     $("songTitle").textContent=t0?t0.track:p.artist.name;
     $("artist").textContent=t0?p.artist.name:"";

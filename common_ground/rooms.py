@@ -25,7 +25,7 @@ from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
 CARD_ROUNDS = 2
-MAX_PICK_ATTEMPTS = 3
+MAX_PICK_ATTEMPTS = 2    # one "Try another", then the night moves on
 PLAYED_BONUS = 5
 ROOM_TTL = 6 * 3600
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"

@@ -41,7 +41,7 @@ Live, two phones, the song arrives in 5 to 10 seconds. Before the matrix the sam
 8. **why** – one line for the two of them, written by the LLM from Qloo facts only (cards, tags, scores). It must name the pick exactly once and nothing Qloo did not return, or it is replaced by the facts.
 9. **tracks** – the artist's top tracks from the catalog.
 
-Everything Q-Lou says is backed by a Qloo entity id or it is not said. A "Not that one" vote excludes the artist and runs the loop again, up to three times.
+Everything Q-Lou says is backed by a Qloo entity id or it is not said. A "Try another" vote excludes the artist and runs the loop once more; if the second pick is not a yes from both, the game ends without a song.
 
 **Qloo knows artists, not tracks.** The last step is a catalog lookup: Apple's iTunes Search API in the demo (public, no key, 30-second previews), the jukebox's own catalog in production. The seam is one function in `catalog.py`.
 
