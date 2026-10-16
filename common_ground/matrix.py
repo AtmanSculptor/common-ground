@@ -155,7 +155,12 @@ def _resolve_seed(q: Qloo, name: str) -> dict | None:
     """One outside name -> the Qloo artist entity with that exact name (spelling aside), the best
     known one if several, or None when Qloo has never met them. Collaborations never stand in."""
     want = _norm(name)
-    hits = [r for r in q.search(name, types=ARTIST, take=SEARCH_TAKE) if r.get("entity_id") and _norm(r.get("name", "")) == want]
+    hits = q.search(name, types=ARTIST, take=SEARCH_TAKE)
+    if len(want.split()) == 1:
+        # a one-word name keeps its accents: ROSÉ is not Rose, Beyoncé is not Beyonce's cover band
+        hits = [r for r in hits if r.get("entity_id") and r.get("name", "").strip().lower() == name.strip().lower()]
+    else:
+        hits = [r for r in hits if r.get("entity_id") and _norm(r.get("name", "")) == want]
     if not hits:
         return None
     best = max(hits, key=lambda r: float(r.get("popularity") or 0))

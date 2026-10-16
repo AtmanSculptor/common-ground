@@ -180,6 +180,10 @@ def test_resolver_forgives_spelling_and_refuses_collaborations(fake_qloo, monkey
     monkeypatch.setattr(fake_qloo, "search", lambda q, types=None, take=5: hits.get(q, []))
     assert matrix._resolve_seed(fake_qloo, "Lil Wayne")["id"] == "x2"
     assert matrix._resolve_seed(fake_qloo, "Selena Gomez") is None
+    hits["ROSÉ"] = [{"entity_id": "x4", "name": "Rose", "popularity": 0.95}]
+    hits["Carin León"] = [{"entity_id": "x5", "name": "Carin Leon", "popularity": 0.95}]
+    assert matrix._resolve_seed(fake_qloo, "ROSÉ") is None                 # one word: the accent is the name
+    assert matrix._resolve_seed(fake_qloo, "Carin León")["id"] == "x5"     # two words: spelling is forgiven
 
 
 def test_extend_adds_new_names_and_scores_them_on_every_card(fake_qloo, tmp_path):
