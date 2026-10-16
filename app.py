@@ -120,6 +120,18 @@ def play_page():
     return page("play.html")
 
 
+@app.get("/screen/{code}")
+def screen_page(code: str):
+    """The venue's vertical screen: watches one room, read-only."""
+    return page("screen.html")
+
+
+@app.get("/screen")
+def screen_redirect(code: str = ""):
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url=f"screen/{code.upper()}" if code else "screen/NONE", status_code=302)
+
+
 @app.get("/organize")
 def organize_page():
     """The older organizer tool: what do N audience segments share."""

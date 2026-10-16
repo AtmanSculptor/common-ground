@@ -97,7 +97,7 @@ def test_solo_against_the_house(client, monkeypatch):
 
 
 def test_pages_and_health(client):
-    for path in ("/", "/play", "/deck", "/stats", "/organize"):
+    for path in ("/", "/play", "/deck", "/stats", "/organize", "/screen/ABCD"):
         assert client.get(path).status_code == 200
     assert client.get("/").text == client.get("/play").text      # the game is the front door
     assert "Our Song" in client.get("/").text

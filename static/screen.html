@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Our Song on the big screen</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+<style>
+/* The venue's vertical screen (a 43-inch jukebox display is 1080 x 1920). Everything scales with the
+   viewport width so the same page reads on a phone held upright. Read-only: it watches one room. */
+:root{--bg:#000;--surface:#1F1F1F;--text:#fff;--text2:#DDD;--text3:#8C8B88;--aura:#BD35FC;--deep:#8A2BE2;--gold:#FFC700;--r:2.2vw}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:"proxima-nova",Montserrat,Inter,-apple-system,Arial,sans-serif;height:100%;overflow:hidden}
+body{display:flex;flex-direction:column;padding:3vw 4vw 2vw;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1' fill='%23ffffff' fill-opacity='0.045'/%3E%3C/svg%3E"),radial-gradient(ellipse 110% 50% at 50% 0%,rgba(138,43,226,.25),transparent 60%),radial-gradient(ellipse 110% 50% at 50% 100%,rgba(255,199,0,.12),transparent 60%),#06030a}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:2vw}
+.brand{font-weight:800;font-size:4.2vw;letter-spacing:-.02em}
+.venue{color:var(--gold);font-size:2.8vw;font-weight:700}
+.sub{color:var(--text3)}
+.field{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4vw;padding:2vw;min-height:0}
+.field.them{background:rgba(138,43,226,.08)}
+.field.me{background:rgba(255,199,0,.05)}
+.who{font-size:3.4vw;font-weight:800;margin-bottom:1.4vw;color:var(--text2)}
+.who span{color:var(--text3);font-weight:700;font-size:2.6vw;margin-left:1.2vw}
+.slots{display:flex;gap:3vw;justify-content:center}
+.slot{width:24vw;aspect-ratio:2/3;border-radius:var(--r);border:.4vw dashed rgba(189,53,252,.35);position:relative;background:transparent}
+.slot:has(.card){border-color:transparent}
+.card{position:absolute;inset:0;border-radius:var(--r);overflow:hidden;background:#000 url(../static/deck/back.jpg) center/cover;transform-style:preserve-3d;transition:transform .7s cubic-bezier(.2,.8,.2,1)}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.card .name{position:absolute;left:0;right:0;bottom:0;padding:2vw 1vw 2.2vw;text-align:center;font-weight:800;font-size:2.6vw;text-shadow:0 .3vw 1.2vw #000;background:linear-gradient(transparent,rgba(0,0,0,.85));backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.card.down img,.card.down .name{opacity:0}
+.card.match{box-shadow:0 0 5vw rgba(255,199,0,.6)}
+.card.kin{box-shadow:0 0 3.5vw rgba(189,53,252,.55)}
+.between{text-align:center;padding:2vw 0;min-height:14vw;display:flex;flex-direction:column;justify-content:center;gap:1vw}
+.line{font-size:3vw;color:var(--text2);line-height:1.25;margin:0}
+.meter{height:1.6vw;background:#2D2D2D;border-radius:999px;overflow:hidden;margin:1.2vw auto 0;width:70%}
+.meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--aura),var(--gold));transition:width 1s cubic-bezier(.2,.8,.2,1)}
+.meterText{color:var(--text3);font-size:2.6vw;margin:.6vw 0 0}
+.stage{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:0}
+.stage.on{display:flex}
+.qlou{width:38vw;border-radius:var(--r);overflow:hidden;box-shadow:0 0 8vw rgba(189,53,252,.5);animation:glow 4s ease-in-out infinite}
+.qlou img{width:100%;display:block}
+@keyframes glow{0%,100%{box-shadow:0 0 6vw rgba(189,53,252,.35)}50%{box-shadow:0 0 10vw rgba(189,53,252,.65)}}
+.say{font-size:4vw;font-weight:800;margin:3vw 0 0;max-width:80vw}
+.art{width:46vw;aspect-ratio:1;border-radius:3vw;overflow:hidden;box-shadow:0 0 8vw rgba(255,199,0,.4);background:radial-gradient(circle at 50% 40%,#2a0d44,#000 70%)}
+.art img{width:100%;height:100%;object-fit:cover;display:block}
+.song{font-size:6vw;font-weight:800;letter-spacing:-.02em;line-height:1.05;margin:3vw 0 .8vw}
+.artist{font-size:3.6vw;color:var(--text2);margin:0}
+.ask{font-size:4.4vw;font-weight:800;margin:4vw 0 1vw}
+.coin{display:inline-block;width:4.4vw;height:4.4vw;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffe680,#FFC700 55%,#B88900);vertical-align:-.9vw;margin-left:1vw}
+.votes{display:flex;gap:2vw;justify-content:center;margin-top:2vw}
+.vote{padding:1.4vw 3vw;border-radius:999px;background:var(--surface);font-size:2.8vw;font-weight:700;color:var(--text3)}
+.vote.yes{background:linear-gradient(90deg,var(--aura),var(--deep));color:#fff}
+.names{font-size:3.6vw;font-weight:800;margin:2vw 0 1vw}
+.foot{text-align:center;color:var(--text3);font-size:2.2vw;margin-top:1.5vw}
+.code{color:var(--gold);letter-spacing:.2em;font-weight:800;font-size:6vw}
+.screens{display:none;flex:1;flex-direction:column;min-height:0}
+.screens.on{display:flex}
+</style></head><body>
+<div class="top"><div class="brand">Our Song</div><div class="venue" id="venue"></div></div>
+
+<div class="stage on" id="st-idle">
+  <div class="qlou"><img src="../static/deck/qlou.jpg" alt=""></div>
+  <p class="say" id="idleSay">Start a challenge on your phone.</p>
+  <p class="sub" style="font-size:2.8vw" id="idleSub"></p>
+</div>
+
+<div class="screens" id="st-table">
+  <div class="field them"><div class="who"><span id="nameA" style="margin:0;color:var(--text2);font-size:3.4vw"></span><span id="statusA"></span></div><div class="slots" id="slotsA"><div class="slot"></div><div class="slot"></div></div></div>
+  <div class="between" id="between"><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter" id="meterBox" style="display:none"><i id="meter"></i></div><p class="meterText" id="meterText"></p></div>
+  <div class="field me"><div class="who"><span id="nameB" style="margin:0;color:var(--text2);font-size:3.4vw"></span><span id="statusB"></span></div><div class="slots" id="slotsB"><div class="slot"></div><div class="slot"></div></div></div>
+</div>
+
+<div class="stage" id="st-thinking">
+  <div class="qlou"><img src="../static/deck/qlou.jpg" alt=""></div>
+  <p class="say" id="say">Q-Lou is listening to both of you.</p>
+</div>
+
+<div class="stage" id="st-jukebox">
+  <div class="art" id="art"></div>
+  <h1 class="song" id="song"></h1>
+  <p class="artist" id="artist"></p>
+  <p class="ask" id="ask">Play it for a credit?<span class="coin"></span></p>
+  <div class="votes" id="votes"></div>
+</div>
+
+<div class="stage" id="st-done">
+  <p class="sub" style="font-size:3vw;margin:0" id="doneKicker"></p>
+  <div class="art" id="doneArt"></div>
+  <h1 class="song" id="doneSong"></h1>
+  <p class="artist" id="doneArtist"></p>
+  <p class="names" id="doneNames"></p>
+  <p class="sub" style="font-size:2.8vw;margin:0" id="doneShared"></p>
+</div>
+
+<p class="foot" id="foot"></p>
+
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const code=(new URLSearchParams(location.search).get("code")||location.pathname.split("/").filter(Boolean).pop()||"").toUpperCase();
+let shownReveal=-1, lastPick=null, lastRound=-1, themShown={}, state=null;
+function stage(id){document.querySelectorAll(".stage,.screens").forEach(e=>e.classList.remove("on"));$(id).classList.add("on")}
+function card(c,extra){return `<div class="card ${extra||""}"><img src="../${esc(c.img)}" alt=""><div class="name">${esc(c.name)}</div></div>`}
+function down(){return `<div class="card down"></div>`}
+async function poll(){
+  try{const r=await fetch(`../api/game/${code}?who=screen&_=${Date.now()}`);if(!r.ok)throw new Error(r.status);state=await r.json()}catch(e){$("idleSay").textContent="No game on this screen yet.";$("idleSub").textContent=code?`Room ${code} is not open.`:"Open this page with a room code.";stage("st-idle");return}
+  const s=state,A=s.sides.host,B=s.sides.guest;
+  $("venue").textContent=s.venue&&s.venue.name?`${s.venue.name}${s.venue.line?" · "+s.venue.line:""}`:"";
+  $("foot").textContent=`Room ${s.code} · artists and taste scores by Qloo`;
+  if(s.phase==="quiz"){$("idleSay").textContent=B.joined?`${A.name} and ${B.name} are answering four quick questions.`:`${A.name} is waiting for a partner.`;$("idleSub").innerHTML=B.joined?"":`Join with the code <span class="code">${esc(s.code)}</span>`;stage("st-idle");return}
+  if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,A,B);stage("st-table");return}
+  if(s.phase==="thinking"){const steps=s.thinking||[];const last=steps[steps.length-1]||{};$("say").textContent=({read:"Reading both hands.",draft:"Narrowing two thousand artists.",verify:"Checking with Qloo.",pick:"Got it."})[last.step]||"Q-Lou is listening to both of you.";stage("st-thinking");return}
+  if(s.phase==="jukebox"&&s.pick){renderJukebox(s.pick,A,B);stage("st-jukebox");return}
+  if(s.phase==="done"&&s.result){renderDone(s.result,A,B);stage("st-done")}}
+function renderTable(s,A,B){
+  $("nameA").textContent=A.name||"Host";$("nameB").textContent=B.name||"Partner";
+  if(lastRound!==s.round){lastRound=s.round;shownReveal=-1;themShown={};["slotsA","slotsB"].forEach(id=>$(id).innerHTML='<div class="slot"></div><div class="slot"></div>');["ln0","ln1"].forEach(id=>$(id).textContent="");$("meterBox").style.display="none";$("meterText").textContent=`Round ${s.round+1}`}
+  if(s.phase==="cards"){for(const [k,side,slots,status] of [["A",A,"slotsA","statusA"],["B",B,"slotsB","statusB"]]){const n=side.locked?2:(side.placed||0);
+      if(themShown[k]!==n){themShown[k]=n;$(slots).innerHTML=[0,1].map(i=>i<n?`<div class="slot">${down()}</div>`:'<div class="slot"></div>').join("")}
+      $(status).textContent=side.locked?"locked in":(n===0?"is choosing":n===1?"put one down":"has two down")}return}
+  if(s.phase==="reveal"&&shownReveal!==s.round){shownReveal=s.round;const rv=s.reveal;$("statusA").textContent="";$("statusB").textContent="";
+    $("slotsA").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.a,"down "+(p.match==="exact"?"match":p.match==="kin"?"kin":""))}</div>`).join("");
+    $("slotsB").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.b,"down "+(p.match==="exact"?"match":p.match==="kin"?"kin":""))}</div>`).join("");
+    const a=$("slotsA").querySelectorAll(".card"),b=$("slotsB").querySelectorAll(".card");
+    rv.pairs.forEach((p,i)=>{setTimeout(()=>{a[i].classList.remove("down");b[i].classList.remove("down")},600+i*900);setTimeout(()=>{$("ln"+i).textContent=p.line||(p.lines&&p.lines.host)||""},1300+i*900)});
+    setTimeout(()=>{$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},800+rv.pairs.length*900)}}
+function renderJukebox(p,A,B){const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0);const t0=p.tracks&&p.tracks[0];
+  if(lastPick!==key){lastPick=key;$("art").innerHTML=t0&&t0.art?`<img src="${esc(t0.art)}" alt="">`:"";$("song").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:""}
+  const v=p.voted||{};$("votes").innerHTML=[["host",A],["guest",B]].map(([k,side])=>`<span class="vote ${v[k]?"yes":""}">${esc(side.name||k)}${v[k]?" said yes":""}</span>`).join("")}
+function renderDone(r,A,B){const p=r.pick;const t=p&&p.tracks&&p.tracks[0];
+  $("doneKicker").textContent=p&&p.artist?(p.played?"Now playing, for the two of you":"Not tonight"):"Nothing landed tonight";
+  $("doneArt").innerHTML=t&&t.art?`<img src="${esc(t.art)}" alt="">`:"";$("doneArt").style.display=p&&p.artist?"":"none";
+  $("doneSong").textContent=p&&p.artist?(t?t.track:p.artist.name):"";$("doneArtist").textContent=p&&p.artist&&t?p.artist.name:"";
+  $("doneNames").textContent=`${A.name||"Host"} and ${B.name||"Partner"}`;
+  $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", "):""}
+poll();setInterval(poll,1500);
+</script></body></html>

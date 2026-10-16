@@ -76,6 +76,7 @@ common_ground/
   agent.py, engine.py      the organizer: what do N audience segments share (second mode, at /organize)
 static/
   play.html                the game, phone first, no framework
+  screen.html              the venue's vertical screen, read-only, watches one room
   deck.html, stats.html    the cards as a gallery; results so far
   cards.json               the deck with its verified Qloo signals
   matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
@@ -94,7 +95,7 @@ cp .env.example .env        # QLOO_API_KEY required; OPENROUTER_API_KEY optional
 uvicorn app:app --host 0.0.0.0 --port 8080
 ```
 
-Open `/` on two phones, or one with "Try it solo": Q-Lou seats you with a house partner who has a real Qloo profile and picks cards and says yes on a human clock. `/deck` shows the cards, `/stats` the results, `/organize` the older organizer.
+`/screen/<code>` is the venue's big screen: a read-only, vertical (1080 x 1920) view of one room that watches the table, the flip, the ask and the song, for the 43-inch jukebox display TouchTunes ships. Open `/` on two phones, or one with "Try it solo": Q-Lou seats you with a house partner who has a real Qloo profile and picks cards and says yes on a human clock. `/deck` shows the cards, `/stats` the results, `/organize` the older organizer.
 
 Tests: `pip install -r requirements-dev.txt && python -m pytest -q`.
 
