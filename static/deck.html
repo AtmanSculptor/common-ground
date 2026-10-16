@@ -30,7 +30,7 @@ button:active{background:linear-gradient(90deg,var(--aura),var(--deep));color:#f
 </style></head><body>
 <h1>The deck</h1>
 <p class="sub">45 cards, each backed by a Qloo tag or audience that returns real artists. Drag across a card to tilt it. Tap to see a match.</p>
-<div class="bar"><button onclick="bump(1)">Bigger text</button><button onclick="bump(-1)">Smaller</button><button onclick="matchRandom()">Light up 2 matches</button></div>
+<div class="bar"><button onclick="matchRandom()">Light up 2 matches</button></div>
 <div class="hero scene"><div class="card tilt" id="qlou"><img src="static/deck/qlou.jpg" alt=""><div class="glare"></div><div class="frame"></div><div class="name">Q-Lou</div></div><p class="line">The genie in the jukebox. One wish, the song you both love.</p></div>
 <div class="grid" id="grid"></div>
 <script>
@@ -42,6 +42,5 @@ function wire(){document.querySelectorAll(".tilt").forEach(card=>{card.addEventL
 function set(card,px,py){card.style.setProperty("--px",px);card.style.setProperty("--py",py);card.style.setProperty("--ry",(px*18)+"deg");card.style.setProperty("--rx",(-py*18)+"deg")}
 let gyro=false;function enableGyro(){if(gyro)return;const go=()=>{gyro=true;window.addEventListener("deviceorientation",e=>{const px=Math.max(-.5,Math.min(.5,(e.gamma||0)/40)),py=Math.max(-.5,Math.min(.5,((e.beta||45)-45)/40));document.querySelectorAll(".tilt").forEach(c=>set(c,px,py))})};if(typeof DeviceOrientationEvent!=="undefined"&&DeviceOrientationEvent.requestPermission){DeviceOrientationEvent.requestPermission().then(s=>{if(s==="granted")go()}).catch(()=>{})}else go()}
 document.body.addEventListener("click",enableGyro,{once:true});
-function bump(d){const r=document.documentElement;const cur=parseFloat(getComputedStyle(r).fontSize);r.style.fontSize=Math.max(14,Math.min(30,cur+2*d))+"px"}
 function matchRandom(){document.querySelectorAll("#grid .card").forEach(c=>{c.classList.remove("match","yours");c.querySelector(".badge").textContent=""});const all=[...document.querySelectorAll("#grid .card")];for(let i=0;i<2;i++){const c=all[Math.floor(Math.random()*all.length)];c.classList.add("match");c.querySelector(".badge").textContent="★"}}
 </script></body></html>

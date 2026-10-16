@@ -4,7 +4,7 @@
 <title>Our Song results</title>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#000;--surface:#1F1F1F;--surface2:#2D2D2D;--text:#fff;--text3:#8C8B88;--aura:#BD35FC;--gold:#FFC700;--r:16px;font-size:19px}
+:root{--bg:#000;--surface:#1F1F1F;--surface2:#2D2D2D;--text:#fff;--text3:#8C8B88;--aura:#BD35FC;--gold:#FFC700;--r:16px;font-size:17px}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:"proxima-nova",Montserrat,Inter,-apple-system,Arial,sans-serif;padding:16px;max-width:720px;margin:0 auto}
 h1{font-weight:800;font-size:1.7rem;letter-spacing:-.02em;margin:6px 0}h2{font-weight:800;font-size:1.15rem;margin:18px 0 8px}
 .sub{color:var(--text3)}.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:12px}
@@ -12,7 +12,7 @@ h1{font-weight:800;font-size:1.7rem;letter-spacing:-.02em;margin:6px 0}h2{font-w
 .row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #1a1a1a;font-size:.95rem}.row span:last-child{color:var(--text3)}
 a{color:var(--text3)}.top{display:flex;justify-content:space-between;align-items:center}.pill{background:var(--surface);border-radius:999px;padding:6px 12px;font-weight:700;font-size:.9rem;color:#DDD;border:0;font-family:inherit}
 </style></head><body>
-<div class="top"><h1>Results so far</h1><button class="pill" onclick="bump()" title="Bigger text">Aa</button></div>
+<h1>Results so far</h1>
 <p class="sub">Every game Q-Lou has played. Nothing personal is kept: first names, cards, the pick, and whether it played. <a href="play">Back to the game</a></p>
 <div class="tiles" id="tiles"></div>
 <h2>Guess, then data</h2><div id="base" class="sub"></div>
@@ -28,6 +28,5 @@ fetch("api/stats?_="+Date.now()).then(r=>r.json()).then(s=>{
   document.getElementById("cards").innerHTML=s.top_cards.map(([n,c])=>`<div class="row"><span>${n}</span><span>${c}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
   document.getElementById("recent").innerHTML=s.recent.map(r=>`<div class="row"><span>${when(r.t)} ${r.house?"(solo)":""}</span><span>${r.artist||"no pick"} · ${r.played?"played":"skipped"} · ${r.meter}</span></div>`).join("")||"<p class='sub'>None yet.</p>";
 }).catch(()=>{document.getElementById("tiles").innerHTML="<p class='sub'>Could not load results.</p>"});
-const SIZES=[19,22,25,17];let sizeIx=0;function bump(){sizeIx=(sizeIx+1)%SIZES.length;document.documentElement.style.fontSize=SIZES[sizeIx]+"px"}
 function when(t){const d=new Date(t*1000),now=new Date();const time=d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});const day=d.toDateString()===now.toDateString()?"Today":d.toLocaleDateString(undefined,{month:"short",day:"numeric"});return `${day}, ${time}`}
 </script></body></html>
