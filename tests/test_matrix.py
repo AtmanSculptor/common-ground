@@ -86,3 +86,47 @@ def test_a_slow_live_check_does_not_hold_the_matrix_pick(fake_qloo, tmp_path, mo
     assert "taking its time" in next(s["text"] for s in p.steps if s["step"] == "verify")
     time.sleep(0.5)
     assert p.live and set(p.live) == {"host", "guest"} and updates and updates[-1] is p
+
+
+def test_seeds_join_the_pool_and_unknowns_are_dropped(fake_qloo, tmp_path):
+    """The outside list: names Qloo knows become pool artists; names it has never met are counted, not guessed."""
+    out = tmp_path / "matrix.json"
+    cards = list(deck.cards())[:3]
+    m = matrix.build(fake_qloo, out=out, cards=cards, seeds=["Morgan Wallen", "Nobody From Nowhere", "Morgan Wallen"])
+    assert m["seeds"] == {"wanted": 2, "found": 1, "dropped": ["Nobody From Nowhere"]}
+    assert "id:Morgan Wallen" in m["entities"] and "id:Nobody From Nowhere" not in m["entities"]
+    assert all("id:Morgan Wallen" in col for col in m["scores"].values())   # scored against every card like the rest
+
+
+def test_seed_names_dedupe_and_survive_a_missing_file(tmp_path):
+    assert matrix.seed_names(tmp_path / "none.json") == []
+    f = tmp_path / "seeds.json"
+    f.write_text(json.dumps({"artists": [{"name": "Adele"}, {"name": "adele "}, "Zach  Bryan", {"name": ""}]}))
+    assert matrix.seed_names(f) == ["Adele", "Zach Bryan"]
+
+
+def test_pool_pull_stops_on_a_short_or_repeated_page(fake_qloo, monkeypatch):
+    card = list(deck.cards())[0]
+    pages = []
+    real = fake_qloo.insights
+
+    def counting(*a, **kw):
+        pages.append(kw.get("page", 1))
+        return real(*a, **kw)
+
+    monkeypatch.setattr(fake_qloo, "insights", counting)
+    ents = matrix._pull_card_pool(fake_qloo, card, per_card=150, popularity_min=0.9)
+    assert ents and pages == [1]          # the fake's first page is short, so no second call
+    monkeypatch.setattr(fake_qloo, "insights", lambda *a, **kw: real(*a, **{**kw, "page": 1}) + [])   # every page repeats page one
+    monkeypatch.setattr(matrix, "PAGE", 2)
+    ents2 = matrix._pull_card_pool(fake_qloo, card, per_card=6, popularity_min=0.9)
+    assert len(ents2) == len({e["id"] for e in ents2})   # no duplicates when pages repeat
+
+
+def test_the_old_matrix_serves_until_the_new_one_is_written(fake_qloo, tmp_path):
+    out = tmp_path / "matrix.json"
+    out.write_text('{"old": true}')
+    cards = list(deck.cards())[:2]
+    seen = []
+    matrix.build(fake_qloo, out=out, cards=cards, on_progress=lambda d: seen.append(json.loads(out.read_text()).get("old")))
+    assert all(seen[:-1]) and "old" not in json.loads(out.read_text())   # old file stays whole until the final replace

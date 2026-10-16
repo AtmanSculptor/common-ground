@@ -99,9 +99,11 @@ class Qloo:
     def insights(self, entity_type: str, *, audiences: list[str] | None = None,
                  entities: list[str] | None = None, tags: list[str] | None = None,
                  location_query: str | None = None, result_entities: list[str] | None = None,
-                 popularity_min: float | None = None, take: int = 50,
+                 popularity_min: float | None = None, take: int = 50, page: int = 1,
                  explain: bool = False) -> list[dict]:
         p: dict[str, Any] = {"filter.type": entity_type, "take": take}
+        if page > 1:
+            p["page"] = page
         if audiences:
             p["signal.demographics.audiences"] = ",".join(audiences)
         if entities:

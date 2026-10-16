@@ -34,9 +34,11 @@ class FakeQloo:
         return {"audiences": list(audiences or []), "tags": list(tags or []), "entities": list(entities or [])}
 
     def insights(self, entity_type, *, audiences=None, entities=None, tags=None, location_query=None,
-                 result_entities=None, popularity_min=None, take=50, explain=False):
+                 result_entities=None, popularity_min=None, take=50, page=1, explain=False):
         self.calls += 1
         sig = self._sig(audiences, entities, tags)
+        if page > 1:
+            return []
         if result_entities is not None:
             out = []
             for eid in result_entities:
@@ -59,7 +61,9 @@ class FakeQloo:
 
     def search(self, query, types=None, take=5):
         self.calls += 1
-        return [{"entity_id": "id:" + query, "name": query}]
+        if query.lower().startswith("nobody"):
+            return []                      # an artist Qloo has never met
+        return [{"entity_id": "id:" + query, "name": query, "popularity": 0.97}]
 
     def all_audiences(self):
         return []
