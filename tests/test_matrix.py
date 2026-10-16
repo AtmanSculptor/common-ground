@@ -55,7 +55,7 @@ def test_qlou_drafts_from_the_matrix_and_verifies_live(fake_qloo, tmp_path, monk
 
 
 def test_extend_route_is_loopback_only(client):
-    assert client.post("/api/admin/matrix/extend", json={"names": ["Adele"]}, headers={"x-forwarded-for": "8.8.8.8"}).status_code == 403
+    assert client.post("/api/admin/matrix/extend", json={"names": ["Adele"]}, headers={"x-forwarded-for": "8.8.8.8"}).status_code == 404   # the guard answers 404, not 403: the route does not exist for the outside
 
 
 def test_matrix_route_is_loopback_only(client):
