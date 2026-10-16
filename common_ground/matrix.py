@@ -39,6 +39,8 @@ POPULARITY_MIN = 0.9    # Qloo popularity is a percentile: the top tenth of arti
 PAGE = 50               # Qloo's page size for the pool pull
 BATCH = 50              # artists per scoring call
 WORKERS = 4             # Qloo calls in flight at once while building
+RETRIES = 4             # tries per scoring batch before it is written off as a hole
+RETRY_PAUSE = 5.0       # seconds before the second try; doubles each time
 MIN_COVERAGE = 0.5      # an artist needs scores for at least half a partner's cards to be ranked
 
 _lock = threading.Lock()
@@ -212,19 +214,28 @@ def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path 
     ids = sorted(entities, key=lambda i: -(entities[i].get("popularity") or 0))[:cap]
     progress("pool-done", artists=len(ids), union=len(entities))
 
-    # 2. every artist against every card, several calls in flight
+    # 2. every artist against every card, several calls in flight. A batch that fails (a rate
+    # limit, a slow minute) is retried with a growing pause rather than left as a hole.
+    holes: list[str] = []
+
+    def score_batch(c: dict, batch: list[str]) -> list[dict]:
+        for attempt in range(RETRIES):
+            try:
+                return q.insights(ARTIST, result_entities=batch, take=len(batch), **c["signal"])
+            except Exception as e:
+                progress("score-error", card=c["name"], attempt=attempt + 1, error=str(e)[:160])
+                time.sleep(RETRY_PAUSE * (2 ** attempt))
+        holes.append(c["name"])
+        return []
+
     def score_card(c: dict) -> None:
         key = str(c["id"])
         col: dict[str, float] = {}
         for i in range(0, len(ids), BATCH):
-            batch = ids[i:i + BATCH]
-            try:
-                for e in q.insights(ARTIST, result_entities=batch, take=len(batch), **c["signal"]):
-                    v = affinity(e)
-                    if abs(v - NO_SIGNAL) > 1e-6:
-                        col[e["entity_id"]] = round(v, 4)
-            except Exception as e:
-                progress("score-error", card=c["name"], error=str(e))
+            for e in score_batch(c, ids[i:i + BATCH]):
+                v = affinity(e)
+                if abs(v - NO_SIGNAL) > 1e-6:
+                    col[e["entity_id"]] = round(v, 4)
         commit("scores", key, col)
         progress("score", card=c["name"], scored=len(col), done=len(state["scores"]), of=len(cards))
 
@@ -233,6 +244,7 @@ def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path 
 
     m = {"built": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "cards": len(cards), "calls": q.calls,
          "seeds": {"wanted": len(seeds), "found": len(seeds) - len(dropped), "dropped": dropped},
+         "holes": sorted(set(holes)),      # cards with a batch that never scored; empty on a clean build
          "entities": {i: {k: entities[i].get(k) for k in ("name", "popularity", "tags")} for i in ids},
          "scores": {str(c["id"]): state["scores"].get(str(c["id"]), {}) for c in cards}}
     out.parent.mkdir(parents=True, exist_ok=True)

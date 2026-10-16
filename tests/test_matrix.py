@@ -130,3 +130,24 @@ def test_the_old_matrix_serves_until_the_new_one_is_written(fake_qloo, tmp_path)
     seen = []
     matrix.build(fake_qloo, out=out, cards=cards, on_progress=lambda d: seen.append(json.loads(out.read_text()).get("old")))
     assert all(seen[:-1]) and "old" not in json.loads(out.read_text())   # old file stays whole until the final replace
+
+
+def test_a_failing_batch_is_retried_then_counted_as_a_hole(fake_qloo, tmp_path, monkeypatch):
+    monkeypatch.setattr(matrix, "RETRY_PAUSE", 0.0)
+    cards = list(deck.cards())[:2]
+    real = fake_qloo.insights
+    tries = {"n": 0}
+
+    def flaky(*a, **kw):
+        if kw.get("result_entities") is not None and tries["n"] < 2:
+            tries["n"] += 1
+            raise RuntimeError("429")
+        return real(*a, **kw)
+
+    monkeypatch.setattr(fake_qloo, "insights", flaky)
+    m = matrix.build(fake_qloo, out=tmp_path / "m.json", cards=cards, workers=1)
+    assert tries["n"] == 2 and m["holes"] == [] and all(m["scores"].values())
+
+    monkeypatch.setattr(fake_qloo, "insights", lambda *a, **kw: (_ for _ in ()).throw(RuntimeError("down")) if kw.get("result_entities") is not None else real(*a, **kw))
+    m2 = matrix.build(fake_qloo, out=tmp_path / "m2.json", cards=cards[:1], workers=1)
+    assert m2["holes"] == [cards[0]["name"]]
