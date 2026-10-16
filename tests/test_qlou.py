@@ -66,3 +66,27 @@ def test_curve_and_explain_flattening():
                       "signal.demographics.audiences": {"urn:audience:leisure:coffee": 0.2}}, out)
     labels = {d["label"] for d in out}
     assert "country" in labels and "coffee" in labels
+
+
+def test_a_slow_extra_never_holds_the_song(fake_qloo, monkeypatch):
+    """The pick returns at the deadline; the late extra attaches itself and the room is told."""
+    import time
+    from common_ground import qlou, catalog
+
+    def slow_tracks(name):
+        time.sleep(0.4)
+        return [{"artist": name, "title": "Late Song"}]
+
+    monkeypatch.setattr(qlou, "EXTRAS_DEADLINE", 0.05)
+    monkeypatch.setattr(catalog, "top_tracks", slow_tracks)
+    updates = []
+    agent = QLou(fake_qloo, use_llm=False, on_update=updates.append)
+    a = Partner("host", "A", _ids("Country roads", "Dog person"))
+    b = Partner("guest", "B", _ids("Rock and roll", "Night owl"))
+    t0 = time.time()
+    p = agent.pick(a, b)
+    assert time.time() - t0 < 0.35 and p.tracks == []
+    assert any(s["step"] == "deadline" for s in p.steps)
+    time.sleep(0.6)
+    assert p.tracks and p.tracks[0]["title"] == "Late Song"
+    assert updates and updates[0] is p

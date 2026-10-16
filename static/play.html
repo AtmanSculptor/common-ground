@@ -134,7 +134,7 @@ button.pill.aa{width:auto;margin:0;padding:6px 12px;background:var(--surface);co
 </section>
 
 <section class="screen" id="s-thinking">
-  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou</b> is listening to both of you.<br><span class="sub">Every step below is a real call to Qloo.</span></p></div>
+  <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>Q-Lou</b> is listening to both of you.<br><span class="sub">Every number below is Qloo's, not a guess.</span></p></div>
   <div id="bet"></div>
   <div class="steps" id="steps"></div>
 </section>
@@ -212,7 +212,7 @@ function renderReveal(rv){const them=partnerName();$("revealLabel").textContent=
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;stepsShown=0;$("steps").innerHTML="";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 let myBet=null;
 function renderSteps(steps){const box=$("steps");for(let i=stepsShown;i<steps.length;i++){const s=steps[i];const d=document.createElement("div");d.className="step"+(s.step==="error"?" error":"");d.innerHTML=`<b>${s.step}</b><span>${s.text}</span>`;box.appendChild(d);setTimeout(()=>d.classList.add("shown"),30+(i-stepsShown)*120);
-    if(s.step==="pool"&&s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 style="margin-top:14px">${s.bet.length} of the ${s.pool} are in the running. Call it.</h2><div class="choice">${s.bet.map(n=>`<button class="ghost" onclick="placeBet(this,'${n.replace(/'/g,"\\'")}')">${n}</button>`).join("")}</div>`}}
+    if(s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 style="margin-top:14px">${s.bet.length} of the ${s.pool} are in the running. Call it.</h2><div class="choice">${s.bet.map(n=>`<button class="ghost" onclick="placeBet(this,'${n.replace(/'/g,"\\'")}')">${n}</button>`).join("")}</div>`}}
   stepsShown=steps.length}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.style.background="linear-gradient(90deg,var(--aura),var(--deep))";btn.style.color="#fff"}
 function trackHTML(t,i){return `<div class="track ${i===0?"pick":""}"><img src="${t.art||""}" alt=""><div class="t"><b>${i===0?"▶ ":""}${t.track}</b><span>${t.album||""}${t.year?" · "+t.year:""}</span></div><button class="ghost" onclick="playPreview('${(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}

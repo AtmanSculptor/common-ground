@@ -160,7 +160,14 @@ class Room:
         attempt = (self.pick or {}).get("attempt", 0) + 1
         rnd = self.round
         self.thinking = []
-        agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append)
+
+        def refresh(late: Pick) -> None:
+            """A slow extra (the line, the tracks, the control) landed after the pick was returned."""
+            if self.round == rnd and self.pick and self.pick.get("attempt") == attempt:
+                d = late.to_dict()
+                self.pick.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "calls")})
+
+        agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append, on_update=refresh)
         p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded))
         if self.round != rnd:
             return None   # a new round was dealt meanwhile; this run is stale

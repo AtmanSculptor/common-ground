@@ -40,7 +40,7 @@ POOL_BOTH = 30
 POOL_CAP = 50          # one scoring call per partner when Qloo is slow
 POPULARITY_MIN = 0.9
 SHORTLIST = 8
-EXTRAS_DEADLINE = 25.0   # seconds to wait for explainability, the control and the line, together
+EXTRAS_DEADLINE = 10.0   # seconds to wait for the line, the tracks and the control, together; late ones attach themselves
 
 WHY_SYSTEM = """You are Q-Lou, the genie in a bar jukebox. Two strangers just played taste cards on their phones and you picked the one artist both of them rank highest.
 Write what you say to them: two short sentences, under 45 words total, warm, a little playful, plain words, no em-dashes, no bullet points, no hashtags.
@@ -112,10 +112,12 @@ def _flatten_explain(x: Any, out: list[dict], depth: int = 0) -> None:
 
 
 class QLou:
-    def __init__(self, q: Qloo, *, use_llm: bool = True, on_step: Callable[[dict], None] | None = None) -> None:
+    def __init__(self, q: Qloo, *, use_llm: bool = True, on_step: Callable[[dict], None] | None = None,
+                 on_update: Callable[[Pick], None] | None = None) -> None:
         self.q = q
         self.use_llm = use_llm
         self.on_step = on_step
+        self.on_update = on_update      # called when a late extra attaches itself to an already-returned pick
         self.steps: list[dict] = []
         self._t0 = time.time()
 
@@ -151,7 +153,8 @@ class QLou:
         self.step("draft", f"Ranked {len(m['entities'])} artists from the card matrix, no waiting: Qloo scored every card against every one of them once.",
                   pool=len(m["entities"]), bet=names)
         top3 = [r["id"] for r in ranked[:3]]
-        with ThreadPoolExecutor(max_workers=6) as ex:
+        ex = ThreadPoolExecutor(max_workers=6)
+        try:
             fa, fb = ex.submit(self._score, top3, sa), ex.submit(self._score, top3, sb)
             la, lb = fa.result(), fb.result()
             self.step("verify", f"Checked the top three live with Qloo, for {a.name} and for {b.name}.", calls=self.q.calls)
@@ -165,24 +168,14 @@ class QLou:
                       f"Live: {la[chosen['id']]:.2f} and {lb[chosen['id']]:.2f}. The weaker score is the one that counts.",
                       artist=artist["name"], id=chosen["id"])
             shortlist = [{"id": r["id"], "name": r["name"], a.key: r["a"], b.key: r["b"]} for r in ranked]
-            explain: dict = {}
-            f_tracks = ex.submit(catalog.top_tracks, artist["name"])
-            f_why = ex.submit(self._why, a, b, artist, chosen["a"], chosen["b"], shortlist)
-            f_base = ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None
-            futures = [f for f in (f_tracks, f_why, f_base) if f]
-            done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
-            for f in pending:
-                f.cancel()
-            tracks = f_tracks.result() if f_tracks in done else []
-            why, src = f_why.result() if f_why in done else self._facts_line(a, b, artist)
-            baseline = f_base.result() if (f_base and f_base in done) else None
-            if pending:
-                self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} left behind so the song is not kept waiting.")
-            self.step("tracks", f"{len(tracks)} tracks by {artist['name']} in the catalog." if tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
-        return Pick(artist=artist, scores={a.key: chosen["a"], b.key: chosen["b"]}, ranked=shortlist, tracks=tracks, why=why, why_source=src,
-                    explain=explain, baseline=baseline, steps=self.steps, pool=len(m["entities"]), calls=self.q.calls,
-                    seconds=round(time.time() - self._t0, 1), source="matrix",
-                    live={a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)})
+            pick = Pick(artist=artist, scores={a.key: chosen["a"], b.key: chosen["b"]}, ranked=shortlist, tracks=[], why="", why_source="facts",
+                        explain={}, baseline=None, steps=self.steps, pool=len(m["entities"]), calls=self.q.calls, seconds=0.0, source="matrix",
+                        live={a.key: round(la[chosen["id"]], 3), b.key: round(lb[chosen["id"]], 3)})
+            self._extras(ex, pick, a, b, artist, chosen["a"], chosen["b"], shortlist,
+                         ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None)
+            return pick
+        finally:
+            ex.shutdown(wait=False)     # a slow extra finishes on its own and attaches itself; the song does not wait
 
     def _baseline_matrix(self, a: Partner, b: Partner, m: dict) -> dict | None:
         """The control, scored against the matrix when the guess is in it, else live for both."""
@@ -235,7 +228,8 @@ class QLou:
 
         both = {"tags": sa.get("tags", []) + sb.get("tags", []), "audiences": sa.get("audiences", []) + sb.get("audiences", [])}
         both = {k: list(dict.fromkeys(v)) for k, v in both.items() if v}
-        with ThreadPoolExecutor(max_workers=6) as ex:
+        ex = ThreadPoolExecutor(max_workers=6)
+        try:
             # 2. pool: three calls at once
             pools = list(ex.map(lambda arg: self._insights(arg[0], take=arg[1], explain=arg[2]),
                                 [(sa, POOL_EACH, False), (sb, POOL_EACH, False), (both, POOL_BOTH, True)]))
@@ -271,23 +265,50 @@ class QLou:
             shortlist = [{"id": i, "name": slim(pool[i])["name"], a.key: ca[i], b.key: cb[i]} for i in ranked[:SHORTLIST]]
 
             # 6 to 9: the extras, together, with a deadline. The pick never waits on a slow extra.
-            f_tracks = ex.submit(catalog.top_tracks, artist["name"])
-            f_why = ex.submit(self._why, a, b, artist, ca[top], cb[top], shortlist)
-            f_base = ex.submit(self._baseline, a, b, ra, rb, keep) if self.use_llm else None
-            explain = self._explain(pool[top])
-            futures = [f for f in (f_tracks, f_why, f_base) if f]
-            done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
-            for f in pending:
-                f.cancel()
-            tracks = f_tracks.result() if f_tracks in done else []
-            why, src = f_why.result() if f_why in done else self._facts_line(a, b, artist)
-            baseline = f_base.result() if (f_base and f_base in done) else None
-            if pending:
-                self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} left behind so the song is not kept waiting.")
-            self.step("tracks", f"{len(tracks)} tracks by {artist['name']} in the catalog." if tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
-        return Pick(artist=artist, scores={a.key: ca[top], b.key: cb[top]}, ranked=shortlist, tracks=tracks, why=why, why_source=src,
-                    explain=explain, baseline=baseline, steps=self.steps, pool=len(ids), calls=self.q.calls,
-                    seconds=round(time.time() - self._t0, 1))
+            pick = Pick(artist=artist, scores={a.key: ca[top], b.key: cb[top]}, ranked=shortlist, tracks=[], why="", why_source="facts",
+                        explain=self._explain(pool[top]), baseline=None, steps=self.steps, pool=len(ids), calls=self.q.calls, seconds=0.0)
+            self._extras(ex, pick, a, b, artist, ca[top], cb[top], shortlist,
+                         ex.submit(self._baseline, a, b, ra, rb, keep) if self.use_llm else None)
+            return pick
+        finally:
+            ex.shutdown(wait=False)
+
+    def _extras(self, ex: ThreadPoolExecutor, pick: Pick, a: Partner, b: Partner, artist: dict, score_a: float, score_b: float,
+                shortlist: list[dict], f_base: Any) -> None:
+        """Tracks, the line, and the control, together, with a deadline. Whatever is late attaches
+        itself to the pick when it lands; the phones pick it up on their next poll."""
+        f_tracks = ex.submit(catalog.top_tracks, artist["name"])
+        f_why = ex.submit(self._why, a, b, artist, score_a, score_b, shortlist)
+        futures = [f for f in (f_tracks, f_why, f_base) if f]
+        done, pending = wait(futures, timeout=EXTRAS_DEADLINE)
+
+        def attach(fut: Any) -> None:
+            try:
+                v = fut.result()
+            except Exception:
+                return
+            if fut is f_tracks:
+                pick.tracks = v
+            elif fut is f_why:
+                pick.why, pick.why_source = v
+            elif fut is f_base:
+                pick.baseline = v
+
+        def late(fut: Any) -> None:
+            attach(fut)
+            if self.on_update:
+                self.on_update(pick)
+
+        pick.why, pick.why_source = self._facts_line(a, b, artist)
+        for f in done:
+            attach(f)
+        for f in pending:
+            f.add_done_callback(late)
+        if pending:
+            self.step("deadline", f"{len(pending)} slow extra{'s' if len(pending) > 1 else ''} will catch up on their own; the song is not kept waiting.")
+        self.step("tracks", f"{len(pick.tracks)} tracks by {artist['name']} in the catalog." if pick.tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
+        pick.calls = self.q.calls
+        pick.seconds = round(time.time() - self._t0, 1)
 
     # ---- helpers -------------------------------------------------------------------------
     def _insights(self, sig: dict, **kw: Any) -> list[dict]:
