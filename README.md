@@ -45,6 +45,7 @@ app.py                     FastAPI: pages and JSON routes (organizer + game + st
 common_ground/
   qloo.py                  thin client for the Qloo Insights API
   qlou.py                  the agent (steps above)
+  matrix.py                the card matrix: 45 cards x 320 artists scored by Qloo once; Q-Lou drafts from it in no time
   rooms.py                 game state: rooms, sides, phases, votes
   deck.py                  the 45 cards, dealing, the lines under each pair
   quiz.py                  four adaptive "which is more you?" questions over Qloo audiences
@@ -56,8 +57,10 @@ static/
   play.html                the game, phone first, no framework
   deck.html, stats.html    the cards as a gallery; results so far
   cards.json               the deck with its verified Qloo signals
+  matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
   deck/                    card art (generated to a locked style brief, see probes/ and deck.md history)
-tests/                     17 tests, fake Qloo, no network; run in CI on every push
+tests/                     23 tests, fake Qloo, no network; run in CI on every push
+docs/                      the feel brief, the Snap study, the TouchTunes style notes
 probes/                    the scripts and logs that verified every card's signal
 ```
 
