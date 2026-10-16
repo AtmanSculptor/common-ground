@@ -231,6 +231,9 @@ def admin_probe(request: Request, what: str, a: str = "", b: str = "", q: str = 
             return _q.compare(a.split(","), b.split(","), entity_type="urn:entity:artist", take=10)
         if what == "trending":
             return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "signal.interests.entities": q, "take": 5})
+        if what == "trend2":
+            return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "signal.interests.entities": q,
+                                            "filter.start_date": a, "filter.end_date": b, "take": 5})
         if what == "trending_id":
             return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "filter.entities": q, "take": 5})
         return {"error": "unknown probe"}
