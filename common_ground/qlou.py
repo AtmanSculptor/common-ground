@@ -218,7 +218,7 @@ class QLou:
         _flatten_explain(raw, found)
         found.sort(key=lambda d: -d["score"])
         self.step("explain", f"Qloo's signal breakdown for the pick: {', '.join(d['label'] for d in found[:4])}." if found
-                  else "Asked Qloo for the signal breakdown; nothing extra came back for this one.")
+                  else "Qloo kept the signal breakdown to itself on this one.")
         return {"both": found[:6]} if found else {}
 
     def _baseline(self, a: Partner, b: Partner, ra: dict, rb: dict, keep: list[str]) -> dict | None:
@@ -283,16 +283,16 @@ class QLou:
             j = chat_json(WHY_SYSTEM, facts, temperature=0.7, max_tokens=700)
             line = " ".join(str(j.get("line", "")).split())
         except BudgetExceeded:
-            self.step("why", "Wrote the line from the facts: daily LLM cap reached.")
+            self.step("why", "Q-Lou wrote the line from the facts (daily LLM cap reached).")
             return fallback, "facts"
         except Exception as e:
-            self.step("why", f"LLM line failed ({e}); using the facts.")
+            self.step("why", "Q-Lou wrote the line from the facts.")
             return fallback, "facts"
         others = [s["name"] for s in shortlist if s["name"] != artist["name"]]
         ok = bool(line) and artist["name"].lower() in line.lower() and len(line) < 400 \
             and not any(o.lower() in line.lower() for o in others) and "—" not in line
         if not ok:
-            self.step("why", "LLM line failed the citation check; using the facts.")
+            self.step("why", "Q-Lou wrote the line from the facts.")
             return fallback, "facts"
         self.step("why", "Q-Lou has something to say.")
         return line, "llm"

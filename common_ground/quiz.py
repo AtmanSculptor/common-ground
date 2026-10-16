@@ -35,7 +35,7 @@ NICE = {
 # Identity is not an interest, and a bar is not a debate. These never appear as "which is more you" choices.
 EXCLUDE_FAMILIES = {"communities", "professional_area", "investing_interests", "global_issues", "political_preferences"}
 EXCLUDE_IDS = {A + "lifestyle_preferences_beliefs:christianity", A + "lifestyle_preferences_beliefs:judaism",
-               A + "lifestyle_preferences_beliefs:islam"}
+               A + "lifestyle_preferences_beliefs:islam", A + "leisure:political_junkie", A + "leisure:news_junkie"}
 
 # The house: characters with real Qloo profiles for playing alone. Q-Lou seats you with one.
 HOUSE = [

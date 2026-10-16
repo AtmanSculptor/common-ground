@@ -54,6 +54,9 @@ input{font:inherit;width:100%;padding:14px;border-radius:12px;border:0;backgroun
 .step.error b{color:var(--coral)}
 .choice{display:grid;gap:10px;margin-top:10px}
 .choice button{margin:0;padding:18px;font-size:1.15rem}
+.song{display:flex;gap:14px;align-items:center;margin:6px 0 10px}
+.song img{width:120px;height:120px;border-radius:14px;flex:none;background:var(--surface2);box-shadow:0 0 24px rgba(255,199,0,.35)}
+.song .t b{display:block;font-size:1.15rem;line-height:1.15}.song .t span{color:var(--text3)}
 .track{display:flex;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid #1a1a1a}
 .track img{width:56px;height:56px;border-radius:8px;flex:none;background:var(--surface2)}
 .track.pick img{width:84px;height:84px;box-shadow:0 0 18px rgba(255,199,0,.5)}
@@ -216,7 +219,7 @@ function renderJukebox(p,other){if(!p)return;const key=p.artist.id+":"+p.attempt
   if(lastPick!==key){lastPick=key;const t0=p.tracks&&p.tracks[0];
     $("betVerdict").textContent=myBet?(myBet===p.artist.name?"You called it.":"You said "+myBet+". Q-Lou went with:"):"Q-Lou's pick for the two of you:";
     $("artist").textContent=p.artist.name;
-    $("hero").innerHTML=t0?`<img src="${t0.art||""}" alt=""><div class="t"><b>${t0.track}</b><span>${t0.album||""}${t0.year?" · "+t0.year:""}</span><br><button class="small ghost" style="margin-top:8px" onclick="playPreview('${(t0.preview||"").replace(/'/g,"")}',this)">▶ 30s preview</button></div>`:`<p class="sub">No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.</p>`;
+    $("hero").innerHTML=t0?`${t0.art?`<img src="${t0.art}" alt="">`:""}<div class="t"><b>${t0.track}</b><span>${t0.album||""}${t0.year?" · "+t0.year:""}</span><br><button class="small ghost" style="margin-top:8px" onclick="playPreview('${(t0.preview||"").replace(/'/g,"")}',this)">▶ 30s preview</button></div>`:`<p class="sub">No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.</p>`;
     $("why").innerHTML="<b>Q-Lou:</b> "+p.why;
     $("scores").textContent=`Qloo scores ${p.artist.name} ${Math.round((p.scores[who]||0)*100)} for you and ${Math.round((p.scores[theirKey]||0)*100)} for ${them}, out of ${p.pool} artists, in ${p.seconds}s.`;
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?`<p class="sub" style="margin-top:14px">More by ${p.artist.name}, in case you two disagree:</p>`+p.tracks.slice(1).map((t,i)=>trackHTML(t,i+1)).join(""):"";
@@ -228,7 +231,7 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";if(r.pick&&r.p
   const p=r.pick;const t=p&&p.tracks&&p.tracks[0];
   $("doneSong").innerHTML=p&&p.artist?`<div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p><b>${p.played?"You both said yes.":"Not this time."}</b> ${p.artist.name}${t?" · "+t.track:""}<br><span class="sub">${p.played?"That one's yours now.":"Q-Lou will remember."}</span></p></div>`:"";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["Nothing twice, and still common ground."]).map(n=>`<span class="tag">${n}</span>`).join("");
-  $("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${x.name} <span class="sub">you ${Math.round(x[who]*100)} · partner ${Math.round(x[theirKey]*100)}</span></p>`).join("");
+  const them=(state.sides[theirKey]||{}).name||"partner";$("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${x.name} <span class="sub">you ${Math.round(x[who]*100)} · ${them} ${Math.round(x[theirKey]*100)}</span></p>`).join("");
   const b=p&&p.baseline;$("baseline").innerHTML=b?`<h2>Guess vs. data</h2><div class="vs"><div class="r llm"><span>A plain language model guessed</span><b>${b.guess}</b></div><div class="r llm"><span>Qloo scores that</span><b>${b.scores&&b.scores[who]!=null?Math.round(b.scores[who]*100)+" · "+Math.round(b.scores[theirKey]*100):"no data"}</b></div><div class="r"><span>Q-Lou's pick</span><b>${p.artist.name}</b></div><div class="r"><span>Qloo scores that</span><b>${Math.round(p.scores[who]*100)} · ${Math.round(p.scores[theirKey]*100)}</b></div><p class="sub" style="margin:8px 0 0">The guess ${b.verdict==="holds"?"held up":b.verdict==="splits"?"splits the two of you":b.verdict==="misses"?"misses you both":"could not be scored"}. ${p.why_source==="llm"?"Q-Lou's line was written by a language model from Qloo facts only, and checked.":"Q-Lou's line came straight from the facts."}</p></div>`:"";
   const ex=p&&p.explain&&p.explain.both||[];
   $("explain").innerHTML=ex.length?`<h2>What drove the pick</h2><p class="rank">${ex.map(d=>d.label+" "+Math.round(d.score*100)).join(", ")}</p><p class="sub" style="font-size:.85rem">From Qloo's explainability on the combined signal.</p>`:"";
