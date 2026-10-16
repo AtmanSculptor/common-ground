@@ -6,7 +6,7 @@ Built for the Qloo Agentic Hackathon 2026. Live demo: see the Devpost submission
 
 ## What it is
 
-Our Song is a social game for a bar's pay-to-play jukebox, in the shape of a phone app feature. Two people at the bar, each on their own phone, join one room. Each answers four quick "which is more you?" questions, is dealt six taste cards (Night owl, Country roads, Whiskey, Dog person...), and plays the two that are most them. Both hands flip at once. A line lands under each pair. A Common Ground meter climbs when they agree.
+Our Song is a social game for a bar's pay-to-play jukebox, in the shape of a phone app feature. Two people at the bar, each on their own phone, join one room. Each answers four quick "which is more you?" questions and is dealt six taste cards (Night owl, Country roads, Whiskey, Dog person...). The screen is a table: your partner's side faces you across a glowing line. You drag the two cards that are most you up onto your side; theirs appear face-down across from yours as they place them. When both lock, their cards flip in place, a line from Q-Lou lands between each pair, and the meter climbs with what the cards had in common.
 
 Then Q-Lou, the genie in the jukebox, goes to work: it turns both players' cards into Qloo signals, pulls a pool of artists, scores every one for each person, grades on a curve, and picks the artist whose *weaker* score is highest. Common ground, not a compromise. It says why, in one line written from Qloo facts and checked against them, and brings back the artist's top tracks. "Play it for a credit?" Both say yes and it plays.
 
@@ -99,15 +99,16 @@ uvicorn app:app --host 0.0.0.0 --port 8080
 
 Tests: `pip install -r requirements-dev.txt && python -m pytest -q`.
 
-Pages run with no cookies and no accounts. A room is a four-letter code and two first names, swept after six hours. Every GET from the page carries a cache-buster because the demo sits behind a CDN. The LLM is optional and capped per day; the game finishes without it.
+Pages run with no cookies and no accounts. A room is a four-letter code and two nicknames, swept after six hours. Every GET from the page carries a cache-buster because the demo sits behind a CDN. The LLM is optional and capped per day; the game finishes without it.
 
 ## Honest limits
 
+Two Qloo features return nothing on the hackathon key as of mid October 2026: `feature.explainability` (the per-entity drivers) and `/v2/trending` (an empty list for any artist we tried). Both are wired behind a loopback probe route and would light up the done screen ("what drove it", "trending this week") on a production key. Qloo also files multi-career celebrities (Justin Timberlake, Miley Cyrus, Selena Gomez) as people rather than artists, so they are not in the pool.
+
 - Qloo's hackathon catalog has artists, not songs; track choice is a catalog's job, not Qloo's.
 - Audience signals are coarser than tag signals; life cards tint the pick, music cards carry it.
-- Explainability payloads vary by entity; when nothing useful comes back the results screen just omits that section.
-- The house characters are hand-written profiles, not people.
-- Judges should play the two-phone version to see the reveal; the solo version exists so one person can see the whole loop in two minutes.
+- The house partners ("Try it solo") are hand-written profiles with first names, not people; they place cards and say yes on a human clock so the table feels like two people.
+- Judges can play the whole loop alone with "Try it solo" in about two minutes; the two-phone version is the real thing, and a second phone or an incognito window joins with the room code. `/screen/<code>` shows the same game on the venue's screen.
 
 ## License
 
