@@ -31,7 +31,7 @@ Sources: TouchTunes' March 17, 2026 release and its advertising page; Buzztime's
 1. **read** – the played cards and quiz profile, as below.
 2. **draft** – local arithmetic over the matrix: a partner's affinity to an artist is the mean of that artist's Qloo scores on the cards they played (a card Qloo was silent on counts as that card's weakest real score), curved per partner, ranked by the weaker score. No call, no wait. Four names from the top of the list go to the phones as a bet.
 3. **verify** – the top three are scored live with `filter.results.entities`, for both partners, in parallel. Q-Lou takes the first with a real live signal. If Qloo is having a slow minute (past 8 s), it goes with the matrix and the live check attaches itself when it lands.
-4. **why**, **baseline**, **tracks** – as below, with a deadline: a slow extra never holds the song; it attaches itself to the pick when it arrives and the phones pick it up on their next poll. The control experiment is for the results screen and is never waited on.
+4. **why**, **baseline**, **tracks**, **compare** – as below, with a deadline: a slow extra never holds the song; it attaches itself to the pick when it arrives and the phones pick it up on their next poll. The control experiment and the compare are for the results screen and are never waited on. **compare** is `/v2/analysis/compare` on each partner's own top three artists from the matrix: the tags the two tastes share ("You share: Soul, Indie rock"), music genres first.
 
 The matrix keeps itself current: a keeper thread re-resolves the outside list and extends the matrix every week, and rebuilds it every month in the quiet hours (1 to 5 AM Arizona), the old matrix serving until the new one is whole. New artists can also be added by hand through a loopback-only route (`POST /api/admin/matrix/extend`).
 
@@ -81,7 +81,7 @@ static/
   matrix.json              the built matrix (the app rebuilds it through a loopback-only route)
   jukebox_seeds.json       the outside list: artists bars actually play, resolved to Qloo entities at build time
   deck/                    card art (generated to a locked style brief, see probes/ and deck.md history)
-tests/                     44 tests, fake Qloo, no network; run in CI on every push
+tests/                     45 tests, fake Qloo, no network; run in CI on every push
 docs/                      the feel brief, the Snap study, the TouchTunes style notes, the pub night run sheet
 probes/                    the scripts and logs that verified every card's signal
 ```

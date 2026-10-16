@@ -81,6 +81,7 @@ class Pick:
     seconds: float
     source: str = "live"                          # "matrix" (drafted from the card matrix, verified live) | "live"
     live: dict[str, float] = field(default_factory=dict)   # partner key -> raw live affinity of the pick
+    shared: list[dict] = field(default_factory=list)       # what the two tastes share, from /v2/analysis/compare: [{name, score}]
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -202,7 +203,8 @@ class QLou:
                 fa.add_done_callback(late_verify)
                 fb.add_done_callback(late_verify)
             self._extras(ex, pick, a, b, artist, chosen["a"], chosen["b"], shortlist,
-                         ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None)
+                         ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None,
+                         ex.submit(self._shared, a, b, matrix.top_for(m, a.cards), matrix.top_for(m, b.cards)))
             return pick
         finally:
             ex.shutdown(wait=False)     # a slow extra finishes on its own and attaches itself; the song does not wait
@@ -304,14 +306,15 @@ class QLou:
             ex.shutdown(wait=False)
 
     def _extras(self, ex: ThreadPoolExecutor, pick: Pick, a: Partner, b: Partner, artist: dict, score_a: float, score_b: float,
-                shortlist: list[dict], f_base: Any) -> None:
+                shortlist: list[dict], f_base: Any, f_shared: Any = None) -> None:
         """Tracks, the line, and the control, together, with a deadline. Whatever is late attaches
         itself to the pick when it lands; the phones pick it up on their next poll."""
         f_tracks = ex.submit(catalog.top_tracks, artist["name"])
         f_why = ex.submit(self._why, a, b, artist, score_a, score_b, shortlist)
         done, pending = wait([f_tracks, f_why], timeout=EXTRAS_DEADLINE)
-        if f_base:
-            pending = set(pending) | {f_base}      # the control is for the done screen; it never gets a grace period
+        for f in (f_base, f_shared):
+            if f:
+                pending = set(pending) | {f}      # for the done screen; never a grace period
 
         def attach(fut: Any) -> None:
             try:
@@ -324,6 +327,8 @@ class QLou:
                 pick.why, pick.why_source = v
             elif fut is f_base:
                 pick.baseline = v
+            elif fut is f_shared:
+                pick.shared = v
 
         def late(fut: Any) -> None:
             attach(fut)
@@ -335,12 +340,34 @@ class QLou:
             attach(f)
         for f in pending:
             f.add_done_callback(late)
-        slow = [f for f in pending if f is not f_base]
+        slow = [f for f in pending if f is not f_base and f is not f_shared]
         if slow:
             self.step("deadline", f"{len(slow)} slow extra{'s' if len(slow) > 1 else ''} will catch up on their own; the song is not kept waiting.")
         self.step("tracks", f"{len(pick.tracks)} tracks by {artist['name']} in the catalog." if pick.tracks else f"No preview tracks for {artist['name']} in the demo catalog.")
         pick.calls = self.q.calls
         pick.seconds = round(time.time() - self._t0, 1)
+
+    def _shared(self, a: Partner, b: Partner, a_ids: list[str], b_ids: list[str]) -> list[dict]:
+        """What the two tastes share: Qloo's compare endpoint on each partner's own top artists.
+        Returns the top shared tags [{name, score}], music genres first. Empty when Qloo is quiet."""
+        if not a_ids or not b_ids:
+            return []
+        try:
+            r = self.q.compare(a_ids, b_ids, entity_type=ARTIST, take=12)
+        except Exception as e:
+            self.step("compare", f"Qloo's compare call did not answer: {str(e)[:80]}")
+            return []
+        tags = (r.get("results") or {}).get("tags") or []
+        out = []
+        for t in tags:
+            score = float(((t.get("query") or {}).get("score")) or 0)
+            if t.get("name") and score > 0:
+                out.append({"name": t["name"], "score": round(score, 3), "genre": str(t.get("subtype", "")).endswith("genre:music")})
+        out.sort(key=lambda x: (not x["genre"], -x["score"]))
+        out = [{"name": x["name"], "score": x["score"]} for x in out[:4]]
+        if out:
+            self.step("compare", f"What {a.name} and {b.name} share, by Qloo's compare: " + ", ".join(x["name"] for x in out) + ".")
+        return out
 
     # ---- helpers -------------------------------------------------------------------------
     def _insights(self, sig: dict, **kw: Any) -> list[dict]:

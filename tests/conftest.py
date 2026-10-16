@@ -59,6 +59,12 @@ class FakeQloo:
             out.append(e)
         return out
 
+    def compare(self, a_entities, b_entities, entity_type=None, take=30):
+        self.calls += 1
+        return {"results": {"tags": [{"name": "Soul", "subtype": "urn:tag:genre:music", "query": {"score": 0.88}},
+                                     {"name": "Live Music", "subtype": "urn:tag:keyword:media", "query": {"score": 0.91}},
+                                     {"name": "Indie Rock", "subtype": "urn:tag:genre:music", "query": {"score": 0.61}}]}}
+
     def search(self, query, types=None, take=5):
         self.calls += 1
         if query.lower().startswith("nobody"):

@@ -244,6 +244,7 @@ details[open] summary::after{content:"–"}
     <p class="names" id="doneNames"></p>
     <div class="fourcards" id="fourCards"></div>
     <p class="song-album" id="doneWho"></p>
+    <p class="center" id="doneShared" style="margin:6px 0 0;font-size:.95rem;color:var(--text2)"></p>
     <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
   <button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button>
@@ -294,14 +295,14 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
   if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,me,other);show("table");return}
   if(s.phase==="thinking"){renderThinking(s.thinking||[]);show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s.pick,other);show("jukebox");return}
-  if(s.phase==="done"&&s.result){renderDone(s.result);clearInterval(timer);forget();show("done")}}
+  if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 async function answer(q,chose){try{await api(code+"/answer",{who,a:q.a.id,b:q.b.id,chose});poll()}catch(e){}}
 function cardHTML(c,cls){return `<div class="scene"><div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name">${esc(c.name)}</div></div></div>`}
 function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="name">${esc(c.name)}</div></div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge">★</div>':''}<div class="name">${esc(c.name)}</div></div></div>`}
 // ---- the table: their field on top facing you, yours below, your hand under that ----
-let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1;const ALL_CARDS={};
+let hand=[], tableMode="", themShown="", lockedRound=-1, revealedRound=-1, doneSettled=false;const ALL_CARDS={};
 let quipTimer=null;
 function quips(mode){clearTimeout(quipTimer);if(mode!=="waiting"){$("quip").textContent="";return}
   const mine=selected.map(id=>(hand.find(c=>c.id===id)||{}).name).filter(Boolean);const them=partnerName();
@@ -362,7 +363,7 @@ function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;saidStep=-1;$("say").textContent="Listening to both of you.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice on the thinking screen. The raw steps stay behind a fold on the done screen; the pick is never named here.
 function sayFor(s){switch(s.step){case"read":return"Reading your cards.";case"draft":return`Narrowing ${s.pool?Number(s.pool).toLocaleString():"the"} artists.`;case"pool":return`Pulling ${s.pool||"the"} artists from Qloo.`;
-    case"score":return"Scoring them for each of you.";case"verify":return"Checking with Qloo.";case"curve":return"Grading on a curve.";case"pick":return"Got it.";case"error":return"Qloo is slow tonight. Hang on.";default:return null}}
+    case"score":return"Scoring them for each of you.";case"verify":return"Checking with Qloo.";case"compare":return"Comparing your two tastes.";case"curve":return"Grading on a curve.";case"pick":return"Got it.";case"error":return"Qloo is slow tonight. Hang on.";default:return null}}
 function renderThinking(steps){for(let i=saidStep+1;i<steps.length;i++){const s=steps[i];const line=sayFor(s);if(line){$("say").textContent=line}
     if(s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 class="center" style="margin-top:14px">Four are in the running. Which one will Q-Lou pick?</h2><div class="bet">${s.bet.map(n=>`<button onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`}}
   saidStep=steps.length-1}
@@ -396,6 +397,7 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   const mineN=names[who==="host"?0:1],theirsN=names[who==="host"?1:0];const cardsOf=n=>(r.plays[n]||[]).slice(-2).map(nm=>ALL_CARDS[nm]).filter(Boolean);
   $("fourCards").innerHTML=cardsOf(mineN).map(c=>faceHTML(c,"")).join("")+'<span class="gap"></span>'+cardsOf(theirsN).map(c=>faceHTML(c,"")).join("");
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
+  $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", ")+".":"";
   $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`In common: ${r.meter}. ${r.title}.${p&&p.scores?` Song fit: you ${Math.round(p.scores[who]*100)}, ${esc(theirKey==="guest"?(state.sides.guest.name||"partner"):(state.sides.host.name||"partner"))} ${Math.round(p.scores[theirKey]*100)}.`:""}`;
   $("saveBtn").style.display=navigator.share&&p&&p.artist?"":"none";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["No card in common, and still a song."]).map(n=>`<span class="tag">${esc(n)}</span>`).join("");

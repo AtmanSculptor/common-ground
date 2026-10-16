@@ -96,6 +96,12 @@ def partner_scores(m: dict, cards: list[int]) -> dict[str, float]:
     return out
 
 
+def top_for(m: dict, cards: list[int], n: int = 3) -> list[str]:
+    """One partner's own top artists from the matrix, by mean affinity over their cards."""
+    scores = partner_scores(m, cards)
+    return sorted(scores, key=lambda e: -scores[e])[:n]
+
+
 def draft(m: dict, a_cards: list[int], b_cards: list[int], exclude: set[str] | None = None, top: int = 8) -> list[dict]:
     """Ranked candidates [{id, name, a, b}] from the matrix alone. Empty if either side has no cards."""
     exclude = exclude or set()

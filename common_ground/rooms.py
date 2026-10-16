@@ -198,7 +198,7 @@ class Room:
             """A slow extra (the line, the tracks, the control) landed after the pick was returned."""
             if self.round == rnd and self.pick and self.pick.get("attempt") == attempt:
                 d = late.to_dict()
-                self.pick.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "live", "calls")})
+                self.pick.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "live", "shared", "calls")})
 
         agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append, on_update=refresh)
         p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded))
@@ -247,7 +247,7 @@ class Room:
         self.phase = "done"
         return self.result
 
-    RESULT_PICK_KEYS = ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "live", "attempt", "calls", "seconds")
+    RESULT_PICK_KEYS = ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "live", "shared", "attempt", "calls", "seconds")
 
     def _result_pick(self) -> dict | None:
         """The pick as the done screen shows it. Read fresh each time: the control experiment may land late."""

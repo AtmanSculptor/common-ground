@@ -221,3 +221,18 @@ def test_due_knows_when_to_extend_and_when_to_rebuild():
     month_old = {"built": "2026-09-01T00:00:00Z", "extended": "2026-10-19T00:00:00Z"}
     assert matrix.due(month_old, now=busy) is None            # a rebuild waits for the quiet hours
     assert matrix.due(month_old, now=quiet) == "build"
+
+
+def test_the_pick_carries_what_the_two_share(fake_qloo, tmp_path, monkeypatch):
+    import time
+    out = tmp_path / "matrix.json"
+    matrix.build(fake_qloo, out=out, cards=list(deck.cards()))
+    monkeypatch.setattr(matrix, "FILE", out)
+    matrix._cache = None
+    a = Partner("host", "Brent", _ids("Country roads", "Dog person"))
+    b = Partner("guest", "Hank", _ids("Rock and roll", "Night owl"))
+    p = QLou(fake_qloo, use_llm=False).pick(a, b)
+    time.sleep(0.3)                                     # compare is a done-screen extra; it may land after the pick
+    assert [x["name"] for x in p.shared] == ["Soul", "Indie Rock", "Live Music"]   # music genres first, then by score
+    assert any(s["step"] == "compare" for s in p.steps)
+    assert matrix.top_for(matrix.load(out), a.cards) and len(matrix.top_for(matrix.load(out), a.cards)) == 3
