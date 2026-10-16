@@ -1,8 +1,8 @@
 """Our Song: the web app. One process, one API.
 
 Routes
-  /            the organizer (what do these audiences share? a plan with Qloo citations)
-  /play        the game: two phones, one room, Q-Lou in the jukebox
+  /  /play     the game: two phones, one room, Q-Lou in the jukebox
+  /organize    the older organizer (what do these audiences share? a plan with Qloo citations)
   /deck        the cards, as a gallery
   /stats       results so far
   /api/...     JSON for the pages above
@@ -56,13 +56,16 @@ def page(name: str) -> FileResponse:
 
 # ============================ pages ============================
 @app.get("/")
-def index():
-    return page("index.html")
-
-
 @app.get("/play")
 def play_page():
+    """The game is the front door."""
     return page("play.html")
+
+
+@app.get("/organize")
+def organize_page():
+    """The older organizer tool: what do N audience segments share."""
+    return page("index.html")
 
 
 @app.get("/deck")

@@ -89,8 +89,11 @@ def test_solo_against_the_house(client):
 
 
 def test_pages_and_health(client):
-    for path in ("/", "/play", "/deck", "/stats"):
+    for path in ("/", "/play", "/deck", "/stats", "/organize"):
         assert client.get(path).status_code == 200
+    assert client.get("/").text == client.get("/play").text      # the game is the front door
+    assert "Our Song" in client.get("/").text
+    assert "Common Ground" in client.get("/organize").text         # the older organizer, moved aside
     h = client.get("/api/health").json()
     assert h["ok"] and "llm" in h
     assert client.get("/api/game/ZZZZ").status_code == 404
