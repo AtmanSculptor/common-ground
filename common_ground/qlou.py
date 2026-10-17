@@ -55,8 +55,10 @@ GUESS_SYSTEM = """Answer from general knowledge only, in one word or a short nam
 class Partner:
     key: str                      # "host" | "guest"
     name: str
-    cards: list[int]              # card ids played, all rounds
-    profile: list[str] = field(default_factory=list)   # quiz audiences
+    cards: list[int]              # card ids played, in rank order ("Most me" first)
+    profile: list[str] = field(default_factory=list)   # a house partner's audiences
+    weights: list[float] = field(default_factory=list)  # one per card; empty means all equal
+    tossed: list[int] = field(default_factory=list)     # cards tossed in round one: "not me"
 
     def signal(self) -> dict[str, list[str]]:
         return deck.signal(self.cards, self.profile)
@@ -146,7 +148,8 @@ class QLou:
         sa, sb = a.signal(), b.signal()
         self.step("read", f"{a.name} played {', '.join(a.card_names())}. {b.name} played {', '.join(b.card_names())}.",
                   signals={a.key: sa, b.key: sb})
-        ranked = matrix.draft(m, a.cards, b.cards, exclude, top=SHORTLIST)
+        ranked = matrix.draft(m, a.cards, b.cards, exclude, top=SHORTLIST, a_weights=a.weights, b_weights=b.weights,
+                              a_tossed=a.tossed, b_tossed=b.tossed)
         if not ranked:
             return None
         names = [r["name"] for r in ranked[:4]]
@@ -204,7 +207,8 @@ class QLou:
                 fb.add_done_callback(late_verify)
             self._extras(ex, pick, a, b, artist, chosen["a"], chosen["b"], shortlist,
                          ex.submit(self._baseline_matrix, a, b, m) if self.use_llm else None,
-                         ex.submit(self._shared, a, b, matrix.top_for(m, a.cards), matrix.top_for(m, b.cards)))
+                         ex.submit(self._shared, a, b, matrix.top_for(m, a.cards, weights=a.weights, tossed=a.tossed),
+                                   matrix.top_for(m, b.cards, weights=b.weights, tossed=b.tossed)))
             return pick
         finally:
             ex.shutdown(wait=False)     # a slow extra finishes on its own and attaches itself; the song does not wait
@@ -228,7 +232,7 @@ class QLou:
             self.step("baseline", f"A plain LLM guessed {guess}. Qloo could not find them.")
             return {"guess": guess, "id": None, "scores": {}, "verdict": "unknown"}
         gid, gname = res[0].get("entity_id"), res[0].get("name", guess)
-        ra, rb = matrix.partner_scores(m, a.cards), matrix.partner_scores(m, b.cards)
+        ra, rb = matrix.partner_scores(m, a.cards, a.weights, a.tossed), matrix.partner_scores(m, b.cards, b.weights, b.tossed)
         if gid in ra and gid in rb:
             ca, cb = matrix._curve(ra), matrix._curve(rb)
             pa, pb = ca[gid], cb[gid]

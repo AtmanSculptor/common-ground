@@ -239,3 +239,18 @@ def test_the_pick_carries_what_the_two_share(fake_qloo, tmp_path, monkeypatch):
     assert [x["name"] for x in p.shared] == ["Soul", "Indie Rock", "Live Music"]   # music genres first, then by score
     assert any(s["step"] == "compare" for s in p.steps)
     assert matrix.top_for(matrix.load(out), a.cards) and len(matrix.top_for(matrix.load(out), a.cards)) == 3
+
+
+def test_rank_weights_and_tosses_move_the_draft():
+    m = {"entities": {"x": {"name": "X", "popularity": .9}, "y": {"name": "Y", "popularity": .9}},
+         "scores": {"1": {"x": 0.9, "y": 0.6}, "2": {"x": 0.6, "y": 0.9}, "3": {"x": 0.7, "y": 0.7}}}
+    flat = matrix.partner_scores(m, [1, 2])
+    assert abs(flat["x"] - flat["y"]) < 1e-9                           # two equal cards: a tie
+    ranked = matrix.partner_scores(m, [1, 2], weights=[3, 2])
+    assert ranked["x"] > ranked["y"]                                   # "Most me" on card 1 breaks it toward X
+    tossed = matrix.partner_scores(m, [3], tossed=[1])
+    assert tossed["y"] > tossed["x"]                                   # card 1 liked X; tossing it pulls X down
+    assert set(matrix.partner_scores(m, [3], tossed=[1])) == {"x", "y"}   # tossed cards never decide coverage
+    assert matrix.partner_scores(m, [], tossed=[1]) == {}              # nothing played, nothing ranked
+    d = matrix.draft(m, [1], [2], a_weights=[3], b_weights=[3], a_tossed=[2], b_tossed=[1])
+    assert [r["id"] for r in d] and all(0 <= r["a"] <= 1 for r in d)

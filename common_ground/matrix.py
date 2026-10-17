@@ -11,8 +11,9 @@ capped by popularity, then every pool artist is scored against every card with
 filter.results.entities, a few cards at a time. 0.765 is Qloo's no-signal filler and is
 stored as missing. Checkpointed per card; resumable.
 
-Draft (per game, no calls): a partner's affinity to an artist is the mean of the artist's
-scores for the cards that partner played; min-max curve per partner; rank by the weaker
+Draft (per game, no calls): a partner's affinity to an artist is the weighted mean of the
+artist's scores for the cards that partner played (3, 2, 1 for "Most me", "Also me", "A bit me")
+minus a share of the cards they tossed ("not me"); min-max curve per partner; rank by the weaker
 curved score, exactly as the live loop does.
 """
 from __future__ import annotations
@@ -78,34 +79,51 @@ def _curve(d: dict[str, float]) -> dict[str, float]:
     return {k: round((v - lo) / (hi - lo), 3) for k, v in d.items()}
 
 
-def partner_scores(m: dict, cards: list[int]) -> dict[str, float]:
-    """Mean affinity per artist over the cards played, for artists covered by enough of them.
+RANK_WEIGHTS = (3.0, 2.0, 1.0)   # "Most me", "Also me", "A bit me"
+TOSS_WEIGHT = 0.5                # a tossed card is "not me": it pulls against, at half the pull of a played card
+
+
+def partner_scores(m: dict, cards: list[int], weights: list[float] | None = None,
+                   tossed: list[int] | tuple[int, ...] = ()) -> dict[str, float]:
+    """Weighted mean affinity per artist over the cards played, minus a share of the cards tossed,
+    for artists covered by enough of the played cards.
 
     A card Qloo had no signal on for this artist counts as that card's weakest real score: silence
-    is a penalty, not a free pass. An artist still needs real scores on half the cards to be ranked."""
-    cols = [col for col in (m["scores"].get(str(c), {}) for c in cards) if col]
+    is a penalty, not a free pass. An artist still needs real scores on half the played cards to be
+    ranked. Tossed cards never help coverage; they only pull an artist down when a tossed card
+    liked them."""
+    weights = list(weights) if weights else [1.0] * len(cards)
+    cols = [(col, w) for col, w in ((m["scores"].get(str(c), {}), w) for c, w in zip(cards, weights)) if col and w > 0]
     if not cols:
         return {}
-    floors = [min(col.values()) for col in cols]
+    neg = [col for col in (m["scores"].get(str(c), {}) for c in tossed) if col]
+    floors = [min(col.values()) for col, _ in cols]
+    nfloors = [min(col.values()) for col in neg]
     need = max(1, int(len(cols) * MIN_COVERAGE + 0.999))
+    den = sum(w for _, w in cols) + TOSS_WEIGHT * len(neg)
     out: dict[str, float] = {}
     for eid in m["entities"]:
-        hits = sum(1 for col in cols if eid in col)
+        hits = sum(1 for col, _ in cols if eid in col)
         if hits >= need:
-            out[eid] = sum(col.get(eid, floor) for col, floor in zip(cols, floors)) / len(cols)
+            num = sum(w * col.get(eid, floor) for (col, w), floor in zip(cols, floors))
+            num -= TOSS_WEIGHT * sum(col.get(eid, floor) for col, floor in zip(neg, nfloors))
+            out[eid] = num / den
     return out
 
 
-def top_for(m: dict, cards: list[int], n: int = 3) -> list[str]:
-    """One partner's own top artists from the matrix, by mean affinity over their cards."""
-    scores = partner_scores(m, cards)
+def top_for(m: dict, cards: list[int], n: int = 3, weights: list[float] | None = None,
+            tossed: list[int] | tuple[int, ...] = ()) -> list[str]:
+    """One partner's own top artists from the matrix, by weighted affinity over their cards."""
+    scores = partner_scores(m, cards, weights, tossed)
     return sorted(scores, key=lambda e: -scores[e])[:n]
 
 
-def draft(m: dict, a_cards: list[int], b_cards: list[int], exclude: set[str] | None = None, top: int = 8) -> list[dict]:
+def draft(m: dict, a_cards: list[int], b_cards: list[int], exclude: set[str] | None = None, top: int = 8, *,
+          a_weights: list[float] | None = None, b_weights: list[float] | None = None,
+          a_tossed: list[int] | tuple[int, ...] = (), b_tossed: list[int] | tuple[int, ...] = ()) -> list[dict]:
     """Ranked candidates [{id, name, a, b}] from the matrix alone. Empty if either side has no cards."""
     exclude = exclude or set()
-    ra, rb = partner_scores(m, a_cards), partner_scores(m, b_cards)
+    ra, rb = partner_scores(m, a_cards, a_weights, a_tossed), partner_scores(m, b_cards, b_weights, b_tossed)
     keep = [e for e in ra if e in rb and e not in exclude]
     if not keep:
         return []

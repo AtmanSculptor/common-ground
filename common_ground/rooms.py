@@ -1,12 +1,15 @@
 """Rooms: the state of one game between two phones.
 
-Phases:
+Phases (version 2, docs/game_v2.md):
   lobby     the host has a code; the partner has not joined yet
-  cards     each is dealt six, plays two, locks in           (CARD_ROUNDS times)
-  reveal    both hands flip; a line lands under each pair; the meter moves
+  toss      six cards each; toss up to three, fresh ones come back; lock in
+  play      three cards on your side, in order: Most me, Also me, A bit me; lock in
+  reveal    the pairs flip rank by rank; the meter moves and says why; Guilty or Objection
   thinking  Q-Lou is working (steps stream to both phones)
-  jukebox   the pick, the why, the tracks; "Play it for a credit?"
-  done      meter, title, what you share, Q-Lou's shortlist, the LLM-vs-Qloo control
+  jukebox   the pick and the question. Both yes: 2 tokens each. Any no: the backup, and the
+            first song stays on the table for 4 to whoever wants it
+  lastcall  both offers declined by someone; either can still buy one alone, or call it a night
+  done      meter, title, what you share, who paid, the LLM-vs-Qloo control
 
 State lives in memory and is mirrored to a pickle so a restart does not end a game.
 No accounts, no cookies: a room is a code and two nicknames, swept after six hours.
@@ -20,18 +23,24 @@ import threading
 import time
 from dataclasses import MISSING, dataclass, field, fields
 
-from . import deck, quiz
+from . import deck, matrix, quiz
 from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
-CARD_ROUNDS = 2
-MAX_PICK_ATTEMPTS = 2    # one "Try another", then the night moves on
-PLAYED_BONUS = 5
+PLAYS = 3                # cards each partner puts on the table, ranked
+TOSS_MAX = 3             # cards each may toss in round one
+MAX_PICK_ATTEMPTS = 2    # the pick and one backup, then last call
+START_TOKENS = 10        # the demo balance; a jukebox app sets the real one
+SONG_COST = 4
+HALF = SONG_COST // 2
+PLAYED_BONUS = 10
 ROOM_TTL = 6 * 3600
 CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ"
 
 TITLES = [(90, "Fully in tune"), (70, "Same page, different chapters"),
           (50, "Neighbors on the same street"), (30, "Different roads, same town"), (0, "Opposites, attracting")]
+METER_GAIN = {"exact": 30, "kin": 12, "none": 4}    # per rank pair; three pairs and the played bonus reach 100
+ROUNDS = ("toss", "play", "reveal")
 
 
 def make_code(rng: random.Random | None = None) -> str:
@@ -39,9 +48,12 @@ def make_code(rng: random.Random | None = None) -> str:
     return "".join(rng.choice(CODE_ALPHABET) for _ in range(4))
 
 
-HOUSE_LOCK_PAUSE = (4.0, 9.0)    # seconds a house partner takes to pick two cards, like a person would
-HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds it takes to say yes to the song
+HOUSE_TOSS_PAUSE = (3.0, 7.0)    # seconds a house partner takes to toss, like a person would
+HOUSE_LOCK_PAUSE = (4.0, 9.0)    # seconds to place three cards
+HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds to say yes to the song
+HOUSE_REACT_PAUSE = (2.0, 4.0)   # seconds before the house taps Guilty at the reveal (half the time)
 EMOTES = ("cheers", "eyes", "fire", "laugh")   # the nudges a partner can send across the table
+REACTIONS = ("guilty", "objection")            # what you can say back to Q-Lou's call at the reveal
 EMOTE_GAP = 1.5                  # seconds between two nudges from one phone
 EMOTE_TTL = 8.0                  # how long a nudge stays in the state for the partner's next polls
 
@@ -51,28 +63,30 @@ class Side:
     name: str = ""
     joined: bool = False
     house: bool = False
-    quiz: quiz.Quiz = field(default_factory=quiz.Quiz)
-    hands: list[list[int]] = field(default_factory=list)   # per card round
-    plays: list[list[int]] = field(default_factory=list)   # per card round
+    quiz: quiz.Quiz = field(default_factory=quiz.Quiz)   # a house partner's taste profile
+    hand: list[int] = field(default_factory=list)        # six cards
     seen: list[int] = field(default_factory=list)
-    pending: list[int] | None = None   # a house partner's next plays, waiting for their moment
+    tossed: list[int] = field(default_factory=list)      # round one: "not me"
+    toss_locked: bool = False
+    plays: list[int] = field(default_factory=list)       # round two, in rank order: Most me first
+    placed: int = 0                    # cards set down before locking: the partner sees them face-down
+    tokens: int = START_TOKENS
+    pending: list[int] | None = None   # a house partner's next move, waiting for its moment
     due: float = 0.0                   # when that moment is (epoch seconds)
-    placed: int = 0                    # cards set down this round before locking: the partner sees them face-down
-    swapped: int = -1                  # the round in which this side used its one swap
     emote: dict | None = None          # the last nudge sent: {"name", "at"}
+    reaction: dict | None = None       # Guilty or Objection at the reveal: {"name", "at"}
 
     @property
     def profile(self) -> list[str]:
         return self.quiz.profile
 
-    def locked(self, rnd: int) -> bool:
-        return 0 <= rnd < len(self.plays) and len(self.plays[rnd]) == deck.PLAYS
-
-    def all_plays(self) -> list[int]:
-        return [c for r in self.plays for c in r]
+    @property
+    def play_locked(self) -> bool:
+        return len(self.plays) == PLAYS
 
     def partner(self, key: str) -> Partner:
-        return Partner(key=key, name=self.name or key, cards=self.all_plays(), profile=self.profile)
+        return Partner(key=key, name=self.name or key, cards=list(self.plays), profile=self.profile,
+                       weights=list(matrix.RANK_WEIGHTS[:len(self.plays)]), tossed=list(self.tossed))
 
 
 @dataclass
@@ -80,12 +94,12 @@ class Room:
     code: str
     created: float = field(default_factory=time.time)
     phase: str = "lobby"
-    round: int = -1
     sides: dict[str, Side] = field(default_factory=lambda: {"host": Side(), "guest": Side()})
-    reveals: list[dict] = field(default_factory=list)
+    toss_summary: dict | None = None
+    reveal: dict | None = None
     meter: int = 0
     thinking: list[dict] = field(default_factory=list)   # Q-Lou's live steps
-    pick: dict | None = None                             # Pick.to_dict() + votes + attempt
+    offers: list[dict] = field(default_factory=list)     # each pick: Pick.to_dict() + votes, attempt, status, paid_by
     excluded: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     result: dict | None = None
@@ -97,84 +111,184 @@ class Room:
     def __setstate__(self, d):
         self.__dict__.update(d); self.lock = threading.Lock()
 
-    # ---- cards ---------------------------------------------------------------------------
-    def deal(self, rng: random.Random | None = None) -> None:
-        self.round += 1
-        self.phase = "cards"
-        for s in self.sides.values():
-            hand = deck.deal(set(s.seen), rng)
-            s.hands.append(hand)
-            s.plays.append([])
-            s.placed = 0
-            s.seen += hand
-            if s.house:
-                s.pending = self._house_plays(s, hand, rng)
-                s.due = time.time() + (rng or random).uniform(*HOUSE_LOCK_PAUSE)
-        self.log.append(f"round {self.round + 1}: dealt")
+    # ---- the current offer ---------------------------------------------------------------
+    @property
+    def pick(self) -> dict | None:
+        return self.offers[-1] if self.offers else None
 
+    # ---- round one: toss -----------------------------------------------------------------
+    def deal(self, rng: random.Random | None = None) -> None:
+        rng = rng or random
+        self.phase = "toss"
+        for s in self.sides.values():
+            s.hand = deck.deal(set(s.seen), rng)
+            s.seen += s.hand
+            if s.house:
+                s.pending = self._house_toss(s, rng)
+                s.due = time.time() + rng.uniform(*HOUSE_TOSS_PAUSE)
+        self.log.append("dealt")
+
+    def toss(self, who: str, cards: list[int], rng: random.Random | None = None) -> bool:
+        """Toss up to three cards; fresh ones from the same half of the deck take their places.
+        Tossing none is a choice too. Locks the toss round for this side."""
+        s = self.sides[who]
+        if self.phase != "toss" or s.toss_locked:
+            return False
+        picks = [c for c in dict.fromkeys(cards) if c in s.hand][:TOSS_MAX]
+        if len(picks) != len(dict.fromkeys(cards)):
+            return False
+        for c in picks:
+            new = deck.draw_one(set(s.seen), c, rng)
+            if new is None:
+                break
+            s.hand[s.hand.index(c)] = new
+            s.seen.append(new)
+            s.tossed.append(c)
+        s.toss_locked = True
+        s.placed = 0
+        self.log.append(f"{s.name or who} tossed {len(s.tossed)}")
+        if all(x.toss_locked for x in self.sides.values()):
+            self._open_play(rng)
+        return True
+
+    def _open_play(self, rng: random.Random | None = None) -> None:
+        rng = rng or random
+        h, g = self.sides["host"], self.sides["guest"]
+        both = sorted({deck.card(c)["name"] for c in set(h.tossed) & set(g.tossed)})
+        self.toss_summary = {"host": [deck.card(c)["name"] for c in h.tossed], "guest": [deck.card(c)["name"] for c in g.tossed], "both": both}
+        self.phase = "play"
+        for s in self.sides.values():
+            s.placed = 0
+            if s.house:
+                s.pending = self._house_plays(s, rng)
+                s.due = time.time() + rng.uniform(*HOUSE_LOCK_PAUSE)
+
+    # ---- round two: play -----------------------------------------------------------------
+    def play(self, who: str, cards: list[int]) -> bool:
+        """Three cards from the hand, in rank order. Locks this side."""
+        s = self.sides[who]
+        if self.phase != "play" or s.play_locked:
+            return False
+        picks = [c for c in dict.fromkeys(cards) if c in s.hand][:PLAYS]
+        if len(picks) != PLAYS:
+            return False
+        s.plays = picks
+        s.placed = PLAYS
+        self.log.append(f"{s.name or who} played {', '.join(deck.card(c)['name'] for c in picks)}")
+        return True
+
+    def both_locked(self) -> bool:
+        return all(s.play_locked for s in self.sides.values())
+
+    # ---- round three: reveal -------------------------------------------------------------
+    def do_reveal(self, rng: random.Random | None = None) -> None:
+        """Rank one faces rank one. The meter counts the pairs; a card both played anywhere is
+        a same card for the words even if it sits at different ranks."""
+        rng = rng or random
+        h, g = self.sides["host"], self.sides["guest"]
+        pairs, gained = [], 0
+        for rank, (hc, gc) in enumerate(zip(h.plays, g.plays), start=1):
+            ca, cb = deck.card(hc), deck.card(gc)
+            kind = deck.match_kind(ca, cb)
+            gained += METER_GAIN[kind]
+            pairs.append({"rank": rank, "a": deck.public(ca), "b": deck.public(cb), "match": kind})
+        both = [deck.card(c)["name"] for c in h.plays if c in g.plays]
+        self.meter = min(100, self.meter + gained)
+        self.reveal = {"pairs": pairs, "both": both, "meter": self.meter, "words": deck.meter_words(pairs, both),
+                       "pull": self._pull()}
+        self.phase = "reveal"
+        for s in self.sides.values():
+            if s.house and rng.random() < 0.5:
+                s.pending, s.due = [1], time.time() + rng.uniform(*HOUSE_REACT_PAUSE)   # [1] marks a reaction
+        self.log.append(f"revealed, meter {self.meter}")
+
+    def _pull(self) -> dict | None:
+        """The two cards, one from each side, pulling the same way: the pair whose Qloo columns agree
+        most across the pool. What Q-Lou names before he leaves to think."""
+        m = matrix.load()
+        h, g = self.sides["host"], self.sides["guest"]
+        if not m or not h.plays or not g.plays:
+            return None
+        best, best_v = None, -1.0
+        for hc in h.plays:
+            ca = m["scores"].get(str(hc), {})
+            for gc in g.plays:
+                cb = m["scores"].get(str(gc), {})
+                common = [e for e in ca if e in cb]
+                if len(common) < 20:
+                    continue
+                xs, ys = [ca[e] for e in common], [cb[e] for e in common]
+                mx, my = sum(xs) / len(xs), sum(ys) / len(ys)
+                sxy = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
+                sxx = sum((x - mx) ** 2 for x in xs) ** 0.5 * sum((y - my) ** 2 for y in ys) ** 0.5
+                v = sxy / sxx if sxx else 0.0
+                if v > best_v:
+                    best, best_v = (hc, gc), v
+        if not best:
+            return None
+        return {"host": deck.card(best[0])["name"], "guest": deck.card(best[1])["name"], "agreement": round(best_v, 2)}
+
+    def react(self, who: str, name: str, now: float | None = None) -> bool:
+        if self.phase != "reveal" or name not in REACTIONS:
+            return False
+        self.sides[who].reaction = {"name": name, "at": time.time() if now is None else now}
+        return True
+
+    # ---- the house, on a human clock -----------------------------------------------------
     def tick(self, rng: random.Random | None = None, now: float | None = None) -> str | None:
         """A house partner acts when its moment comes, not the instant the human does. Called on
-        every poll. Returns 'reveal' when its lock-in completed the round, 'vote' when it voted."""
+        every poll. Returns what it did: 'play' (its toss opened the play round), 'reveal' (its
+        lock-in completed the round), 'react', 'vote', or None."""
+        rng = rng or random
         now = time.time() if now is None else now
-        for s in self.sides.values():
-            if not s.house or now < s.due:
+        for key, s in self.sides.items():
+            if not s.house or now < s.due or s.pending is None:
                 continue
-            if self.phase == "cards" and s.pending is not None:
-                s.plays[-1], s.pending = s.pending, None
+            if self.phase == "toss" and not s.toss_locked:
+                cards, s.pending = s.pending, None
+                self.toss(key, cards, rng)
+                return "play" if self.phase == "play" else "toss"
+            if self.phase == "play" and not s.play_locked:
+                cards, s.pending = s.pending, None
+                self.play(key, cards)
                 if self.both_locked():
-                    self.reveal(rng)
+                    self.do_reveal(rng)
                     return "reveal"
-            if self.phase == "jukebox" and self.pick and s.pending == [] :
+                return "lock"
+            if self.phase == "reveal":
                 s.pending = None
-                self.vote("guest", True)      # the house always says yes to a shared song
+                self.react(key, "guilty", now)
+                return "react"
+            if self.phase == "jukebox" and self.pick and s.pending == []:
+                s.pending = None
+                self.vote(key, True)      # the house always says yes to a shared song
                 return "vote"
         return None
 
     def house_will_vote(self, rng: random.Random | None = None) -> None:
         """The human voted; the house answers in a few seconds."""
         g = self.sides["guest"]
-        if g.house and "guest" not in (self.pick or {}).get("votes", {}):
+        if g.house and self.pick and "guest" not in self.pick["votes"]:
             g.pending, g.due = [], time.time() + (rng or random).uniform(*HOUSE_VOTE_PAUSE)
 
     @staticmethod
-    def _house_plays(s: Side, hand: list[int], rng: random.Random | None = None) -> list[int]:
-        """The house plays the two cards closest to its own profile; ties break at random."""
-        rng = rng or random
+    def _house_score(s: Side, cid: int, rng: random.Random) -> float:
         fams = {quiz.family(a) for a in s.profile}
-        scored = []
-        for cid in hand:
-            sig = deck.card(cid)["signal"]
-            hit = sum(1 for a in sig.get("audiences", []) if quiz.family(a) in fams)
-            scored.append((hit + rng.random() * 0.5, cid))
-        scored.sort(reverse=True)
-        return [cid for _, cid in scored[:deck.PLAYS]]
+        sig = deck.card(cid)["signal"]
+        return sum(1 for a in sig.get("audiences", []) if quiz.family(a) in fams) + rng.random() * 0.5
 
-    def play(self, who: str, cards: list[int]) -> bool:
-        s = self.sides[who]
-        if self.phase != "cards" or self.round >= len(s.hands):
-            return False
-        picks = [c for c in dict.fromkeys(cards) if c in s.hands[self.round]][:deck.PLAYS]
-        if len(picks) != deck.PLAYS:
-            return False
-        s.plays[self.round] = picks
-        return True
+    def _house_toss(self, s: Side, rng: random.Random | None = None) -> list[int]:
+        """The house tosses the cards furthest from its profile, up to three, sometimes none."""
+        rng = rng or random
+        scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand))
+        n = rng.choice((0, 1, 2, 3, 3))
+        return [c for _, c in scored[:n]]
 
-    def swap(self, who: str, card_id: int, rng: random.Random | None = None) -> dict | None:
-        """Trade one card in the hand for a fresh one, once per round, before locking in."""
-        s = self.sides[who]
-        if self.phase != "cards" or s.locked(self.round) or s.swapped == self.round:
-            return None
-        hand = s.hands[self.round]
-        if card_id not in hand:
-            return None
-        new = deck.draw_one(set(s.seen), card_id, rng)
-        if new is None:
-            return None
-        hand[hand.index(card_id)] = new
-        s.seen.append(new)
-        s.swapped = self.round
-        self.log.append(f"round {self.round + 1}: {s.name or who} swapped a card")
-        return deck.public(deck.card(new))
+    def _house_plays(self, s: Side, rng: random.Random | None = None) -> list[int]:
+        """The three cards closest to its profile, best first."""
+        rng = rng or random
+        scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand), reverse=True)
+        return [c for _, c in scored[:PLAYS]]
 
     def emote(self, who: str, name: str, now: float | None = None) -> bool:
         """A nudge across the table. Rate limited; the partner's polls carry it for a few seconds."""
@@ -187,118 +301,136 @@ class Room:
         s.emote = {"name": name, "at": now}
         return True
 
-    def both_locked(self) -> bool:
-        return all(s.locked(self.round) for s in self.sides.values())
-
-    def reveal(self, rng: random.Random | None = None) -> None:
-        h, g = self.sides["host"], self.sides["guest"]
-        ha, ga = h.plays[self.round], g.plays[self.round]
-        pairs, gained, used_lines = [], 0, set()
-        for hc, gc in deck.pair_plays(ha, ga):
-            ca, cb = deck.card(hc), deck.card(gc)
-            kind = deck.match_kind(ca, cb)
-            gained += deck.METER_GAIN[kind]
-            pairs.append({"a": deck.public(ca), "b": deck.public(cb), "match": kind,
-                          "lines": deck.lines_for(h.name or "Your partner", ca, g.name or "Your partner", cb, rng, used_lines)})
-        both = [deck.card(c)["name"] for c in ha if c in ga]
-        self.meter = min(100, self.meter + gained)
-        self.reveals.append({"round": self.round, "pairs": pairs, "both": both, "meter": self.meter,
-                             "words": deck.meter_words(pairs)})
-        self.phase = "reveal"
-        self.log.append(f"round {self.round + 1}: revealed, meter {self.meter}")
-
-    def rounds_left(self) -> bool:
-        return self.round + 1 < CARD_ROUNDS
-
     # ---- Q-Lou ---------------------------------------------------------------------------
     def think(self, q: Qloo, *, use_llm: bool = True) -> Pick | None:
         """Run Q-Lou. Steps stream into self.thinking as they happen. The caller moves the phase:
         the pick may be ready while the phones are still watching the reveal."""
-        attempt = (self.pick or {}).get("attempt", 0) + 1
-        rnd = self.round
+        attempt = len(self.offers) + 1
         self.thinking = []
 
         def refresh(late: Pick) -> None:
-            """A slow extra (the line, the tracks, the control) landed after the pick was returned."""
-            if self.round == rnd and self.pick and self.pick.get("attempt") == attempt:
+            """A slow extra (the tracks, the control) landed after the pick was returned."""
+            offer = next((o for o in self.offers if o.get("attempt") == attempt), None)
+            if offer:
                 d = late.to_dict()
-                self.pick.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "live", "shared", "calls")})
+                offer.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "live", "shared", "calls")})
 
         agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append, on_update=refresh)
         p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded))
-        if self.round != rnd:
-            return None   # a new round was dealt meanwhile; this run is stale
+        if len(self.offers) >= attempt:
+            return None   # something else filled this attempt meanwhile; this run is stale
         if p is None:
             self.log.append(f"Q-Lou came up empty on attempt {attempt}")
             return None
-        self.pick = {**p.to_dict(), "votes": {}, "attempt": attempt, "played": None}
+        self.offers.append({**p.to_dict(), "votes": {}, "attempt": attempt, "status": "open", "paid_by": None, "played": None})
         self.log.append(f"pick {attempt}: {p.artist['name']} in {p.seconds}s, {p.calls} Qloo calls")
         return p
 
+    # ---- the song and the tokens ---------------------------------------------------------
     def vote(self, who: str, up: bool) -> None:
-        if self.pick:
+        if self.pick and self.pick["status"] == "open":
             self.pick["votes"][who] = bool(up)
 
     def settled(self) -> str | None:
-        """'play' when both say yes; 'redeal' when one says no and tries remain; 'skip'; None while waiting."""
-        if not self.pick or len(self.pick["votes"]) < 2:
+        """Both votes are in on the open offer: 'play' (both yes, 2 tokens each), 'backup' (someone
+        said no and Q-Lou has one more in him), 'lastcall' (no more picks: buy alone or call it),
+        or None while waiting. A yes from someone who cannot pay their half counts as a no."""
+        o = self.pick
+        if not o or o["status"] != "open" or len(o["votes"]) < 2:
             return None
-        if all(self.pick["votes"].values()):
-            self.pick["played"] = True
+        can_pay = {k: s.tokens >= HALF for k, s in self.sides.items()}
+        if all(o["votes"].values()) and all(can_pay.values()):
+            for s in self.sides.values():
+                s.tokens -= HALF
+            o.update({"status": "played", "played": True, "paid_by": "both"})
             return "play"
-        self.excluded.append(self.pick["artist"]["id"])
-        if self.pick["attempt"] < MAX_PICK_ATTEMPTS:
-            return "redeal"
-        self.pick["played"] = False
-        return "skip"
+        o.update({"status": "declined", "played": False})
+        self.excluded.append(o["artist"]["id"])
+        if o["attempt"] < MAX_PICK_ATTEMPTS:
+            return "backup"
+        self.phase = "lastcall"
+        return "lastcall"
+
+    def buy(self, who: str, attempt: int) -> bool:
+        """One partner buys a declined song alone, for the full price."""
+        s = self.sides[who]
+        o = next((x for x in self.offers if x.get("attempt") == attempt), None)
+        if not o or o["status"] != "declined" or s.tokens < SONG_COST or self.phase not in ("jukebox", "lastcall"):
+            return False
+        s.tokens -= SONG_COST
+        o.update({"status": "played", "played": True, "paid_by": who})
+        for x in self.offers:
+            if x is not o and x["status"] == "open":
+                x.update({"status": "declined", "played": False})
+        self.log.append(f"{s.name or who} bought {o['artist']['name']} alone")
+        return True
+
+    @property
+    def played_offer(self) -> dict | None:
+        return next((o for o in self.offers if o["status"] == "played"), None)
 
     # ---- result --------------------------------------------------------------------------
     def finish(self) -> dict:
         """The meter keeps the meaning it had on the table (what the cards had in common, plus a
-        little for a song you both said yes to). The song's own fit is shown beside it, not folded in."""
-        if self.pick and self.pick.get("played"):
+        little for a song that got played). The song's own fit is shown beside it, not folded in."""
+        played = self.played_offer
+        if played:
             self.meter = min(100, self.meter + PLAYED_BONUS)
         title = next(t for m, t in TITLES if self.meter >= m)
         names = {k: (s.name or k) for k, s in self.sides.items()}
+        pairs = (self.reveal or {}).get("pairs", [])
         self.result = {
             "meter": self.meter, "title": title,
-            "words": deck.meter_words([p for rv in self.reveals for p in rv["pairs"]]),
-            "plays": {names[k]: [deck.card(c)["name"] for c in s.all_plays()] for k, s in self.sides.items()},
-            # across the whole game, not round by round: a card you both played in different rounds still counts
-            "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].all_plays()) & set(self.sides["guest"].all_plays())}),
-            "profiles": {names[k]: [quiz.label(x) for x in s.profile] for k, s in self.sides.items()},
+            "words": (self.reveal or {}).get("words", ""),
+            "plays": {names[k]: [deck.card(c)["name"] for c in s.plays] for k, s in self.sides.items()},
+            "tossed": {names[k]: [deck.card(c)["name"] for c in s.tossed] for k, s in self.sides.items()},
+            "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].plays) & set(self.sides["guest"].plays)}),
+            "tokens": {k: s.tokens for k, s in self.sides.items()},
+            "paid_by": played["paid_by"] if played else None,
+            "offers": [{"artist": o.get("artist"), "status": o["status"], "attempt": o["attempt"]} for o in self.offers],
             "pick": self._result_pick(),
         }
         self.phase = "done"
         return self.result
 
-    RESULT_PICK_KEYS = ("artist", "tracks", "played", "why", "why_source", "ranked", "baseline", "explain", "scores", "live", "shared", "attempt", "calls", "seconds")
+    RESULT_PICK_KEYS = ("artist", "tracks", "played", "paid_by", "why", "why_source", "ranked", "baseline", "explain", "scores",
+                        "live", "shared", "attempt", "calls", "seconds")
 
     def _result_pick(self) -> dict | None:
-        """The pick as the done screen shows it. Read fresh each time: the control experiment may land late."""
-        return {k: self.pick.get(k) for k in self.RESULT_PICK_KEYS} if self.pick else None
+        """The song that played, else the last offer, as the done screen shows it. Read fresh each
+        time: the control experiment may land late."""
+        o = self.played_offer or self.pick
+        return {k: o.get(k) for k in self.RESULT_PICK_KEYS} if o else None
 
     # ---- what a phone sees ---------------------------------------------------------------
     def public(self, who: str | None = None) -> dict:
+        now = time.time()
         sides = {}
         for k, s in self.sides.items():
-            d = {"name": s.name, "joined": s.joined, "house": s.house,
-                 "profile_labels": [quiz.label(x) for x in s.profile], "locked": s.locked(self.round),
-                 "placed": deck.PLAYS if s.locked(self.round) else s.placed, "swapped": s.swapped == self.round,
-                 "emote": s.emote if s.emote and time.time() - s.emote["at"] < EMOTE_TTL else None}
-            if k == who and 0 <= self.round < len(s.hands):
-                d["hand"] = [deck.public(deck.card(c)) for c in s.hands[self.round]]
-                d["plays"] = s.plays[self.round]
+            locked = s.toss_locked if self.phase == "toss" else s.play_locked
+            d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked,
+                 "placed": PLAYS if s.play_locked else s.placed, "tokens": s.tokens, "tossed_n": len(s.tossed),
+                 "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None,
+                 "reaction": s.reaction if s.reaction and self.phase == "reveal" else None}
+            if k == who and s.hand:
+                d["hand"] = [deck.public(deck.card(c)) for c in s.hand]
+                d["plays"] = list(s.plays)
+                d["tossed"] = list(s.tossed)
             sides[k] = d
-        pick = None
-        if self.pick:
-            pick = {k: v for k, v in self.pick.items() if k not in ("votes", "steps")}
-            pick["voted"] = {k: (k in self.pick["votes"]) for k in self.sides}
-        return {"code": self.code, "phase": self.phase, "round": self.round, "rounds": CARD_ROUNDS, "sides": sides,
-                "more_allowed": self.rounds_left(), "pick_ready": bool(self.pick) and self.phase == "reveal",
-                "reveal": self.reveals[-1] if self.reveals and self.phase in ("reveal", "thinking", "jukebox", "done") else None,
-                "meter": self.meter, "thinking": self.thinking[-8:], "pick": pick, "log": self.log[-5:],
-                "result": {**self.result, "pick": self._result_pick()} if self.result else None, "t": time.time()}
+        offers = []
+        for o in self.offers:
+            pub = {k: v for k, v in o.items() if k not in ("votes", "steps")}
+            pub["voted"] = {k: (k in o["votes"]) for k in self.sides}
+            pub["said_no"] = [k for k, v in o["votes"].items() if not v] if o["status"] != "open" else []
+            offers.append(pub)
+        return {"code": self.code, "phase": self.phase, "sides": sides, "rounds": list(ROUNDS),
+                "cost": SONG_COST, "half": HALF, "toss_max": TOSS_MAX, "plays": PLAYS,
+                "toss_summary": self.toss_summary if self.phase != "toss" else None,
+                "pick_ready": bool(self.pick) and self.pick["status"] == "open" and self.phase == "reveal",
+                "reveal": self.reveal if self.phase in ("reveal", "thinking", "jukebox", "lastcall", "done") else None,
+                "meter": self.meter, "thinking": self.thinking[-8:], "pick": offers[-1] if offers else None, "offers": offers,
+                "log": self.log[-5:],
+                "result": {**self.result, "pick": self._result_pick()} if self.result else None, "t": now}
 
 
 class Rooms:
@@ -315,11 +447,19 @@ class Rooms:
                 self.rooms = pickle.loads(self.path.read_bytes())
         except Exception:
             self.rooms = {}
-        for r in self.rooms.values():           # rooms pickled before a field existed get its default
+        keep = {}
+        for code, r in self.rooms.items():          # rooms pickled before a field existed get its default
+            if "offers" not in r.__dict__:
+                continue                             # a version-1 room: let it go
+            for f in fields(Room):
+                if f.name not in r.__dict__ and f.name != "lock":
+                    r.__dict__[f.name] = f.default_factory() if f.default_factory is not MISSING else f.default  # type: ignore[misc]
             for side in r.sides.values():
                 for f in fields(Side):
                     if f.name not in side.__dict__:
                         side.__dict__[f.name] = f.default_factory() if f.default_factory is not MISSING else f.default  # type: ignore[misc]
+            keep[code] = r
+        self.rooms = keep
 
     def save(self) -> None:
         try:

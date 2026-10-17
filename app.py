@@ -329,40 +329,14 @@ class JoinGame(BaseModel):
     name: str = "guest"
 
 
-class Play(BaseModel):
+class Cards(BaseModel):
     who: str
     cards: list[int]
 
 
 class Placed(BaseModel):
     who: str
-    n: int = Field(ge=0, le=2)
-
-
-@app.post("/api/game/{code}/placed")
-def game_placed(code: str, body: Placed):
-    """A card set down (or picked back up) before locking: the partner's field shows it face-down."""
-    r = _room(code, body.who)
-    with r.lock:
-        if r.phase == "cards" and not r.sides[body.who].locked(r.round):
-            r.sides[body.who].placed = body.n
-    return {"ok": True}
-
-
-class Swap(BaseModel):
-    who: str
-    card: int
-
-
-@app.post("/api/game/{code}/swap")
-def game_swap(code: str, body: Swap):
-    """Trade one card for a fresh one, once per round, before locking in."""
-    r = _room(code, body.who)
-    with r.lock:
-        card = r.swap(body.who, body.card, ROOMS.rng)
-    if not card:
-        raise HTTPException(400, "no swap: already locked, already swapped this round, or not your card")
-    return {"ok": True, "card": card}
+    n: int = Field(ge=0, le=3)
 
 
 class Emote(BaseModel):
@@ -370,18 +344,19 @@ class Emote(BaseModel):
     emote: str
 
 
-@app.post("/api/game/{code}/emote")
-def game_emote(code: str, body: Emote):
-    """A nudge across the table; the partner's next poll carries it."""
-    r = _room(code, body.who)
-    with r.lock:
-        ok = r.emote(body.who, body.emote)
-    return {"ok": ok}
+class React(BaseModel):
+    who: str
+    reaction: str
 
 
 class Vote(BaseModel):
     who: str
     up: bool
+
+
+class Buy(BaseModel):
+    who: str
+    attempt: int
 
 
 def _room(code: str, who: str | None = None) -> Room:
@@ -397,21 +372,25 @@ def _think(room: Room) -> None:
     jukebox once they press on (see game_next), or at once if they are already waiting."""
     def work():
         try:
-            rnd = room.round
+            n = len(room.offers)
             p = room.think(Qloo(timeout=25))
             with room.lock:
-                if room.round != rnd:
-                    return               # they dealt again while Q-Lou was working; that run is stale
                 if p is None:
                     if room.phase == "thinking":
-                        room.finish()
-                        stats.record(room.code, room.result, room.sides["guest"].house)
+                        if n:                      # the backup came up empty: last call on what there is
+                            room.phase = "lastcall"
+                        else:
+                            room.finish()
+                            stats.record(room.code, room.result, room.sides["guest"].house)
                 elif room.phase == "thinking":
                     room.phase = "jukebox"  # the phones were waiting; if still on the reveal, Next takes them there
         except Exception as e:
             with room.lock:
                 room.log.append(f"error: {e}")
-                room.finish()
+                if room.offers:
+                    room.phase = "lastcall"
+                else:
+                    room.finish()
         ROOMS.save()
     threading.Thread(target=work, daemon=True).start()
 
@@ -432,11 +411,11 @@ def game_join(code: str, body: JoinGame):
 
 
 def _settle(r: Room) -> str | None:
-    """Both votes are in (or not): finish the game, or send Q-Lou back for another pick."""
+    """Both votes are in (or not): play it, send Q-Lou back for the backup, or open last call."""
     outcome = r.settled()
-    if outcome == "redeal":
+    if outcome == "backup":
         r.phase = "thinking"
-    elif outcome in ("play", "skip"):
+    elif outcome == "play":
         r.finish()
         stats.record(r.code, r.result, r.sides["guest"].house)
     return outcome
@@ -453,52 +432,85 @@ def game_state(code: str, who: str = "host"):
                 moved = _settle(r)
         if moved:
             ROOMS.save()
-        if moved in ("reveal", "redeal"):
+        if moved in ("reveal", "backup"):
             _think(r)
     st = r.public(who)
     st["venue"] = venue_for(code)
     return st
 
 
+@app.post("/api/game/{code}/toss")
+def game_toss(code: str, body: Cards):
+    """Round one: toss up to three cards (or none) and lock. Fresh cards come back in the state."""
+    r = _room(code, body.who)
+    with r.lock:
+        ok = r.toss(body.who, body.cards, ROOMS.rng)
+    ROOMS.save()
+    if not ok:
+        raise HTTPException(400, "toss up to three cards from your hand, once")
+    return {"ok": True, "phase": r.phase, "hand": r.public(body.who)["sides"][body.who]["hand"]}
+
+
+@app.post("/api/game/{code}/placed")
+def game_placed(code: str, body: Placed):
+    """A card set down (or picked back up) before locking: the partner's field shows it face-down."""
+    r = _room(code, body.who)
+    with r.lock:
+        if r.phase == "play" and not r.sides[body.who].play_locked:
+            r.sides[body.who].placed = body.n
+    return {"ok": True}
+
+
 @app.post("/api/game/{code}/play")
-def game_play(code: str, body: Play):
-    """Lock in two cards. When both hands lock, Q-Lou starts at once with what it has, so the
-    reveal animation hides most of the thinking time. A later round re-runs it."""
+def game_play(code: str, body: Cards):
+    """Round two: lock in three cards in rank order. When both lock, the reveal is built and
+    Q-Lou starts at once, so the reveal hides most of the thinking time."""
     r = _room(code, body.who)
     think = False
     with r.lock:
         ok = r.play(body.who, body.cards)
         if ok and r.both_locked():
-            r.reveal(ROOMS.rng)
+            r.do_reveal(ROOMS.rng)
             think = True
     ROOMS.save()
     if not ok:
-        raise HTTPException(400, "play exactly two cards from your hand")
+        raise HTTPException(400, "play exactly three cards from your hand, most you first")
     if think:
         _think(r)
     return {"ok": True}
 
 
-class Next(BaseModel):
-    more: bool = False   # deal another round instead of going to the song
+@app.post("/api/game/{code}/emote")
+def game_emote(code: str, body: Emote):
+    """A nudge across the table; the partner's next poll carries it."""
+    r = _room(code, body.who)
+    with r.lock:
+        ok = r.emote(body.who, body.emote)
+    return {"ok": ok}
+
+
+@app.post("/api/game/{code}/react")
+def game_react(code: str, body: React):
+    """Guilty or Objection to Q-Lou's call at the reveal; the partner sees it land."""
+    r = _room(code, body.who)
+    with r.lock:
+        ok = r.react(body.who, body.reaction)
+    return {"ok": ok}
 
 
 @app.post("/api/game/{code}/next")
-def game_next(code: str, body: Next | None = None):
-    """After a reveal: another round of cards if asked for and allowed, else on to Q-Lou
-    (already thinking, or done)."""
+def game_next(code: str):
+    """After the reveal: on to Q-Lou (already thinking, or done). At last call: call it a night."""
     r = _room(code)
-    more = bool(body and body.more)
+    finish = False
     with r.lock:
         if r.phase == "reveal":
-            if more and r.rounds_left():
-                r.pick = None
-                r.thinking = []
-                r.deal(ROOMS.rng)
-            elif r.pick:
-                r.phase = "jukebox"
-            else:
-                r.phase = "thinking"
+            r.phase = "jukebox" if r.pick and r.pick["status"] == "open" else "thinking"
+        elif r.phase == "lastcall":
+            r.finish()
+            finish = True
+    if finish:
+        stats.record(r.code, r.result, r.sides["guest"].house)
     ROOMS.save()
     return {"ok": True, "phase": r.phase}
 
@@ -506,7 +518,7 @@ def game_next(code: str, body: Next | None = None):
 @app.post("/api/game/{code}/vote")
 def game_vote(code: str, body: Vote):
     r = _room(code, body.who)
-    if r.phase != "jukebox" or not r.pick:
+    if r.phase != "jukebox" or not r.pick or r.pick["status"] != "open":
         raise HTTPException(400, "no song to vote on right now")
     with r.lock:
         r.vote(body.who, body.up)
@@ -514,6 +526,21 @@ def game_vote(code: str, body: Vote):
         r.tick(ROOMS.rng)            # a house with no pause answers now; otherwise on a later poll
         outcome = _settle(r)
     ROOMS.save()
-    if outcome == "redeal":
+    if outcome == "backup":
         _think(r)
     return {"ok": True, "outcome": outcome}
+
+
+@app.post("/api/game/{code}/buy")
+def game_buy(code: str, body: Buy):
+    """One partner pays the full price for a song the other turned down."""
+    r = _room(code, body.who)
+    with r.lock:
+        ok = r.buy(body.who, body.attempt)
+        if ok:
+            r.finish()
+    if not ok:
+        raise HTTPException(400, "nothing to buy: not declined, not enough tokens, or not now")
+    stats.record(r.code, r.result, r.sides["guest"].house)
+    ROOMS.save()
+    return {"ok": True, "phase": r.phase}

@@ -48,39 +48,11 @@ def test_signal_merges_cards_and_profile_without_duplicates():
     assert s["audiences"] == ["urn:audience:leisure:coffee"]
 
 
-def test_lines_and_matches():
+def test_match_kinds():
     a = next(c for c in deck.cards() if c["name"] == "Country roads")
     b = next(c for c in deck.cards() if c["name"] == "Jazz hands")
     c = next(c for c in deck.cards() if c["name"] == "Whiskey")
     assert deck.match_kind(a, a) == "exact" and deck.match_kind(a, b) == "kin" and deck.match_kind(a, c) == "none"
-    line = deck.line_for("Brent", a, "Hank", b, random.Random(0))
-    assert "Country roads" in line and "Jazz hands" in line and "—" not in line
-    assert "Country roads" in deck.line_for("x", a, "y", a, random.Random(0))
-
-
-def test_per_viewer_lines_and_pairing():
-    a = next(c for c in deck.cards() if c["name"] == "Country roads")
-    b = next(c for c in deck.cards() if c["name"] == "Jazz hands")
-    for seed in range(6):
-        ls = deck.lines_for("Brent", a, "Josie", b, random.Random(seed))
-        assert "Brent" not in ls["host"] and "Josie" not in ls["guest"]
-        if "Josie" in ls["host"]:
-            assert "You" in ls["host"] and "Brent" in ls["guest"] and "You" in ls["guest"]
-    ids = {c["name"]: c["id"] for c in deck.cards()}
-    pairs = deck.pair_plays([ids["Whiskey"], ids["Country roads"]], [ids["Jazz hands"], ids["Craft beer"]])
-    assert (ids["Country roads"], ids["Jazz hands"]) in pairs and (ids["Whiskey"], ids["Craft beer"]) in pairs
-
-
-def test_two_pairs_on_one_table_never_share_a_line():
-    import random
-    from common_ground import deck
-    life = [c for c in deck.cards() if c["cat"] == "life"]
-    for seed in range(30):
-        used = set()
-        rng = random.Random(seed)
-        one = deck.lines_for("Brent", life[0], "Josie", life[1], rng, used)
-        two = deck.lines_for("Brent", life[2], "Josie", life[3], rng, used)
-        assert one["host"].split(". ")[-1] != two["host"].split(". ")[-1]   # the tail of the template differs
 
 
 def test_meter_words_say_what_the_number_means():
@@ -89,6 +61,9 @@ def test_meter_words_say_what_the_number_means():
     pairs = [{"a": a, "b": a, "match": "exact"}, {"a": b, "b": c, "match": "kin"}, {"a": d, "b": b, "match": "none"}]
     assert deck.meter_words(pairs) == f'Same card: {a["name"]}. Close: {b["name"]} and {c["name"]}. Different: {d["name"]} and {b["name"]}.'
     assert deck.meter_words([]) == ""
+    # a card both played at different ranks is still a same card for the words
+    pairs = [{"a": a, "b": b, "match": "kin"}, {"a": c, "b": a, "match": "kin"}]
+    assert deck.meter_words(pairs, [a["name"]]).startswith(f'Same card: {a["name"]}. Close:')
 
 
 def test_draw_one_keeps_the_hand_mix_and_never_repeats():
