@@ -18,16 +18,16 @@ Words that matter: it is a challenge you do together, and the other person is yo
 
 1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold.
 2. They open the same link, tap "Join with a code", type the code. Or tap "Share the code" and send them the link; it joins them straight in.
-3. Each of you drags (or taps) the two cards that are most you up onto your side of the table. "Swap a card" trades one for a fresh one, once a round. Their cards show face-down across from yours as they place them. Lock it in. If they are slow, send a nudge (the round buttons under "Waiting for...").
-4. The reveal: cards flip, a line about the two of you, the meter moves and says why in words (same card, close, different). The meter is about the cards; the song's own numbers come later.
-5. "Deal another round" if you want more cards in the mix (better pick, one more minute), or "Hear Q-Lou's pick".
-6. While Q-Lou thinks, four names come up: call it. The bar's line of the night shows under it. Then the song, the 30 second preview (tap the album art), and "Play it for a credit?". Both say yes and it is your song. "Try another" and Q-Lou picks once more with that artist out; if the second pick is not a yes from both, the night moves on.
-7. The done screen is the keepsake: both names, all four cards, the song, the bar, the date, and "You share: Soul, Indie rock" from Qloo. "Save it" shares it. "Play again" for the next pair.
+3. Round 1, Toss: Q-Lou deals six each. Tap the cards that aren't you (up to three), then "Toss two" or "Keep all six". Fresh cards come in. What you tossed counts against, so toss honestly.
+4. Round 2, Play: drag or tap three cards onto your side. The top slot is "Most me", then "Also me", then "A bit me". Order matters. Lock it in. If they are slow, send a nudge.
+5. Round 3, Reveal: Q-Lou flips the pairs rank by rank and talks. Let him finish; it is twelve seconds. Tap Guilty or Objection if you like. The meter says in words what the cards had in common.
+6. "Hear Q-Lou's pick": four names come up, call it. Then the song, the preview (tap the art), Q-Lou's numbers, and "Play it?". Both yes: two tokens each. A no: Q-Lou offers a backup, and the first song stays buyable for four by whoever wants it. If nobody buys, "Call it a night".
+7. The done screen is the keepsake: both names, all six cards, the song, the bar, the date, "You share: Soul, Indie rock" from Qloo, who paid. "Save it" shares it. "Play again" for the next pair (fresh tokens).
 
 ## What to watch for (write it down, this is the evidence)
 
 - Did the song land? Did either of them say "oh yeah" or "no way"? Those two words are the whole result.
-- How long from "Hear Q-Lou's pick" to the song. Over 15 seconds, tell BT the time and the room code (top left).
+- How long from the last lock-in to the song. Over 25 seconds, tell BT the time and the room code (top left).
 - Anything confusing on first read. The exact words they said.
 - A photo of two people looking at their phones at the jukebox moment. One good one is enough.
 

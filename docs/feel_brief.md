@@ -1,73 +1,79 @@
-# Brief: the feel layer for Our Song (branch `feel`, file `static/play.html` only)
+# Brief: the feel layer for Our Song v2 (branch `feel`, file `static/play.html` only)
 
-Start from the current `main` (pull first): `static/play.html` was reworked twice on Oct 16, the second
-time into a table. The screens you touch: the table (`#s-table`, with modes `choosing`, `waiting`,
-`revealed` as classes on the section; their field `#themSlots`, your field `#meSlots`, the hand `#hand`,
-the quip on the divider `#quip`), the thinking screen (Q-Lou at card size in `.qlou-big`, one line in
-`#say`, the bet in `#bet`), the jukebox (`#art` is the album art and the play button, `#yesBtn` is
-"Play it"), and the done screen (`#doneArt`). Drag from the hand into your slot already exists (pointer
-events, a `.flyer` element that travels from hand to slot); build on it, do not replace it. The flip on
-the reveal is `.card.flip` with `.back` (Brent's card back art) and `.face`; the flip bug is fixed, do
-not reintroduce `overflow:hidden` on `.card.flip`.
+Start from the current `main` (pull first). The table was rebuilt on Oct 17 (`docs/game_v2.md` is the
+scope): it fits one phone screen and never scrolls, with a fan hand along the bottom and Q-Lou on the
+line between the two fields. Everything you animate already works; your job is to make it feel like
+a real table with a real dealer. Read `docs/snap_study.md` first (timings and technique; section 6 has
+code) and `docs/touchtunes_style.md` (colors and type).
 
-Scope: five animations plus sound, in `static/play.html` and nothing else. No framework, no
-build step, no new files except small audio clips under `static/sfx/` (synthesize them with the
-Web Audio API if you can; otherwise tiny royalty-free clips, credited in README). Keep the page
-under 60 KB of markup and script. Everything must work on a phone in Safari and Chrome.
+## The pieces, by id
 
-Read first: `docs/snap_study.md` (technique and timings, section 6 has the code), `docs/touchtunes_style.md`
-(colors and type). The game's server API does not change; `state` is polled every 1.2 s and the
-screens are driven by `render()`.
+- `#s-table` is the table; its mode is a class on the section: `toss`, `tosswait`, `play`, `playwait`,
+  `reveal`. `body.tablemode` is set while the table is up.
+- `#themSlots` their three slots (face-down `.card.flip` backs as they place, `.flip.shown` at the
+  reveal); `#themMinis` the six tiny backs during the toss round; `#meSlots` your three slots with
+  labels Most me, Also me, A bit me; `#fan` the hand (`.fcard` wrappers, laid out by `fanLayout()`,
+  `.fcard.tossing` marked for the toss, `.fcard.played` once placed).
+- `#stage` is Q-Lou's spot on the line. `.qcoin` is the coin that sits there when he is away;
+  `.qmini` is his card and `#qsay` his bubble. `qlouSay(text, hold)` queues a line; the stage gets
+  `.talking` while he is up (CSS transitions do the rise and sink today). `qlouClear()` empties the
+  queue. All lines come from `static/quips.json` through `q(path, salt, vars)`; do not add text.
+- `dealIn(ids)` flies `.flyer.back` elements from the stage to the fan (all six at the deal, the
+  replacements after the toss). `fly(from, to, img)` is the hand-to-slot flight. `startDrag`
+  (fan to slot) and `startSlotDrag` (slot to slot) are pointer-event drags with a `.dragging` ghost.
+- `#meter` and `#words` under your field at the reveal; `#reacts` Guilty and Objection; `#themReact`
+  and `#meReact` the pills that land on the fields when someone taps; `#themBubble` a nudge landing.
+- `#tact` holds the one action button of each mode (`#tossBtn`, `#lockBtn`, `#nextBtn`).
+- Thinking screen: `.qlou-big`, `#say`, `#bet`. Jukebox: `#art`, `#yesBtn` ("Yes, 2 tokens"),
+  `#noBtn`, `#firstStays`. Token pill: `#tTok` on the table, `#tokN` elsewhere.
 
-Two things shipped on Oct 16 evening that work but feel flat. Do these first; they are the
-ones Brent wants to see move:
-0a. Swap a card (`#swapBtn` under the hand, once per round; `swapMode()` highlights the hand with
-    `.hand.swapping`, a tap on a card calls `doSwap()`, which POSTs `/api/game/{code}/swap` and gets
-    the new card back). Today the old card slides off to the right and the new one pops up in place.
-    Make it a deal: the old card flies off the bottom edge of the screen face-down (flip to
-    `static/deck/back.jpg` while it goes), and the new card deals in from Q-Lou's side of the table
-    (from above, face-down, flipping up as it lands in the gap), 450 ms total, with a soft slide
-    sound. The other five cards must not jump; hold the grid cell while the cards travel.
-0b. Nudges (`#nudges` on the waiting screen: four round buttons, `nudge(name)` POSTs
-    `/api/game/{code}/emote`; the partner's phone shows it via `showBubble()` as `#themBubble`
-    rising over their field, keyed by `emote.at` so each nudge shows once). Today the glyphs are emoji
-    and the bubble just fades up. Replace the emoji with four small SVG glyphs in the palette (two
-    glasses, a pair of eyes, a flame, a laugh; no brand marks) drawn inline, keep the names `cheers`,
-    `eyes`, `fire`, `laugh` (the server only accepts those). The bubble should fly across the table:
-    start at the sender's own field on the sender's phone (a small copy lifting off the button), and on
-    the partner's phone enter from the far edge of their field, bounce once between the two card slots,
-    linger 1.2 s, fade. A tap on a nudge button should feel like pressing a real button (the same
-    squash as `#lockBtn` below). Haptics already fire; keep them.
+## Do these, in order, and stop when they are done
 
-Then these, in order, and stop when they are done:
-1. Reveal: when their cards flip in `#themSlots`, an `exact` match gets a 150 ms `scale(1.06)` bounce on
-   both cards of the pair (theirs and yours, same column) and a gold particle burst (canvas overlay,
-   about 40 sparks, 700 ms) centered between the two. A `kin` match gets a soft purple pulse, no sparks.
-2. Hand and field: a card lifts on touch (`translateY(-14px) scale(1.06)`, 150 ms ease-out) before the
-   drag starts; the `.flyer` travels on a slight arc with a 4 degree tilt and lands with a small squash;
-   an empty slot in your field breathes (border opacity 35 to 60 percent, 2.4 s loop) until it is filled.
-   Their face-down cards get a slow diagonal sheen (6 s loop) so the table never sits dead still.
-3. Tilt with parallax on the big Q-Lou card (`.qlou-big .card` on the lobby, room code, waiting and
-   thinking screens) and on the album art (`#art`, `#doneArt`): pointer-tracked on desktop, gyro on
-   phones (DeviceOrientation, with the iOS permission request inside the first tap). Low-pass the
-   readings; first reading is neutral. Q-Lou's flames drift slowly on their own (a 6 s loop of a few
-   pixels of translate on the image).
-4. Lock-in (`#lockBtn`): squash-and-stretch press (`scale(.96)` 80 ms, back with overshoot) and a radial
-   ring burst; on the partner's phone a banner slides down from the top bar: "<name> locked in" (the
-   state already carries `sides[x].locked`). "Play it" (`#yesBtn`) gets the same press plus a coin-drop:
-   the coin in the button falls into the credits pill and `#creditN` ticks from 5 to 4.
-5. Sound: five short cues, generated with the Web Audio API (no files if possible): card lift (soft
-   tick), lock in (two-note), reveal flip (whoosh), exact match (chime), "Play it" (short stinger).
-   AudioContext unlocked on the first tap. A mute toggle in the top bar, left of the credits pill, as a
-   small pill with a speaker glyph drawn in SVG (no emoji).
+1. **The deal.** Q-Lou rises (the stage goes `.talking`), the six backs leave from his hands (the
+   `.qmini` center, not the stage center), fan out to their places with a 70 ms stagger and a small
+   arc, and flip face-up on landing (a 300 ms rotateY using the existing `.flip` classes). The six
+   minis on their side deal out the same beat, upward. A soft card slide sound per card. The
+   replacements after a toss do the same thing from the same place.
+2. **Q-Lou's rise and sink.** Replace the CSS scale with a real entrance: he comes up out of the
+   line (clip from the line upward, 320 ms, overshoot 4 percent), the bubble pops 120 ms after him,
+   and when the hold ends he sinks back into the line and the coin reappears with a short gold
+   flash. His flames drift on their own while he is up (a 6 s loop of a few pixels of translate on
+   the image). Respect the queue: `nextSay()` is the only thing that moves him.
+3. **The toss.** A tossed card (`.fcard.tossing`) tilts back 8 degrees and dims as it does now, plus a
+   small red X stamp that lands on it with a thump. On "Toss", the tossed cards fly to Q-Lou (to the
+   `.qmini` center, scaling to 0.3) 60 ms apart; then the deal from item 1 brings the replacements.
+4. **The play.** A card lifts on touch (`translateY(-14px) scale(1.06)`, 150 ms) before the drag
+   starts; the ghost travels with a 4 degree tilt and lands in the slot with a squash; a slot that is
+   the drop target glows gold (`.slot.over` exists). Empty slots breathe until filled (border opacity
+   35 to 60 percent, 2.4 s loop). Their face-down backs get a slow diagonal sheen (6 s loop) so the
+   table never sits dead still. Lock in (`#lockBtn`): squash-and-stretch press and a ring burst; on
+   the partner's phone the three backs flip over a fraction (they stay face-down) as a tell.
+5. **The reveal.** Each flip in `#themSlots` lands with a thud and a 150 ms `scale(1.06)` bounce on
+   both cards of that rank; a same card (both have `.match`) gets a gold particle burst (canvas
+   overlay, about 40 sparks, 700 ms) centered between the two; a close pair (`.kin`) a soft purple
+   pulse. The meter fill gets a tick sound as it climbs. Guilty and Objection: the pill
+   (`#themReact`, `#meReact`) should slam down on the field with a stamp and a short shake.
+6. **Nudges.** `#nudges` buttons are emoji today. Replace them with four inline SVG glyphs in the
+   palette (two glasses, a pair of eyes, a flame, a laugh; no brand marks), keep the names `cheers`,
+   `eyes`, `fire`, `laugh` (the server only accepts those). The bubble on the partner's phone
+   (`showBubble`) should enter from the far edge, bounce once between the slots, linger 1.2 s, fade.
+7. **Tokens.** On "Yes, 2 tokens" the coin in the button drops into the token pill and `#tokN` ticks
+   down by two (both phones). On a solo buy it ticks by four. A short stinger on a played song.
+8. **Sound.** Web Audio API, no files if possible: card slide, X stamp, lock in (two-note), flip thud,
+   same-card chime, meter tick, stinger. AudioContext unlocked on the first tap. A mute toggle in the
+   table's top bar (`.tbar`), left of the token pill, a small pill with a speaker glyph drawn in SVG.
 
-Rules: no em-dashes anywhere in copy. Keep the 17 px base font; there is no "Aa" control any more, do
-not add one. Do not touch
-the API calls, the polling, or any text the server sends. Respect `prefers-reduced-motion`: with it
-on, keep the flips but drop particles, tilt and bounces. Commit in small steps with clear messages,
-push the branch, and open a pull request against `main` titled "Feel: swap, nudges, tilt, particles, sound".
+## Rules
+
+No em-dashes anywhere in copy. Keep the 17 px base font; there is no "Aa" control, do not add one.
+Do not touch the API calls, the polling, the quip file, or any text the server sends. The table must
+still fit one screen with no scroll at 360 by 640, 393 by 852 and 430 by 739 (the fit check in the
+scratchpad driver is: nothing on `#s-table` has a bottom below `innerHeight`). Respect
+`prefers-reduced-motion`: keep the flips, drop particles, tilt and bounces. Commit in small steps with
+clear messages, push the branch, and open a pull request against `main` titled
+"Feel: the deal, Q-Lou's rise, flips, particles, sound".
 
 How to check your work: `python3 -m pytest -q` must stay green (50 tests; you should not need to touch
 them). For a two-phone run without the real Qloo, `QLOO_API_KEY=x` is enough for the app to import;
-the test suite's `conftest.py` shows the fake. Open two browser windows at 393 by 852, start a
-challenge in one and join with the code in the other; the table, swap and nudges all run locally.
+`tests/conftest.py` shows the fake. Open two browser windows at 430 by 739, start a challenge in one
+and join with the code in the other; the whole table runs locally.
