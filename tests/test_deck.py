@@ -28,12 +28,12 @@ def test_dead_tags_are_not_in_the_deck():
         assert not dead & set(c["signal"].get("tags", [])), c["name"]
 
 
-def test_deal_is_three_music_three_other_and_never_repeats():
+def test_deal_is_three_music_two_other_and_never_repeats():
     rng = random.Random(1)
     seen: set[int] = set()
     for _ in range(3):
         hand = deck.deal(seen, rng)
-        assert len(hand) == 6 and len(set(hand)) == 6
+        assert len(hand) == deck.HAND and len(set(hand)) == deck.HAND
         assert sum(1 for c in hand if deck.card(c)["cat"] == "music") == 3
         assert not seen & set(hand)
         seen |= set(hand)

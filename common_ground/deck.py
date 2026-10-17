@@ -15,8 +15,8 @@ import random
 from functools import lru_cache
 
 STATIC = pathlib.Path(__file__).resolve().parents[1] / "static"
-HAND = 6
-MUSIC_IN_HAND = 3
+HAND = 5
+MUSIC_IN_HAND = 3    # of five: the song is the point; the rest is flavor
 PLAYS = 3                # on the table, ranked: Most me, Also me, A bit me
 MUSIC_CATS = {"music"}
 

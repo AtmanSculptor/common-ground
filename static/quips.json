@@ -7,10 +7,10 @@
   ],
 
   "deal": [
-    "Six each. Don't get attached.",
-    "Six cards. Three of them are lying to you.",
-    "Fresh deck, two strangers, one jukebox. Six each.",
-    "Here's six. I've seen your type, but I haven't seen your hand."
+    "Five each. Don't get attached.",
+    "Five cards. Two of them are lying to you.",
+    "Fresh deck, two strangers, one jukebox. Five each.",
+    "Here's five. I've seen your type, but I haven't seen your hand."
   ],
 
   "round": {
@@ -34,14 +34,14 @@
   "toss_result": {
     "both_kept": [
       "Nobody tossed. Either I dealt well or you're both polite.",
-      "Six and six, untouched. Confident table."
+      "Five and five, untouched. Confident table."
     ],
     "both_tossed": [
       "{a} tossed {na}, {b} tossed {nb}. We're learning things.",
       "{na} from {a}, {nb} from {b}. The pile tells me as much as the hand."
     ],
     "one_kept": [
-      "{a} tossed {na}. {b} kept all six. One of you is sure.",
+      "{a} tossed {na}. {b} kept all five. One of you is sure.",
       "{b} kept everything. {a} sent {na} back. I like a mixed table."
     ],
     "both_same": [

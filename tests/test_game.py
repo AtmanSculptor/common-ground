@@ -48,7 +48,7 @@ def test_two_phones_full_game(client):
     st = _st(client, code)
     assert st["phase"] == "toss" and st["sides"]["host"]["tokens"] == 10
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
-    assert len(hand) == 6 and "hand" not in st["sides"]["guest"]
+    assert len(hand) == 5 and "hand" not in st["sides"]["guest"]
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:4]}).status_code == 400   # three at most
     assert client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]}).status_code == 400   # not yet
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2]}).json()
