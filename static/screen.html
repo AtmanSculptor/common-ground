@@ -107,7 +107,6 @@ async function poll(){
   $("foot").textContent=`Room ${s.code} · artists and taste scores by Qloo`;
   if(s.phase==="lobby"){$("idleSay").textContent=`${A.name} is waiting for a partner.`;$("idleSub").innerHTML=B.joined?"":`Join with the code <span class="code">${esc(s.code)}</span>`;stage("st-idle");return}
   if(s.phase==="toss"||s.phase==="play"||s.phase==="reveal"){renderTable(s,A,B);stage("st-table");return}
-  if(s.phase==="lastcall"){$("say").textContent="Last call. Either of you can still buy one.";stage("st-thinking");return}
   if(s.phase==="thinking"){const steps=s.thinking||[];const last=steps[steps.length-1]||{};$("say").textContent=({read:"Reading both hands.",draft:"Asking Qloo about two thousand artists.",verify:"Checking the top three live.",pick:"The weaker score decides."})[last.step]||"Give me five seconds.";stage("st-thinking");return}
   if(s.phase==="jukebox"&&s.pick){renderJukebox(s.pick,A,B);stage("st-jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result,A,B);stage("st-done")}}
@@ -124,12 +123,12 @@ function renderTable(s,A,B){
     $("slotsB").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.b,"down "+cls(p,"b"))}</div>`).join("");
     const a=$("slotsA").querySelectorAll(".card"),b=$("slotsB").querySelectorAll(".card");
     rv.pairs.forEach((p,i)=>{setTimeout(()=>{a[i].classList.remove("down");b[i].classList.remove("down");$("ln0").textContent=["Rank one. Most them.","Rank two. Also them.","Rank three. A bit them."][i]},600+i*1800)});
-    setTimeout(()=>{$("ln0").textContent="";$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";$("meterText").textContent=rv.words||"";if(rv.pull)$("ln1").textContent=rv.pull.host===rv.pull.guest?`${rv.pull.host} from both of them is doing the pulling.`:`${rv.pull.host} and ${rv.pull.guest} are pulling the same way.`},800+rv.pairs.length*1800)}}
+    setTimeout(()=>{$("ln0").textContent="";$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";const c=rv.counts||{};$("meterText").textContent=`Cards in common: ${c.same||0} the same, ${c.close||0} close, ${c.apart||0} apart.`;if(rv.pull)$("ln1").textContent=rv.pull.host===rv.pull.guest?`${rv.pull.host} from both of them is doing the pulling.`:`${rv.pull.host} and ${rv.pull.guest} are pulling the same way.`},800+rv.pairs.length*1800)}}
 function renderJukebox(p,A,B){const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0);const t0=p.tracks&&p.tracks[0];
   if(lastPick!==key){lastPick=key;$("art").innerHTML=t0&&t0.art?`<img src="${esc(t0.art)}" alt="">`:"";$("song").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:""}
   const v=p.voted||{};$("votes").innerHTML=[["host",A],["guest",B]].map(([k,side])=>`<span class="vote ${v[k]?"yes":""}">${esc(side.name||k)}${v[k]?" said yes":""}</span>`).join("")}
 function renderDone(r,A,B){const p=r.pick;const t=p&&p.tracks&&p.tracks[0];
-  $("doneKicker").textContent=p&&p.artist&&p.played?(r.paid_by==="both"?"Now playing. Two tokens each.":`Now playing. ${esc((r.paid_by==="host"?A:B).name||"One of them")} bought it alone.`):"Nothing landed tonight";
+  $("doneKicker").textContent=p&&p.artist&&p.played?"Now playing. Two tokens each.":"No match tonight";
   const played=p&&p.artist&&p.played;$("doneArt").innerHTML=t&&t.art?`<img src="${esc(t.art)}" alt="">`:"";$("doneArt").style.display=played?"":"none";
   $("doneSong").textContent=played?(t?t.track:p.artist.name):"";$("doneArtist").textContent=played&&t?p.artist.name:"";
   $("doneNames").textContent=`${A.name||"Host"} and ${B.name||"Partner"}`;

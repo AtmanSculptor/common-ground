@@ -46,8 +46,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .field.me{background:rgba(255,199,0,.045)}
 .field .who{text-align:center;color:var(--text3);font-size:.8rem;margin:0 0 3px;min-height:1.1em}
 .slots{display:grid;grid-template-columns:repeat(3,var(--slot));gap:8px;justify-content:center;transition:grid-template-columns .4s}
-.slot{aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.35);position:relative;transition:width .4s,border-color .3s}
-.slot i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.72rem;line-height:1.1;text-align:center;padding:4px;color:rgba(189,53,252,.55)}
+.slot{aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.55);position:relative;transition:width .4s,border-color .3s}
+.slot i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.74rem;line-height:1.1;text-align:center;padding:4px;color:var(--gold);text-shadow:0 1px 6px #000}
 .slot:has(.card){border-color:transparent}
 .slot:has(.card) i{display:none}
 .slot .card{position:absolute;inset:-2px;width:auto;height:auto;cursor:pointer}
@@ -69,9 +69,6 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .bubble{position:absolute;left:50%;top:-6px;transform:translate(-50%,0) scale(.4);opacity:0;font-size:2.4rem;line-height:1;z-index:5;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.8))}
 .bubble.on{animation:bubble 2.8s ease-out forwards}
 @keyframes bubble{0%{opacity:0;transform:translate(-50%,24px) scale(.4)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px) scale(.9)}}
-.react{position:absolute;right:8px;top:4px;font-size:.72rem;font-weight:800;color:#000;background:var(--gold);border-radius:999px;padding:3px 8px;opacity:0;transform:scale(.6);transition:opacity .3s,transform .3s}
-.react.on{opacity:1;transform:scale(1)}
-.react.obj{background:var(--coral)}
 
 /* the center: Q-Lou's spot on the line between the two fields */
 .stage{position:relative;flex:none;min-height:34px;display:flex;align-items:center;justify-content:center;gap:10px;padding:2px 4px;transition:min-height .35s}
@@ -100,6 +97,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .fcard.tossing{filter:grayscale(.8) brightness(.6)}
 .fcard.tossing .card{box-shadow:0 0 0 2px var(--coral)}
 .fcard.tossing .badge{display:grid;background:var(--coral);border-color:var(--coral);color:#000}
+.fcard.tossing .badge::before{content:"✕"}
+.card.match .badge::before{content:"★"}
 .fcard .card .name{font-size:.7rem;padding:5px 4px 6px;text-align:left;overflow-wrap:anywhere}
 .fcard:last-child .card .name{text-align:center}
 .waitbox{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
@@ -108,9 +107,6 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .nudges button{margin:0;width:52px;height:52px;min-height:0;padding:0;font-size:1.5rem;border-radius:50%;background:var(--surface);border:2px solid rgba(189,53,252,.35)}
 .nudges button:active{transform:scale(.92);border-color:var(--gold)}
 .nudges button:disabled{opacity:.5}
-.reacts{display:flex;justify-content:center;gap:10px;margin:0}
-.reacts button{margin:0;width:auto;padding:9px 16px;font-size:.92rem;background:var(--surface);color:var(--text);border:2px solid rgba(255,199,0,.45)}
-.reacts button.chosen{border-color:var(--gold)}
 .tact{flex:none;padding-top:2px}
 .tact button{margin:0;padding:12px 18px}
 .tact .venueLine{text-align:center;margin:4px 0 0;font-size:.82rem}
@@ -162,9 +158,6 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .track .t{flex:1;min-width:0}.track .t b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .track .t span{color:var(--text3);font-size:.85rem}
 .track button{width:48px;height:48px;padding:0;margin:0;border-radius:50%;flex:none;font-size:1rem}
-.offer{display:flex;gap:12px;align-items:center;background:var(--surface);border-radius:var(--r);padding:10px;margin-top:10px}
-.offer .t{flex:1;min-width:0}.offer .t b{display:block}.offer .t span{color:var(--text3);font-size:.85rem}
-.offer button{width:auto;margin:0;padding:10px 12px;font-size:.9rem;flex:none}
 .rank{color:var(--text3);font-size:.9rem;margin:2px 0}
 .tag{display:inline-block;background:var(--surface2);border-radius:999px;padding:4px 10px;margin:4px 4px 0 0;font-size:.9rem}
 .code{font-size:3.4rem;font-weight:800;letter-spacing:.18em;text-align:center;margin:8px 0;color:var(--gold);cursor:pointer;line-height:1}
@@ -197,7 +190,7 @@ details[open] summary::after{content:"–"}
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
   <button class="ghost" onclick="show('join')">Join with a code</button>
-  <button class="ghost" onclick="newGame(true)">Try it solo</button>
+  <button class="ghost" onclick="newGame(true)">Play demo</button>
 </section>
 
 <section class="screen" id="s-join">
@@ -221,13 +214,12 @@ details[open] summary::after{content:"–"}
 <section class="screen" id="s-table">
   <div class="tbar"><div class="pill" id="tRoom">Room</div><div class="pill credits"><span id="tTok">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
   <div class="thead"><b id="roundLabel">Round 1 of 3</b></div>
-  <div class="field them"><div class="bubble" id="themBubble"></div><div class="react" id="themReact"></div><div class="who"><span id="themName"></span> <span id="themStatus"></span></div><div class="minis" id="themMinis" style="display:none"></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
+  <div class="field them"><div class="bubble" id="themBubble"></div><div class="who"><span id="themName"></span> <span id="themStatus"></span></div><div class="minis" id="themMinis" style="display:none"></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
   <div class="stage" id="stage"><svg class="qcoin"><use href="#coin"/></svg><div class="qmini"><img src="static/deck/qlou.jpg" alt=""></div><div class="qsay" id="qsay"></div></div>
-  <div class="field me"><div class="react" id="meReact"></div><div class="who">You</div><div class="slots untouched" id="meSlots"><div class="slot" data-i="0"><i>Most me</i></div><div class="slot" data-i="1"><i>Also me</i></div><div class="slot" data-i="2"><i>A bit me</i></div></div></div>
+  <div class="field me"><div class="who">You</div><div class="slots untouched" id="meSlots"><div class="slot" data-i="0"><i>Most me</i></div><div class="slot" data-i="1"><i>Also me</i></div><div class="slot" data-i="2"><i>A bit me</i></div></div></div>
   <div class="meterwrap"><div class="meter"><i id="meter"></i></div><p class="words" id="words"></p></div>
   <div class="handwrap" id="handArea"><p class="hint" id="handHint"></p><div class="fan" id="fan"></div></div>
   <div class="waitbox" id="waitArea" style="display:none"><p class="wait pulse" id="waitMsg"></p><p class="sub center" style="margin:4px 0 0;font-size:.85rem">Send a nudge</p><div class="nudges" id="nudges"></div></div>
-  <div class="waitbox" id="revealArea" style="display:none"><div class="reacts" id="reacts"><button onclick="react('guilty',this)">Guilty</button><button onclick="react('objection',this)">Objection</button></div></div>
   <div class="tact" id="tact"><button id="tossBtn" onclick="lockToss()" style="display:none">Keep all five</button><button id="lockBtn" disabled onclick="lockPlay()" style="display:none">Put three down</button><button id="nextBtn" onclick="next()" style="display:none">Hear Q-Lou's pick</button></div>
 </section>
 
@@ -250,16 +242,8 @@ details[open] summary::after{content:"–"}
   <button class="big" id="yesBtn" onclick="vote(true)">Yes, 2 tokens <svg class="coin"><use href="#coin"/></svg></button>
   <button class="ghost" id="noBtn" onclick="vote(false)">Not for me</button>
   <p class="wait" id="voteMsg"></p>
-  <div id="firstStays"></div>
   <details id="moreBox" style="margin-top:14px"><summary id="moreTitle">More by this artist</summary><div id="tracks"></div></details>
   <audio id="preview" preload="none"></audio>
-</section>
-
-<section class="screen" id="s-lastcall">
-  <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="say" id="lastSay"></p>
-  <div id="lastOffers"></div>
-  <button class="ghost" onclick="next()" style="margin-top:16px">Call it a night</button>
 </section>
 
 <section class="screen" id="s-done">
@@ -325,10 +309,9 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   if(s.phase==="toss"||s.phase==="play"||s.phase==="reveal"){show("table");renderTable(s,me,other);return}
   if(s.phase==="thinking"){renderThinking(s.thinking||[]);$("thinkVenue").textContent=s.venue&&s.venue.quip?`${s.venue.name}: ${s.venue.quip}`:"";show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s,me,other);show("jukebox");return}
-  if(s.phase==="lastcall"){renderLastCall(s,me);show("lastcall");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
-function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge">✕</div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
+function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':''}<div class="name${longName(c.name)}">${esc(c.name)}</div></div></div>`}
 
@@ -344,16 +327,16 @@ function qlouActed(){if(sticky&&!sayQueue.length)qlouClear()}
 // not fit (a short desktop pane), --vh shrinks until it does. The section can scroll as a last resort, never trapping the button.
 function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;const vv=window.visualViewport;const real=Math.round(vv?vv.height:innerHeight);let vh=real;
   for(let i=0;i<4;i++){T.style.setProperty("--vh",vh+"px");
-    const fixed=["tbar","thead"].map(c=>T.querySelector("."+c)).concat([T.querySelector(".field.them"),$("stage"),T.querySelector(".field.me"),$("tact")]).concat([...T.querySelectorAll(".meterwrap,#waitArea,#revealArea")].filter(e=>getComputedStyle(e).display!=="none"));
+    const fixed=["tbar","thead"].map(c=>T.querySelector("."+c)).concat([T.querySelector(".field.them"),$("stage"),T.querySelector(".field.me"),$("tact")]).concat([...T.querySelectorAll(".meterwrap,#waitArea")].filter(e=>getComputedStyle(e).display!=="none"));
     const used=fixed.reduce((a,e)=>a+(e?e.offsetHeight:0),0)+4*(fixed.length+1)+18+(getComputedStyle($("handArea")).display!=="none"?$("handHint").offsetHeight+8:0);
     const fanh=Math.max(78,Math.min(156,real-used-6));T.style.setProperty("--fanh",fanh+"px");fanLayout();
     const over=T.scrollHeight-T.clientHeight;if(over<=0)break;vh=Math.round(vh*Math.max(.6,1-over/real)-4)}}
 window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
 
 // ---- the table ----
-let hand=[],selected=[],tosses=[],tableMode="",themShown="",dealt=false,revealShown=false,placedSent=-1,reacted=false;
+let hand=[],selected=[],tosses=[],tableMode="",themShown="",dealt=false,placedSent=-1;
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
-  const choosing=mode==="toss"||mode==="play";$("handArea").style.display=choosing?"":"none";$("waitArea").style.display=(mode==="tosswait"||mode==="playwait")?"":"none";$("revealArea").style.display=mode==="reveal"?"":"none";
+  const choosing=mode==="toss"||mode==="play";$("handArea").style.display=choosing?"":"none";$("waitArea").style.display=(mode==="tosswait"||mode==="playwait")?"":"none";
   $("tossBtn").style.display=mode==="toss"?"":"none";$("lockBtn").style.display=mode==="play"?"":"none";$("nextBtn").style.display="none";
   $("themMinis").style.display=(mode==="toss"||mode==="tosswait")?"":"none";$("themSlots").style.display=(mode==="toss"||mode==="tosswait")?"none":"";
   if(mode==="tosswait"||mode==="playwait")renderNudges();setTimeout(fitTable,0)}
@@ -363,7 +346,7 @@ function renderTable(s,me,other){const n=names();$("themName").textContent=partn
     if(lastPhase!=="toss"){lastPhase="toss";hand=me.hand||[];tosses=[];selected=[];themShown="";setMode(me.locked?"tosswait":"toss");
       $("roundLabel").textContent="Round 1 of 3: Toss";
       renderFan();renderMySlots();if(!dealt){dealt=true;setTimeout(dealIn,50)}
-      qlouClear();if(other.house)qlouSay(q("solo","seat"),3000);qlouSay(q("deal","deal"),2800);qlouSay(q("round.toss","r1"),0)}
+      qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
     const mode=me.locked?"tosswait":"toss";if(tableMode!==mode){setMode(mode)}
     $("themMinis").innerHTML=[0,1,2,3,4].map(i=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
     $("themStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept all five"):"is looking at five cards";
@@ -372,8 +355,8 @@ function renderTable(s,me,other){const n=names();$("themName").textContent=partn
   if(s.phase==="play"){
     if(lastPhase!=="play"){const fresh=lastPhase==="toss"||lastPhase===null;lastPhase="play";const old=hand;hand=me.hand||[];selected=me.plays&&me.plays.length?me.plays.slice():[];placedSent=-1;themShown="";
       $("roundLabel").textContent="Round 2 of 3: Play";
-      setMode(me.locked?"playwait":"play");renderFan();renderMySlots();if(fresh){const ts=s.toss_summary;qlouClear();if(ts)qlouSay(tossLine(ts),3400);if(ts&&ts.both.length)qlouSay(q("toss_result.both_same","same",{card:ts.both[0]}),3000);
-        const replaced=hand.filter(c=>!old.some(o=>o.id===c.id));if(replaced.length){qlouSay(q("toss_result.fresh","fresh"),2000);setTimeout(()=>dealIn(replaced.map(c=>c.id)),50)}qlouSay(q("round.play","r2"),0)}}
+      setMode(me.locked?"playwait":"play");renderFan();renderMySlots();if(fresh){const ts=s.toss_summary;qlouClear();qlouSay((ts?tossLine(ts)+" ":"")+q("round.play","r2"),0);
+        const replaced=hand.filter(c=>!old.some(o=>o.id===c.id));if(replaced.length)setTimeout(()=>dealIn(replaced.map(c=>c.id)),50)}}
     const mode=me.locked?"playwait":"play";if(tableMode!==mode)setMode(mode);
     const k=other.locked?3:(other.placed||0);const st=(other.locked?"L":"")+k;if(themShown!==st){themShown=st;$("themSlots").innerHTML=[0,1,2].map(i=>i<k?`<div class="slot">${backHTML()}</div>`:'<div class="slot"></div>').join("")}
     $("themStatus").textContent=other.locked?"locked in":(k===0?"is choosing…":k===1?"put one down":k===2?"has two down":"has three down");
@@ -381,7 +364,6 @@ function renderTable(s,me,other){const n=names();$("themName").textContent=partn
     showBubble(other.emote);return}
   if(s.phase==="reveal"){
     if(lastPhase!=="reveal"){lastPhase="reveal";setMode("reveal");$("roundLabel").textContent="Round 3 of 3: Reveal";$("themStatus").textContent="";renderReveal(s.reveal)}
-    showReaction("themReact",other.reaction);showReaction("meReact",me.reaction);
     $("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";return}}
 function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names();
   if(!na&&!nb)return q("toss_result.both_kept","tk");
@@ -440,29 +422,22 @@ function startSlotDrag(e,el,from){if(tableMode!=="play")return;let moved=false;c
     const si=slotAt(ev.clientX,ev.clientY);if(si>=0&&si!==from&&si<selected.length){const t=selected[si];selected[si]=selected[from];selected[from]=t;renderMySlots();if(navigator.vibrate)navigator.vibrate(10)}
     el.onclick=null;setTimeout(()=>{},0)};el.onpointercancel=el.onpointerup}
 async function lockPlay(){if(selected.length!==3)return;try{$("lockBtn").disabled=true;await api(code+"/play",{who,cards:selected});poll()}catch(e){alert(e.message);$("lockBtn").disabled=false}}
-// the reveal: Q-Lou flips rank one, two, three, calls each pair, then the meter, then the pull, then he leaves
-function renderReveal(rv){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";const n=names();rv.pairs.forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
+// the reveal: the pairs flip rank by rank, the meter says in plain words what matched, then Q-Lou says one thing and it stays
+function countsLine(c){if(!c)return "";const n=x=>x===0?"no":String(x);const parts=[];
+  parts.push(c.same?`${c.same===1?"1 card the same":c.same+" cards the same"}`:"no card the same");if(c.close)parts.push(`${c.close} close`);if(c.apart)parts.push(`${c.apart} apart`);
+  return "Cards in common: "+parts.join(", ")+"."}
+function renderReveal(rv){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";rv.pairs.forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
   const both=rv.both||[];const cls=(p,side)=>both.includes(p[side].name)?"match":(p.match==="kin"?"kin":"");
-  $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=rv.pairs[i];if(!p)return;const c=cls(p,mine);sl.innerHTML=faceHTML(p[mine],c)+(c==="match"?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':'')});
+  $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=rv.pairs[i];if(!p)return;sl.innerHTML=faceHTML(p[mine],cls(p,mine))});
   $("themSlots").innerHTML=rv.pairs.map(p=>`<div class="slot">${flipHTML(p[theirs],cls(p,theirs),cls(p,theirs)==="match")}</div>`).join("");
-  $("meter").style.width="0%";$("words").textContent="";$("reacts").style.visibility="hidden";reacted=false;$("reacts").querySelectorAll("button").forEach(b=>{b.disabled=false;b.classList.remove("chosen")});
-  const flips=$("themSlots").querySelectorAll(".card.flip");qlouClear();qlouSay(q("reveal_open","ro"),2200);
-  const PAIR=2600,start=1800;
-  rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12);
-      const key=p.a.name+"|"+p.b.name,key2=p.b.name+"|"+p.a.name;const spec=Q&&Q.pairs&&Q.pairs.specific&&(Q.pairs.specific[key]||Q.pairs.specific[key2]);
-      let line=spec?pickLine(spec,"sp"+i,names()):q("pairs."+p.match,"pr"+i,{ca:p.a.name,cb:p.b.name});
-      if(i===0){const top=hash(code)%2?{card:p.a.name,name:n.a}:{card:p.b.name,name:n.b};const cl=Q&&Q.cards&&Q.cards[top.card];if(cl)line=fill(pickLine(cl,"top"),{a:top.name})+" "+line}
-      qlouSay(q("rank."+(i+1),"rk"+i)+" "+line,PAIR-200)},start+i*PAIR)});
-  const after=start+rv.pairs.length*PAIR;
-  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=rv.words||"";const band=rv.meter>=90?"90":rv.meter>=70?"70":rv.meter>=50?"50":rv.meter>=30?"30":"0";qlouSay(q("meter."+band,"mb"),3000)},after);
-  setTimeout(()=>{const pl=rv.pull;const pool=state.pick&&state.pick.pool?Number(state.pick.pool).toLocaleString():"2,003";
+  $("meter").style.width="0%";$("words").textContent="";
+  const flips=$("themSlots").querySelectorAll(".card.flip");qlouClear();
+  rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(cls(p,mine)==="match"?[20,40,20]:12)},500+i*700)});
+  const after=500+rv.pairs.length*700+300;
+  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=countsLine(rv.counts);
+    const pl=rv.pull;const pool=state.pick&&state.pick.pool?Number(state.pick.pool).toLocaleString():"2,003";
     if(!pl)qlouSay(q("pull_none","pn",{pool}),0);else if(pl.host===pl.guest)qlouSay(q("pull_same","ps",{ca:pl.host,pool}),0);else qlouSay(q("pull","pl",{ca:pl.host,cb:pl.guest,pool}),0);
-    $("reacts").style.visibility="";$("nextBtn").style.display=""},after+3200)}
-async function react(name,btn){if(reacted)return;reacted=true;$("reacts").querySelectorAll("button").forEach(b=>b.disabled=true);btn.classList.add("chosen");try{await api(code+"/react",{who,reaction:name})}catch(e){}
-  showReaction("meReact",{name,at:Date.now()});qlouSay(q("reactions."+name,"re",{a:names()[who==="host"?"a":"b"]}),2600)}
-const reactSeen={};
-function showReaction(id,r){const el=$(id);if(!r){el.classList.remove("on");return}if(reactSeen[id]===r.at)return;reactSeen[id]=r.at;el.textContent=r.name==="guilty"?"Guilty":"Objection";el.classList.toggle("obj",r.name==="objection");el.classList.add("on");
-  if(id==="themReact"){qlouSay(q("reactions."+r.name,"re2",{a:partnerName()}),2600)}}
+    $("nextBtn").style.display=""},after)}
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
@@ -473,7 +448,9 @@ function showBubble(em){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))return;bu
 async function next(){try{await api(code+"/next",{});lastPhase=null;saidStep=-1;$("say").textContent="Give me five seconds.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice while he thinks; the raw steps stay under the fold on the done screen; the pick is never named here
 function sayFor(s){const pool=s.pool?Number(s.pool).toLocaleString():"2,003";const t=Q&&Q.thinking||[];switch(s.step){case"read":return fill(t[0]||"Reading your cards.",{pool});case"draft":case"pool":case"score":return fill(t[1]||"Asking Qloo.",{pool});case"curve":return fill(t[2]||"Grading on a curve.",{pool});case"verify":return fill(t[3]||"Checking live.",{pool});case"pick":return fill(t[4]||"The weaker score decides.",{pool});case"error":return "Qloo is slow tonight. Hang on.";default:return null}}
-function renderThinking(steps){for(let i=saidStep+1;i<steps.length;i++){const s=steps[i];const line=sayFor(s);if(line){$("say").textContent=line}
+function renderThinking(steps){const last=state.offers&&state.offers[state.offers.length-1];
+  if(last&&last.status==="declined"){const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));$("say").textContent=`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`;saidStep=steps.length-1;return}
+  for(let i=saidStep+1;i<steps.length;i++){const s=steps[i];const line=sayFor(s);if(line){$("say").textContent=line}
     if(s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 class="center" style="margin-top:14px">Four are in the running. Which one will Q-Lou pick?</h2><div class="bet">${s.bet.map(n=>`<button onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`}}
   saidStep=steps.length-1}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.classList.add("chosen")}
@@ -483,27 +460,24 @@ function songLine(p,other){const n=names();const sa=Math.round((p.scores.host||0
   const g=p.baseline&&p.baseline.guess;line+=" "+(g?(g===p.artist.name?"The plain model guessed the same. Once.":q("song.control","sc"+p.attempt,{guess:g})):q("song.control_none","scn"));return line}
 function renderJukebox(s,me,other){const p=s.pick;if(!p)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+(p.baseline?p.baseline.guess:"")+":"+me.tokens;const them=other.name||"your partner";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
-    $("betVerdict").textContent=p.attempt>1?q("backup","bk"):(myBet?(myBet===p.artist.name?"You called it. Q-Lou tips the coin.":"You said "+myBet+". Q-Lou smirks and goes with"):"Q-Lou's pick for the two of you");
+    const prev=s.offers&&s.offers[p.attempt-2];const noer=prev?(prev.said_no||[]).map(k=>k===who?"you":(state.sides[k].name||k)).join(" and "):"";
+    $("betVerdict").textContent=p.attempt>1?`Pick ${p.attempt} of ${s.tries}. ${noer?noer.charAt(0).toUpperCase()+noer.slice(1)+" passed on "+prev.artist.name+".":""}`:(myBet?(myBet===p.artist.name?"You called it. Q-Lou tips the coin.":"You said "+myBet+". Q-Lou smirks and goes with"):"Q-Lou's pick for the two of you");
+    $("noBtn").textContent=p.attempt<s.tries?"No, try another":"No, not tonight";
     $("art").innerHTML=artHTML(t0);$("songTitle").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:"";
     $("album").textContent=t0?`${t0.album||""}${t0.year?" · "+t0.year:""}`:`No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.`;
     $("why").innerHTML="<b>Q-Lou:</b> "+esc(songLine(p,other));
     $("askLine").textContent=q("song.ask","ask");$("yesBtn").innerHTML=`Yes, ${s.half} tokens <svg class="coin"><use href="#coin"/></svg>`;$("yesBtn").disabled=me.tokens<s.half;
     $("moreTitle").textContent=`More by ${p.artist.name}`;$("moreBox").style.display=p.tracks&&p.tracks.length>1?"":"none";
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?p.tracks.slice(1).map(trackHTML).join(""):"";
-    const first=s.offers&&s.offers[0];
-    $("firstStays").innerHTML=p.attempt>1&&first&&first.status==="declined"?`<p class="sub center" style="margin-top:12px">${esc(q("backup_first_stays","bfs",{title:first.artist.name}))}</p>`+(me.tokens>=s.cost?`<button class="ghost" onclick="buy(1)">Play ${esc(first.artist.name)} alone, ${s.cost} tokens</button>`:""):"";
     if(fresh){$("voteMsg").textContent="";["yesBtn","noBtn"].forEach(id=>{$(id).classList.remove("chosen")});$("noBtn").disabled=false;$("yesBtn").disabled=me.tokens<s.half;window.scrollTo(0,0)}}
   if(p.voted&&p.voted[who]){$("voteMsg").textContent="Waiting for "+them+"…";$("yesBtn").disabled=true;$("noBtn").disabled=true}
   else if(me.tokens<s.half){$("voteMsg").textContent=q("outcome.short","sh")}}
 function playHero(){playPreview(heroUrl,$("heroPlay"))}
 function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.src=u;a.play().catch(()=>{});btn&&(btn.textContent="❚❚");return}if(a.paused){a.play().catch(()=>{});btn&&(btn.textContent="❚❚")}else{a.pause();btn&&(btn.textContent="▶")}}
 async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;poll()}catch(e){alert(e.message)}}
-async function buy(attempt){try{await api(code+"/buy",{who,attempt});poll()}catch(e){alert(e.message)}}
-function renderLastCall(s,me){$("lastSay").textContent=q("outcome.lastcall","lc");
-  $("lastOffers").innerHTML=(s.offers||[]).filter(o=>o.status==="declined").map(o=>{const t=o.tracks&&o.tracks[0];return `<div class="offer"><div class="art small">${artHTML(t)}</div><div class="t"><b>${esc(t?t.track:o.artist.name)}</b><span>${esc(t?o.artist.name:"")}</span></div><button onclick="buy(${o.attempt})" ${me.tokens<s.cost?"disabled":""}>${s.cost} tokens</button></div>`}).join("")||"<p class='sub center'>Nothing on the table.</p>"}
 function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p.tracks[0];const nm=Object.keys(r.plays||{});const n=names();
-  const played=p&&p.played;const payer=r.paid_by==="both"?null:(r.paid_by?(state.sides[r.paid_by].name||r.paid_by):null);const other=r.paid_by&&r.paid_by!=="both"?(state.sides[r.paid_by==="host"?"guest":"host"].name||"partner"):"";
-  $("doneKicker").textContent=played?(payer?q("outcome.alone","oa",{payer,other}):q("outcome.both","ob")):q("outcome.nothing","on");
+  const played=p&&p.played;
+  $("doneKicker").textContent=played?q("outcome.both","ob"):q("outcome.nothing","on");
   heroUrl=t&&t.preview||"";$("doneArt").innerHTML=artHTML(t);$("doneArt").style.display=p&&p.artist&&played?"":"none";
   $("doneTitle").textContent=p&&p.artist&&played?(t?t.track:p.artist.name):"";
   $("doneArtist").textContent=p&&p.artist&&played&&t?p.artist.name:"";
@@ -513,7 +487,7 @@ function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
   $("doneQuip").textContent=state.venue&&state.venue.quip?state.venue.quip:"";
   $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", ")+".":"";
-  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`${r.title}. ${r.words||""}`;
+  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`${r.title}. ${countsLine(r.counts)}`;
   $("doneFit").textContent=p&&p.scores&&played?`Qloo: you ${Math.round(p.scores[who]*100)}, ${state.sides[tk].name||"partner"} ${Math.round(p.scores[tk]*100)}`:"";
   $("saveBtn").style.display=navigator.share&&p&&p.artist&&played?"":"none";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["No card in common, and still a song."]).map(x=>`<span class="tag">${esc(x)}</span>`).join("")+(r.tossed?`<p class="rank">Tossed: ${esc(Object.entries(r.tossed).map(([k,v])=>k+" "+(v.length?v.join(", "):"nothing")).join("; "))}</p>`:"");

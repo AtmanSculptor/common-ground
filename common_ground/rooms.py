@@ -6,10 +6,9 @@ Phases (version 2, docs/game_v2.md):
   play      three cards on your side, in order: Most me, Also me, A bit me; lock in
   reveal    the pairs flip rank by rank; the meter moves and says why; Guilty or Objection
   thinking  Q-Lou is working (steps stream to both phones)
-  jukebox   the pick and the question. Both yes: 2 tokens each. Any no: the backup, and the
-            first song stays on the table for 4 to whoever wants it
-  lastcall  both offers declined by someone; either can still buy one alone, or call it a night
-  done      meter, title, what you share, who paid, the LLM-vs-Qloo control
+  jukebox   the pick and the question. Both yes: 2 tokens each and it plays. Any no: the next
+            pick, up to three in all; after the third, no match tonight
+  done      meter, title, what you share, the LLM-vs-Qloo control
 
 State lives in memory and is mirrored to a pickle so a restart does not end a game.
 No accounts, no cookies: a room is a code and two nicknames, swept after six hours.
@@ -29,7 +28,8 @@ from .qloo import Qloo
 
 PLAYS = 3                # cards each partner puts on the table, ranked
 TOSS_MAX = 3             # cards each may toss in round one
-MAX_PICK_ATTEMPTS = 2    # the pick and one backup, then last call
+MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
+ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
 START_TOKENS = 10        # the demo balance; a jukebox app sets the real one
 SONG_COST = 4
 HALF = SONG_COST // 2
@@ -51,9 +51,7 @@ def make_code(rng: random.Random | None = None) -> str:
 HOUSE_TOSS_PAUSE = (3.0, 7.0)    # seconds a house partner takes to toss, like a person would
 HOUSE_LOCK_PAUSE = (4.0, 9.0)    # seconds to place three cards
 HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds to say yes to the song
-HOUSE_REACT_PAUSE = (2.0, 4.0)   # seconds before the house taps Guilty at the reveal (half the time)
 EMOTES = ("cheers", "eyes", "fire", "laugh")   # the nudges a partner can send across the table
-REACTIONS = ("guilty", "objection")            # what you can say back to Q-Lou's call at the reveal
 EMOTE_GAP = 1.5                  # seconds between two nudges from one phone
 EMOTE_TTL = 8.0                  # how long a nudge stays in the state for the partner's next polls
 
@@ -74,7 +72,6 @@ class Side:
     pending: list[int] | None = None   # a house partner's next move, waiting for its moment
     due: float = 0.0                   # when that moment is (epoch seconds)
     emote: dict | None = None          # the last nudge sent: {"name", "at"}
-    reaction: dict | None = None       # Guilty or Objection at the reveal: {"name", "at"}
 
     @property
     def profile(self) -> list[str]:
@@ -194,12 +191,10 @@ class Room:
         gained = sum(METER_GAIN[p["match"]] for p in scored)
         both = [p["a"]["name"] for p in scored if p["match"] == "exact"]
         self.meter = min(100, self.meter + gained)
+        counts = {k: sum(1 for p in scored if p["match"] == m) for k, m in (("same", "exact"), ("close", "kin"), ("apart", "none"))}
         self.reveal = {"pairs": pairs, "both": both, "meter": self.meter, "words": deck.meter_words(scored, both),
-                       "pull": self._pull()}
+                       "counts": counts, "pull": self._pull()}
         self.phase = "reveal"
-        for s in self.sides.values():
-            if s.house and rng.random() < 0.5:
-                s.pending, s.due = [1], time.time() + rng.uniform(*HOUSE_REACT_PAUSE)   # [1] marks a reaction
         self.log.append(f"revealed, meter {self.meter}")
 
     @staticmethod
@@ -247,17 +242,11 @@ class Room:
             return None
         return {"host": deck.card(best[0])["name"], "guest": deck.card(best[1])["name"], "agreement": round(best_v, 2)}
 
-    def react(self, who: str, name: str, now: float | None = None) -> bool:
-        if self.phase != "reveal" or name not in REACTIONS:
-            return False
-        self.sides[who].reaction = {"name": name, "at": time.time() if now is None else now}
-        return True
-
     # ---- the house, on a human clock -----------------------------------------------------
     def tick(self, rng: random.Random | None = None, now: float | None = None) -> str | None:
         """A house partner acts when its moment comes, not the instant the human does. Called on
         every poll. Returns what it did: 'play' (its toss opened the play round), 'reveal' (its
-        lock-in completed the round), 'react', 'vote', or None."""
+        lock-in completed the round), 'vote', or None."""
         rng = rng or random
         now = time.time() if now is None else now
         for key, s in self.sides.items():
@@ -274,10 +263,6 @@ class Room:
                     self.do_reveal(rng)
                     return "reveal"
                 return "lock"
-            if self.phase == "reveal":
-                s.pending = None
-                self.react(key, "guilty", now)
-                return "react"
             if self.phase == "jukebox" and self.pick and s.pending == []:
                 s.pending = None
                 self.vote(key, True)      # the house always says yes to a shared song
@@ -321,9 +306,10 @@ class Room:
         return True
 
     # ---- Q-Lou ---------------------------------------------------------------------------
-    def think(self, q: Qloo, *, use_llm: bool = True) -> Pick | None:
+    def think(self, q: Qloo, *, use_llm: bool = True, recent: list[str] = ()) -> Pick | None:
         """Run Q-Lou. Steps stream into self.thinking as they happen. The caller moves the phase:
-        the pick may be ready while the phones are still watching the reveal."""
+        the pick may be ready while the phones are still watching the reveal. 'recent' is the
+        venue's rotation: artists picked lately sit this one out."""
         attempt = len(self.offers) + 1
         self.thinking = []
 
@@ -335,7 +321,7 @@ class Room:
                 offer.update({k: d[k] for k in ("tracks", "why", "why_source", "baseline", "live", "shared", "calls")})
 
         agent = QLou(q, use_llm=use_llm, on_step=self.thinking.append, on_update=refresh)
-        p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded))
+        p = agent.pick(self.sides["host"].partner("host"), self.sides["guest"].partner("guest"), set(self.excluded) | set(recent))
         if len(self.offers) >= attempt:
             return None   # something else filled this attempt meanwhile; this run is stale
         if p is None:
@@ -351,9 +337,9 @@ class Room:
             self.pick["votes"][who] = bool(up)
 
     def settled(self) -> str | None:
-        """Both votes are in on the open offer: 'play' (both yes, 2 tokens each), 'backup' (someone
-        said no and Q-Lou has one more in him), 'lastcall' (no more picks: buy alone or call it),
-        or None while waiting. A yes from someone who cannot pay their half counts as a no."""
+        """Both votes are in on the open offer: 'play' (both yes, 2 tokens each), 'again' (someone
+        said no and Q-Lou has another in him), 'nothing' (three picks, no match tonight), or None
+        while waiting. A yes from someone who cannot pay their half counts as a no."""
         o = self.pick
         if not o or o["status"] != "open" or len(o["votes"]) < 2:
             return None
@@ -365,24 +351,7 @@ class Room:
             return "play"
         o.update({"status": "declined", "played": False})
         self.excluded.append(o["artist"]["id"])
-        if o["attempt"] < MAX_PICK_ATTEMPTS:
-            return "backup"
-        self.phase = "lastcall"
-        return "lastcall"
-
-    def buy(self, who: str, attempt: int) -> bool:
-        """One partner buys a declined song alone, for the full price."""
-        s = self.sides[who]
-        o = next((x for x in self.offers if x.get("attempt") == attempt), None)
-        if not o or o["status"] != "declined" or s.tokens < SONG_COST or self.phase not in ("jukebox", "lastcall"):
-            return False
-        s.tokens -= SONG_COST
-        o.update({"status": "played", "played": True, "paid_by": who})
-        for x in self.offers:
-            if x is not o and x["status"] == "open":
-                x.update({"status": "declined", "played": False})
-        self.log.append(f"{s.name or who} bought {o['artist']['name']} alone")
-        return True
+        return "again" if o["attempt"] < MAX_PICK_ATTEMPTS else "nothing"
 
     @property
     def played_offer(self) -> dict | None:
@@ -401,6 +370,7 @@ class Room:
         self.result = {
             "meter": self.meter, "title": title,
             "words": (self.reveal or {}).get("words", ""),
+            "counts": (self.reveal or {}).get("counts"),
             "plays": {names[k]: [deck.card(c)["name"] for c in s.plays] for k, s in self.sides.items()},
             "tossed": {names[k]: [deck.card(c)["name"] for c in s.tossed] for k, s in self.sides.items()},
             "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].plays) & set(self.sides["guest"].plays)}),
@@ -429,8 +399,7 @@ class Room:
             locked = s.toss_locked if self.phase == "toss" else s.play_locked
             d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked,
                  "placed": PLAYS if s.play_locked else s.placed, "tokens": s.tokens, "tossed_n": len(s.tossed),
-                 "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None,
-                 "reaction": s.reaction if s.reaction and self.phase == "reveal" else None}
+                 "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None}
             if k == who and s.hand:
                 d["hand"] = [deck.public(deck.card(c)) for c in s.hand]
                 d["plays"] = list(s.plays)
@@ -443,10 +412,10 @@ class Room:
             pub["said_no"] = [k for k, v in o["votes"].items() if not v] if o["status"] != "open" else []
             offers.append(pub)
         return {"code": self.code, "phase": self.phase, "sides": sides, "rounds": list(ROUNDS),
-                "cost": SONG_COST, "half": HALF, "toss_max": TOSS_MAX, "plays": PLAYS,
+                "cost": SONG_COST, "half": HALF, "toss_max": TOSS_MAX, "plays": PLAYS, "tries": MAX_PICK_ATTEMPTS,
                 "toss_summary": self.toss_summary if self.phase != "toss" else None,
                 "pick_ready": bool(self.pick) and self.pick["status"] == "open" and self.phase == "reveal",
-                "reveal": self.reveal if self.phase in ("reveal", "thinking", "jukebox", "lastcall", "done") else None,
+                "reveal": self.reveal if self.phase in ("reveal", "thinking", "jukebox", "done") else None,
                 "meter": self.meter, "thinking": self.thinking[-8:], "pick": offers[-1] if offers else None, "offers": offers,
                 "log": self.log[-5:],
                 "result": {**self.result, "pick": self._result_pick()} if self.result else None, "t": now}

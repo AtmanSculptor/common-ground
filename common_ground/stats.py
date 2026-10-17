@@ -24,7 +24,7 @@ def record(room_code: str, result: dict, house: bool) -> None:
         "t": round(time.time()), "code": room_code, "house": house,
         "meter": result.get("meter"), "title": result.get("title"),
         "plays": result.get("plays"), "both_played": result.get("both_played"),
-        "artist": (p.get("artist") or {}).get("name"), "played": p.get("played"),
+        "artist": (p.get("artist") or {}).get("name"), "artist_id": (p.get("artist") or {}).get("id"), "played": p.get("played"),
         "attempt": p.get("attempt"), "calls": p.get("calls"), "seconds": p.get("seconds"),
         "why_source": p.get("why_source"),
         "scores": p.get("scores"),
@@ -37,6 +37,18 @@ def record(room_code: str, result: dict, house: bool) -> None:
                 f.write(json.dumps(row) + "\n")
         except Exception:
             pass
+
+
+def recent_ids(n: int) -> list[str]:
+    """The last n artists Q-Lou picked at this venue (played or not): the rotation."""
+    out: list[str] = []
+    for r in reversed(rows(500)):
+        a = r.get("artist_id")
+        if a and a not in out:
+            out.append(a)
+        if len(out) >= n:
+            break
+    return out
 
 
 def rows(limit: int = 200) -> list[dict]:

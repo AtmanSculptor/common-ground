@@ -41,7 +41,7 @@ def _to_jukebox(client, code, toss_host=1, toss_guest=0):
 def test_two_phones_full_game(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     st = _st(client, code)
-    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["toss", "play", "reveal"]
+    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["toss", "play", "reveal"] and st["tries"] == 3
     assert client.post(f"/api/game/{code}/join", json={"name": "Josie"}).json()["who"] == "guest"
     assert client.post(f"/api/game/{code}/join", json={"name": "Third"}).status_code == 404
     # round one: toss
@@ -77,9 +77,6 @@ def test_two_phones_full_game(client):
     assert st["phase"] == "reveal" and [p["rank"] for p in rv["pairs"]] == [1, 2, 3] and st["meter"] > 0
     assert rv["pairs"][0]["a"]["id"] == hand[0] and rv["pairs"][0]["b"]["id"] == ghand[1]
     assert rv["words"] and all(p["match"] in {"exact", "kin", "none"} for p in rv["pairs"])
-    assert client.post(f"/api/game/{code}/react", json={"who": "guest", "reaction": "guilty"}).json()["ok"]
-    assert not client.post(f"/api/game/{code}/react", json={"who": "guest", "reaction": "meh"}).json()["ok"]
-    assert _st(client, code)["sides"]["guest"]["reaction"]["name"] == "guilty"
     r = client.post(f"/api/game/{code}/next").json()
     assert r["phase"] in ("thinking", "jukebox")  # the fake Qloo is instant; the thread may already be done
     st = _wait_pick(client, code)
@@ -102,56 +99,53 @@ def test_two_phones_full_game(client):
     assert client.get("/api/stats").json()["games"] == 1
 
 
-def test_one_no_brings_the_backup_and_the_first_stays_buyable(client):
+def test_a_no_brings_the_next_pick_and_three_nos_mean_no_match(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
     st = _to_jukebox(client, code)
-    first = st["pick"]["artist"]["id"]
+    seen = [st["pick"]["artist"]["id"]]
     client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
     out = client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": False}).json()
-    assert out["outcome"] == "backup"
+    assert out["outcome"] == "again"
     st = _wait_pick(client, code)
-    assert st["phase"] == "jukebox" and st["pick"]["attempt"] == 2 and st["pick"]["artist"]["id"] != first
+    assert st["phase"] == "jukebox" and st["pick"]["attempt"] == 2 and st["pick"]["artist"]["id"] not in seen
     assert st["offers"][0]["status"] == "declined" and st["offers"][0]["said_no"] == ["guest"]
-    assert st["sides"]["host"]["tokens"] == 10                      # nobody paid yet
-    # the one who said yes buys the first song alone for the full price
-    assert client.post(f"/api/game/{code}/buy", json={"who": "host", "attempt": 2}).status_code == 400   # not declined
-    assert client.post(f"/api/game/{code}/buy", json={"who": "host", "attempt": 1}).json()["phase"] == "done"
+    assert st["sides"]["host"]["tokens"] == 10                      # nobody paid
+    seen.append(st["pick"]["artist"]["id"])
+    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": False})
+    assert client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True}).json()["outcome"] == "again"
+    st = _wait_pick(client, code)
+    assert st["pick"]["attempt"] == 3 and st["pick"]["artist"]["id"] not in seen
+    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
+    out = client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": False}).json()
+    assert out["outcome"] == "nothing"
     st = _st(client, code)
     r = st["result"]
-    assert r["paid_by"] == "host" and r["pick"]["artist"]["id"] == first and r["tokens"] == {"host": 6, "guest": 10}
-    assert [o["status"] for o in r["offers"]] == ["played", "declined"]
-
-
-def test_two_nos_mean_last_call_then_the_night_moves_on(client):
-    code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
-    client.post(f"/api/game/{code}/join", json={"name": "Josie"})
-    _to_jukebox(client, code)
-    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": False})
-    client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True})
-    _wait_pick(client, code)
-    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
-    out = client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": False}).json()
-    assert out["outcome"] == "lastcall" and _st(client, code)["phase"] == "lastcall"
+    assert st["phase"] == "done" and r["paid_by"] is None and r["pick"]["played"] is False and r["tokens"] == {"host": 10, "guest": 10}
+    assert [o["status"] for o in r["offers"]] == ["declined", "declined", "declined"]
     assert client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}).status_code == 400
-    assert client.post(f"/api/game/{code}/next").json()["phase"] == "done"
-    r = _st(client, code)["result"]
-    assert r["paid_by"] is None and r["pick"]["played"] is False and r["tokens"] == {"host": 10, "guest": 10}
 
 
-def test_no_tokens_no_song(client):
-    from common_ground import rooms
+def test_no_tokens_counts_as_a_no(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
     _to_jukebox(client, code)
-    room = rooms_of(client)[code]
-    room.sides["guest"].tokens = 1
+    rooms_of(client)[code].sides["guest"].tokens = 1
     client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
-    out = client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True}).json()
-    assert out["outcome"] == "backup"                               # a yes that cannot pay its half is a no
-    _wait_pick(client, code)
-    assert client.post(f"/api/game/{code}/buy", json={"who": "guest", "attempt": 1}).status_code == 400   # one token
-    assert client.post(f"/api/game/{code}/buy", json={"who": "host", "attempt": 1}).json()["ok"]        # the partner covers
+    assert client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True}).json()["outcome"] == "again"
+
+
+def test_the_venue_rotation_keeps_recent_picks_out(client, monkeypatch):
+    from common_ground import stats
+    code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
+    client.post(f"/api/game/{code}/join", json={"name": "Josie"})
+    first = _to_jukebox(client, code)["pick"]["artist"]["id"]
+    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}); client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True})
+    assert stats.recent_ids(25) == [first]
+    code2 = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
+    client.post(f"/api/game/{code2}/join", json={"name": "Josie"})
+    second = _to_jukebox(client, code2)["pick"]["artist"]["id"]
+    assert second != first                                          # same fake Qloo, same hands would repeat; the rotation stops it
 
 
 def rooms_of(client):
@@ -161,7 +155,7 @@ def rooms_of(client):
 
 def test_solo_against_the_house(client, monkeypatch):
     from common_ground import rooms
-    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE", "HOUSE_VOTE_PAUSE", "HOUSE_REACT_PAUSE"):
+    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE", "HOUSE_VOTE_PAUSE"):
         monkeypatch.setattr(rooms, name, (0, 0))
     r = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()
     code = r["code"]
@@ -197,7 +191,7 @@ def test_pages_and_health(client):
 def test_the_house_moves_on_a_human_clock(client, monkeypatch):
     """The demo partner tosses, plays and votes a few seconds after the human, not instantly."""
     from common_ground import rooms
-    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE", "HOUSE_VOTE_PAUSE", "HOUSE_REACT_PAUSE"):
+    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE", "HOUSE_VOTE_PAUSE"):
         monkeypatch.setattr(rooms, name, (0.3, 0.3))
     code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
     st = _st(client, code)
@@ -264,7 +258,7 @@ def test_a_nudge_crosses_the_table_for_a_few_seconds(client, monkeypatch):
 
 def test_the_reveal_comes_with_words_and_the_pull(client, monkeypatch):
     from common_ground import rooms
-    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE", "HOUSE_REACT_PAUSE"):
+    for name in ("HOUSE_TOSS_PAUSE", "HOUSE_LOCK_PAUSE"):
         monkeypatch.setattr(rooms, name, (0, 0))
     code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
     client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": []})
