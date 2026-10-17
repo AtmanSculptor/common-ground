@@ -186,21 +186,40 @@ class Room:
         a same card for the words even if it sits at different ranks."""
         rng = rng or random
         h, g = self.sides["host"], self.sides["guest"]
-        pairs, gained = [], 0
+        pairs = []
         for rank, (hc, gc) in enumerate(zip(h.plays, g.plays), start=1):
             ca, cb = deck.card(hc), deck.card(gc)
-            kind = deck.match_kind(ca, cb)
-            gained += METER_GAIN[kind]
-            pairs.append({"rank": rank, "a": deck.public(ca), "b": deck.public(cb), "match": kind})
-        both = [deck.card(c)["name"] for c in h.plays if c in g.plays]
+            pairs.append({"rank": rank, "a": deck.public(ca), "b": deck.public(cb), "match": deck.match_kind(ca, cb)})
+        scored = self._score_pairs(h.plays, g.plays)
+        gained = sum(METER_GAIN[p["match"]] for p in scored)
+        both = [p["a"]["name"] for p in scored if p["match"] == "exact"]
         self.meter = min(100, self.meter + gained)
-        self.reveal = {"pairs": pairs, "both": both, "meter": self.meter, "words": deck.meter_words(pairs, both),
+        self.reveal = {"pairs": pairs, "both": both, "meter": self.meter, "words": deck.meter_words(scored, both),
                        "pull": self._pull()}
         self.phase = "reveal"
         for s in self.sides.values():
             if s.house and rng.random() < 0.5:
                 s.pending, s.due = [1], time.time() + rng.uniform(*HOUSE_REACT_PAUSE)   # [1] marks a reaction
         self.log.append(f"revealed, meter {self.meter}")
+
+    @staticmethod
+    def _score_pairs(hp: list[int], gp: list[int]) -> list[dict]:
+        """The pairing the meter counts: a card both played is a same card wherever it sits, then
+        the closest of what is left face each other, then the rest in order."""
+        h, g = list(hp), list(gp)
+        out = []
+        for c in list(h):
+            if c in g:
+                out.append({"a": deck.public(deck.card(c)), "b": deck.public(deck.card(c)), "match": "exact"})
+                h.remove(c); g.remove(c)
+        for hc in list(h):
+            for gc in list(g):
+                if deck.match_kind(deck.card(hc), deck.card(gc)) == "kin":
+                    out.append({"a": deck.public(deck.card(hc)), "b": deck.public(deck.card(gc)), "match": "kin"})
+                    h.remove(hc); g.remove(gc)
+                    break
+        out += [{"a": deck.public(deck.card(hc)), "b": deck.public(deck.card(gc)), "match": "none"} for hc, gc in zip(h, g)]
+        return out
 
     def _pull(self) -> dict | None:
         """The two cards, one from each side, pulling the same way: the pair whose Qloo columns agree
