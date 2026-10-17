@@ -247,6 +247,12 @@ def admin_probe(request: Request, what: str, a: str = "", b: str = "", q: str = 
                                             "filter.start_date": a, "filter.end_date": b, "take": 5})
         if what == "trending_id":
             return _q._get("/v2/trending", {"filter.type": "urn:entity:artist", "filter.entities": q, "take": 5})
+        if what == "signal":      # a candidate card's signal: audiences in a, tags in b -> its top artists
+            ents = _q.insights("urn:entity:artist", audiences=[x for x in a.split(",") if x] or None,
+                               tags=[x for x in b.split(",") if x] or None, take=8, popularity_min=0.9)
+            return {"artists": [{"id": e.get("entity_id"), "name": e.get("name"), "popularity": e.get("popularity")} for e in ents]}
+        if what == "tags":
+            return {"tags": [{"id": t.get("id"), "name": t.get("name"), "type": t.get("type")} for t in _q.tags(q, take=20)]}
         return {"error": "unknown probe"}
     except Exception as e:
         return {"error": str(e)[:400]}
