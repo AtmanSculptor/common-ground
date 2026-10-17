@@ -17,29 +17,31 @@ Builder and BT work from. Nothing here is built yet; the current `main` is v1.
 
 Three rounds, fixed, numbered on screen with one line of instruction each. No optional rounds.
 
-1. **Toss.** Q-Lou deals six cards to each partner. Toss up to three; fresh cards come from Q-Lou
+1. **Toss.** Q-Lou deals five cards to each partner. Toss up to three; fresh cards come from Q-Lou
    for each one tossed. A tossed card counts as "not me" in the engine (a small negative weight).
-   You may keep all six. Lock in.
+   You may keep all five. Lock in.
 2. **Play.** Put three cards on your side of the table in order: top slot "Most me", then "Also me",
    then "A bit me". Weights 3, 2, 1. Drag to place, drag to reorder. Lock in. Your partner sees your
    cards face-down as you place them. While one waits, the nudges and Q-Lou's waiting lines.
-3. **Reveal.** Q-Lou flips the pairs rank by rank and calls each one. The meter moves and says why in
-   words. After the last pair each partner may tap "Guilty" or "Objection" on Q-Lou's call; the other
-   sees it land. Then Q-Lou names the two cards pulling the same way and leaves to think.
+3. **Reveal.** The pairs flip rank by rank. The meter fills and says in plain words what matched
+   ("Cards in common: 1 card the same, 2 close"). Then Q-Lou names the two cards pulling the same
+   way and leaves to think. One line, and it stays until "Hear Q-Lou's pick".
 
 Then the bet (four names, call it), then the song.
 
-## Tokens
+## Tokens and the song (changed Oct 17 evening after Brent's phone test)
 
 Each phone has its own token balance (10 to start in the demo; the jukebox app sets the real number).
-A song costs 4 tokens.
+A song costs 4 tokens. Nothing plays until both agree.
 
-- Both thumbs up: 2 tokens from each. "Our song, half each."
-- One or more thumbs down: Q-Lou offers the backup pick ("Well, how about this one?"). The first song
-  stays on the table for 4 tokens to whoever still wants it. Same rule on the backup: both up, 2
-  each; any down, 4 if you want it. After the backup the night moves on.
-- No tokens, no song. A partner with tokens can buy it alone for 4. The keepsake names who paid.
-- A refusal costs the refuser something: the other person might just buy it. The bar still gets paid.
+- Both thumbs up: 2 tokens from each, and it plays.
+- Any thumbs down: the next pick. Three picks in all. The next screen says who passed on what
+  ("Pick 2 of 3. Josie passed on La Ley."). The partner who said yes sees it too.
+- After the third no: "Sorry, no match tonight." Nobody is charged.
+- A yes from someone who cannot pay their half counts as a no.
+- Rotation: the last 25 artists Q-Lou picked at this venue sit out of the draft, so a regular does
+  not hear the same song twice. (Earlier draft of this page had a solo buy for 4 and a last call;
+  dropped. Guilty and Objection dropped too: with one line per round there is nothing to object to.)
 
 ## Q-Lou
 

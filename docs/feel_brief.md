@@ -11,25 +11,24 @@ code) and `docs/touchtunes_style.md` (colors and type).
 - `#s-table` is the table; its mode is a class on the section: `toss`, `tosswait`, `play`, `playwait`,
   `reveal`. `body.tablemode` is set while the table is up.
 - `#themSlots` their three slots (face-down `.card.flip` backs as they place, `.flip.shown` at the
-  reveal); `#themMinis` the six tiny backs during the toss round; `#meSlots` your three slots with
+  reveal); `#themMinis` the five tiny backs during the toss round; `#meSlots` your three slots with
   labels Most me, Also me, A bit me; `#fan` the hand (`.fcard` wrappers, laid out by `fanLayout()`,
   `.fcard.tossing` marked for the toss, `.fcard.played` once placed).
 - `#stage` is Q-Lou's spot on the line. `.qcoin` is the coin that sits there when he is away;
   `.qmini` is his card and `#qsay` his bubble. `qlouSay(text, hold)` queues a line; the stage gets
   `.talking` while he is up (CSS transitions do the rise and sink today). `qlouClear()` empties the
   queue. All lines come from `static/quips.json` through `q(path, salt, vars)`; do not add text.
-- `dealIn(ids)` flies `.flyer.back` elements from the stage to the fan (all six at the deal, the
+- `dealIn(ids)` flies `.flyer.back` elements from the stage to the fan (all five at the deal, the
   replacements after the toss). `fly(from, to, img)` is the hand-to-slot flight. `startDrag`
   (fan to slot) and `startSlotDrag` (slot to slot) are pointer-event drags with a `.dragging` ghost.
-- `#meter` and `#words` under your field at the reveal; `#reacts` Guilty and Objection; `#themReact`
-  and `#meReact` the pills that land on the fields when someone taps; `#themBubble` a nudge landing.
+- `#meter` and `#words` under your field at the reveal; `#themBubble` a nudge landing.
 - `#tact` holds the one action button of each mode (`#tossBtn`, `#lockBtn`, `#nextBtn`).
 - Thinking screen: `.qlou-big`, `#say`, `#bet`. Jukebox: `#art`, `#yesBtn` ("Yes, 2 tokens"),
   `#noBtn`, `#firstStays`. Token pill: `#tTok` on the table, `#tokN` elsewhere.
 
 ## Do these, in order, and stop when they are done
 
-1. **The deal.** Q-Lou rises (the stage goes `.talking`), the six backs leave from his hands (the
+1. **The deal.** Q-Lou rises (the stage goes `.talking`), the five backs leave from his hands (the
    `.qmini` center, not the stage center), fan out to their places with a 70 ms stagger and a small
    arc, and flip face-up on landing (a 300 ms rotateY using the existing `.flip` classes). The six
    minis on their side deal out the same beat, upward. A soft card slide sound per card. The
@@ -51,14 +50,13 @@ code) and `docs/touchtunes_style.md` (colors and type).
 5. **The reveal.** Each flip in `#themSlots` lands with a thud and a 150 ms `scale(1.06)` bounce on
    both cards of that rank; a same card (both have `.match`) gets a gold particle burst (canvas
    overlay, about 40 sparks, 700 ms) centered between the two; a close pair (`.kin`) a soft purple
-   pulse. The meter fill gets a tick sound as it climbs. Guilty and Objection: the pill
-   (`#themReact`, `#meReact`) should slam down on the field with a stamp and a short shake.
+   pulse. The meter fill gets a tick sound as it climbs.
 6. **Nudges.** `#nudges` buttons are emoji today. Replace them with four inline SVG glyphs in the
    palette (two glasses, a pair of eyes, a flame, a laugh; no brand marks), keep the names `cheers`,
    `eyes`, `fire`, `laugh` (the server only accepts those). The bubble on the partner's phone
    (`showBubble`) should enter from the far edge, bounce once between the slots, linger 1.2 s, fade.
 7. **Tokens.** On "Yes, 2 tokens" the coin in the button drops into the token pill and `#tokN` ticks
-   down by two (both phones). On a solo buy it ticks by four. A short stinger on a played song.
+   down by two (both phones, once both said yes). A short stinger on a played song.
 8. **Sound.** Web Audio API, no files if possible: card slide, X stamp, lock in (two-note), flip thud,
    same-card chime, meter tick, stinger. AudioContext unlocked on the first tap. A mute toggle in the
    table's top bar (`.tbar`), left of the token pill, a small pill with a speaker glyph drawn in SVG.

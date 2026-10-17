@@ -4,7 +4,7 @@ One page. Read it once before you go.
 
 ## Before you leave
 
-1. Open https://boostersplace.com/bt/app/ on your phone and play one solo game ("Try it solo": Q-Lou seats you with a house partner who plays on a human clock) to make sure it is up. Five seconds to a song is normal.
+1. Open https://boostersplace.com/bt/app/ on your phone and play one solo game ("Play demo": Q-Lou seats you with a house partner who plays on a human clock) to make sure it is up. Five seconds to a song is normal.
 2. Tell BT "clean slate" and the results page starts at zero for the night (the old test games are archived, not lost).
 3. Charge the phone. Bring a second phone or let a friend use theirs; any phone with a browser works, no install.
 
@@ -18,11 +18,11 @@ Words that matter: it is a challenge you do together, and the other person is yo
 
 1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold.
 2. They open the same link, tap "Join with a code", type the code. Or tap "Share the code" and send them the link; it joins them straight in.
-3. Round 1, Toss: Q-Lou deals six each. Tap the cards that aren't you (up to three), then "Toss two" or "Keep all six". Fresh cards come in. What you tossed counts against, so toss honestly.
+3. Round 1, Toss: Q-Lou deals five each. Tap the cards that aren't you (up to three), then "Toss two" or "Keep all five". Fresh cards come in. What you tossed counts against, so toss honestly.
 4. Round 2, Play: drag or tap three cards onto your side. The top slot is "Most me", then "Also me", then "A bit me". Order matters. Lock it in. If they are slow, send a nudge.
-5. Round 3, Reveal: Q-Lou flips the pairs rank by rank and talks. Let him finish; it is twelve seconds. Tap Guilty or Objection if you like. The meter says in words what the cards had in common.
-6. "Hear Q-Lou's pick": four names come up, call it. Then the song, the preview (tap the art), Q-Lou's numbers, and "Play it?". Both yes: two tokens each. A no: Q-Lou offers a backup, and the first song stays buyable for four by whoever wants it. If nobody buys, "Call it a night".
-7. The done screen is the keepsake: both names, all six cards, the song, the bar, the date, "You share: Soul, Indie rock" from Qloo, who paid. "Save it" shares it. "Play again" for the next pair (fresh tokens).
+5. Round 3, Reveal: the pairs flip rank by rank, the meter says what matched, and Q-Lou says one line. It stays until you tap on.
+6. "Hear Q-Lou's pick": four names come up, call it. Then the song, the preview (tap the art), Q-Lou's numbers, and "Play it?". Both yes: two tokens each and it plays. A no: the next pick, three in all; the screen says who passed. After the third, no match tonight, nobody pays.
+7. The done screen is the keepsake: both names, all six played cards, the song, the bar, the date, "You share: Soul, Indie rock" from Qloo. "Save it" shares it. "Play again" for the next pair (fresh tokens).
 
 ## What to watch for (write it down, this is the evidence)
 
