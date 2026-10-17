@@ -244,6 +244,7 @@ details[open] summary::after{content:"–"}
     <p class="names" id="doneNames"></p>
     <div class="fourcards" id="fourCards"></div>
     <p class="song-album" id="doneWho"></p>
+    <p class="sub center venueLine" id="doneQuip" style="margin:0 0 6px"></p>
     <p class="center" id="doneShared" style="margin:6px 0 0;font-size:.95rem;color:var(--text2)"></p>
     <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
@@ -406,6 +407,7 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   const mineN=names[who==="host"?0:1],theirsN=names[who==="host"?1:0];const cardsOf=n=>(r.plays[n]||[]).slice(-2).map(nm=>ALL_CARDS[nm]).filter(Boolean);
   $("fourCards").innerHTML=cardsOf(mineN).map(c=>faceHTML(c,"")).join("")+'<span class="gap"></span>'+cardsOf(theirsN).map(c=>faceHTML(c,"")).join("");
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
+  $("doneQuip").textContent=state.venue&&state.venue.quip?state.venue.quip:"";
   $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", ")+".":"";
   $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`${r.title}. ${r.words||""}`;
   $("doneFit").textContent=p&&p.scores?`Qloo: you ${Math.round(p.scores[who]*100)}, ${theirKey==="guest"?(state.sides.guest.name||"partner"):(state.sides.host.name||"partner")} ${Math.round(p.scores[theirKey]*100)}`:"";
