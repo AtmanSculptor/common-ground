@@ -158,3 +158,50 @@ def test_placed_cards_show_face_down_to_the_partner(client):
     client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
     assert client.get(f"/api/game/{code}", params={"who": "guest"}).json()["sides"]["host"]["placed"] == 2
     assert client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 3}).status_code == 422
+
+
+def test_one_swap_per_round_before_locking(client):
+    code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
+    client.post(f"/api/game/{code}/join", json={"name": "Josie"})
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    hand = [c["id"] for c in st["sides"]["host"]["hand"]]
+    assert st["sides"]["host"]["swapped"] is False
+    assert client.post(f"/api/game/{code}/swap", json={"who": "host", "card": 999}).status_code == 400
+    out = client.post(f"/api/game/{code}/swap", json={"who": "host", "card": hand[0]}).json()
+    assert out["ok"] and out["card"]["id"] not in hand and "signal" not in out["card"]
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    new_hand = [c["id"] for c in st["sides"]["host"]["hand"]]
+    assert new_hand[0] == out["card"]["id"] and new_hand[1:] == hand[1:] and st["sides"]["host"]["swapped"] is True
+    assert client.post(f"/api/game/{code}/swap", json={"who": "host", "card": new_hand[1]}).status_code == 400   # one a round
+    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": new_hand[:2]})
+    assert client.post(f"/api/game/{code}/swap", json={"who": "host", "card": new_hand[2]}).status_code == 400   # locked
+
+
+def test_a_nudge_crosses_the_table_for_a_few_seconds(client, monkeypatch):
+    from common_ground import rooms
+    code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
+    client.post(f"/api/game/{code}/join", json={"name": "Josie"})
+    assert client.post(f"/api/game/{code}/emote", json={"who": "host", "emote": "cheers"}).json()["ok"]
+    assert not client.post(f"/api/game/{code}/emote", json={"who": "host", "emote": "fire"}).json()["ok"]   # too soon
+    assert not client.post(f"/api/game/{code}/emote", json={"who": "guest", "emote": "rude"}).json()["ok"]   # not a nudge
+    st = client.get(f"/api/game/{code}", params={"who": "guest"}).json()
+    assert st["sides"]["host"]["emote"]["name"] == "cheers" and st["sides"]["guest"]["emote"] is None
+    monkeypatch.setattr(rooms, "EMOTE_TTL", 0.0)
+    assert client.get(f"/api/game/{code}", params={"who": "guest"}).json()["sides"]["host"]["emote"] is None
+
+
+def test_the_meter_comes_with_words(client, monkeypatch):
+    from common_ground import rooms
+    monkeypatch.setattr(rooms, "HOUSE_LOCK_PAUSE", (0, 0))
+    code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
+    st = client.get(f"/api/game/{code}", params={"who": "host"}).json()
+    hand = [c["id"] for c in st["sides"]["host"]["hand"]]
+    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]})
+    rv = client.get(f"/api/game/{code}", params={"who": "host"}).json()["reveal"]
+    words = rv["words"]
+    assert words and words.endswith(".")
+    for p in rv["pairs"]:
+        assert p["a"]["name"] in words and (p["match"] == "exact" or p["b"]["name"] in words)
+    assert ("Same card" in words) == any(p["match"] == "exact" for p in rv["pairs"])
+    assert ("Close:" in words) == any(p["match"] == "kin" for p in rv["pairs"])
+    assert ("Different:" in words) == any(p["match"] == "none" for p in rv["pairs"])

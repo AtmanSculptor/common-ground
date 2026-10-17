@@ -64,7 +64,17 @@ def resources() -> dict:
 REFRESH_EVERY = int(os.environ.get("CG_REFRESH_CHECK_MINUTES", "60"))   # 0 turns the keeper off
 # The venue's own line on the playing field. In a jukebox app the bar sets this (TouchTunes already
 # sells venues promotion space); here it comes from the environment. Empty name turns it off.
-VENUE = {"name": os.environ.get("CG_VENUE", "Flapjack's"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7")}
+VENUE = {"name": os.environ.get("CG_VENUE", "Flapjack's"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7"),
+         # a second slot: one line a night from the bar or a sponsor, shown while Q-Lou thinks. "|" separates lines;
+         # each room gets one, the same on both phones.
+         "quips": [q.strip() for q in os.environ.get("CG_VENUE_QUIPS", "Tip your bartender. She knows your song.|Kitchen's open till 10.|Trivia Thursdays. Bring the whole table.").split("|") if q.strip()]}
+
+
+def venue_for(code: str) -> dict | None:
+    if not VENUE["name"]:
+        return None
+    quips = VENUE["quips"]
+    return {"name": VENUE["name"], "line": VENUE["line"], "quip": quips[sum(map(ord, code)) % len(quips)] if quips else ""}
 
 
 def _keeper() -> None:
@@ -339,6 +349,36 @@ def game_placed(code: str, body: Placed):
     return {"ok": True}
 
 
+class Swap(BaseModel):
+    who: str
+    card: int
+
+
+@app.post("/api/game/{code}/swap")
+def game_swap(code: str, body: Swap):
+    """Trade one card for a fresh one, once per round, before locking in."""
+    r = _room(code, body.who)
+    with r.lock:
+        card = r.swap(body.who, body.card, ROOMS.rng)
+    if not card:
+        raise HTTPException(400, "no swap: already locked, already swapped this round, or not your card")
+    return {"ok": True, "card": card}
+
+
+class Emote(BaseModel):
+    who: str
+    emote: str
+
+
+@app.post("/api/game/{code}/emote")
+def game_emote(code: str, body: Emote):
+    """A nudge across the table; the partner's next poll carries it."""
+    r = _room(code, body.who)
+    with r.lock:
+        ok = r.emote(body.who, body.emote)
+    return {"ok": ok}
+
+
 class Vote(BaseModel):
     who: str
     up: bool
@@ -416,7 +456,7 @@ def game_state(code: str, who: str = "host"):
         if moved in ("reveal", "redeal"):
             _think(r)
     st = r.public(who)
-    st["venue"] = VENUE if VENUE["name"] else None
+    st["venue"] = venue_for(code)
     return st
 
 

@@ -81,3 +81,23 @@ def test_two_pairs_on_one_table_never_share_a_line():
         one = deck.lines_for("Brent", life[0], "Josie", life[1], rng, used)
         two = deck.lines_for("Brent", life[2], "Josie", life[3], rng, used)
         assert one["host"].split(". ")[-1] != two["host"].split(". ")[-1]   # the tail of the template differs
+
+
+def test_meter_words_say_what_the_number_means():
+    from common_ground import deck
+    a, b, c, d = deck.card(1), deck.card(2), deck.card(3), deck.card(4)
+    pairs = [{"a": a, "b": a, "match": "exact"}, {"a": b, "b": c, "match": "kin"}, {"a": d, "b": b, "match": "none"}]
+    assert deck.meter_words(pairs) == f'Same card: {a["name"]}. Close: {b["name"]} and {c["name"]}. Different: {d["name"]} and {b["name"]}.'
+    assert deck.meter_words([]) == ""
+
+
+def test_draw_one_keeps_the_hand_mix_and_never_repeats():
+    import random
+    from common_ground import deck
+    rng = random.Random(5)
+    hand = deck.deal(set(), rng)
+    music = [c for c in hand if deck.card(c)["cat"] in deck.MUSIC_CATS][0]
+    new = deck.draw_one(set(hand), music, rng)
+    assert new not in hand and deck.card(new)["cat"] in deck.MUSIC_CATS
+    everything = {c["id"] for c in deck.cards()}
+    assert deck.draw_one(everything, music, rng) is None

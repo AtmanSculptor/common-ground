@@ -121,7 +121,7 @@ function renderTable(s,A,B){
     $("slotsB").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.b,"down "+(p.match==="exact"?"match":p.match==="kin"?"kin":""))}</div>`).join("");
     const a=$("slotsA").querySelectorAll(".card"),b=$("slotsB").querySelectorAll(".card");
     rv.pairs.forEach((p,i)=>{setTimeout(()=>{a[i].classList.remove("down");b[i].classList.remove("down")},600+i*900);setTimeout(()=>{$("ln"+i).textContent=p.line||(p.lines&&p.lines.host)||""},1300+i*900)});
-    setTimeout(()=>{$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},800+rv.pairs.length*900)}}
+    setTimeout(()=>{$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";$("meterText").textContent=rv.words||""},800+rv.pairs.length*900)}}
 function renderJukebox(p,A,B){const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0);const t0=p.tracks&&p.tracks[0];
   if(lastPick!==key){lastPick=key;$("art").innerHTML=t0&&t0.art?`<img src="${esc(t0.art)}" alt="">`:"";$("song").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:""}
   const v=p.voted||{};$("votes").innerHTML=[["host",A],["guest",B]].map(([k,side])=>`<span class="vote ${v[k]?"yes":""}">${esc(side.name||k)}${v[k]?" said yes":""}</span>`).join("")}

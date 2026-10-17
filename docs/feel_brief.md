@@ -19,7 +19,27 @@ Read first: `docs/snap_study.md` (technique and timings, section 6 has the code)
 (colors and type). The game's server API does not change; `state` is polled every 1.2 s and the
 screens are driven by `render()`.
 
-Do these, in order, and stop when they are done:
+Two things shipped on Oct 16 evening that work but feel flat. Do these first; they are the
+ones Brent wants to see move:
+0a. Swap a card (`#swapBtn` under the hand, once per round; `swapMode()` highlights the hand with
+    `.hand.swapping`, a tap on a card calls `doSwap()`, which POSTs `/api/game/{code}/swap` and gets
+    the new card back). Today the old card slides off to the right and the new one pops up in place.
+    Make it a deal: the old card flies off the bottom edge of the screen face-down (flip to
+    `static/deck/back.jpg` while it goes), and the new card deals in from Q-Lou's side of the table
+    (from above, face-down, flipping up as it lands in the gap), 450 ms total, with a soft slide
+    sound. The other five cards must not jump; hold the grid cell while the cards travel.
+0b. Nudges (`#nudges` on the waiting screen: four round buttons, `nudge(name)` POSTs
+    `/api/game/{code}/emote`; the partner's phone shows it via `showBubble()` as `#themBubble`
+    rising over their field, keyed by `emote.at` so each nudge shows once). Today the glyphs are emoji
+    and the bubble just fades up. Replace the emoji with four small SVG glyphs in the palette (two
+    glasses, a pair of eyes, a flame, a laugh; no brand marks) drawn inline, keep the names `cheers`,
+    `eyes`, `fire`, `laugh` (the server only accepts those). The bubble should fly across the table:
+    start at the sender's own field on the sender's phone (a small copy lifting off the button), and on
+    the partner's phone enter from the far edge of their field, bounce once between the two card slots,
+    linger 1.2 s, fade. A tap on a nudge button should feel like pressing a real button (the same
+    squash as `#lockBtn` below). Haptics already fire; keep them.
+
+Then these, in order, and stop when they are done:
 1. Reveal: when their cards flip in `#themSlots`, an `exact` match gets a 150 ms `scale(1.06)` bounce on
    both cards of the pair (theirs and yours, same column) and a gold particle burst (canvas overlay,
    about 40 sparks, 700 ms) centered between the two. A `kin` match gets a soft purple pulse, no sparks.
@@ -45,4 +65,9 @@ Rules: no em-dashes anywhere in copy. Keep the 17 px base font; there is no "Aa"
 not add one. Do not touch
 the API calls, the polling, or any text the server sends. Respect `prefers-reduced-motion`: with it
 on, keep the flips but drop particles, tilt and bounces. Commit in small steps with clear messages,
-push the branch, and open a pull request against `main` titled "Feel: fan, tilt, particles, sound".
+push the branch, and open a pull request against `main` titled "Feel: swap, nudges, tilt, particles, sound".
+
+How to check your work: `python3 -m pytest -q` must stay green (50 tests; you should not need to touch
+them). For a two-phone run without the real Qloo, `QLOO_API_KEY=x` is enough for the app to import;
+the test suite's `conftest.py` shows the fake. Open two browser windows at 393 by 852, start a
+challenge in one and join with the code in the other; the table, swap and nudges all run locally.

@@ -48,6 +48,31 @@ def deal(seen: set[int], rng: random.Random | None = None) -> list[int]:
     return hand
 
 
+def draw_one(seen: set[int], like: int, rng: random.Random | None = None) -> int | None:
+    """One fresh card to swap in for 'like': from the same half of the deck (music for music,
+    life for life) so the hand keeps its mix, never one this side has already seen."""
+    rng = rng or random
+    music = card(like)["cat"] in MUSIC_CATS
+    pool = [c["id"] for c in cards() if (c["cat"] in MUSIC_CATS) == music and c["id"] not in seen]
+    return rng.choice(pool) if pool else None
+
+
+def meter_words(pairs: list[dict]) -> str:
+    """What the meter means, in words a stranger gets at a glance: which pairs were the same
+    card, which were close (same kind of card), which were different."""
+    same = [p["a"]["name"] for p in pairs if p["match"] == "exact"]
+    close = [f'{p["a"]["name"]} and {p["b"]["name"]}' for p in pairs if p["match"] == "kin"]
+    apart = [f'{p["a"]["name"]} and {p["b"]["name"]}' for p in pairs if p["match"] == "none"]
+    out = []
+    if same:
+        out.append(("Same card: " if len(same) == 1 else "Same cards: ") + ", ".join(same) + ".")
+    if close:
+        out.append("Close: " + ", ".join(close) + ".")
+    if apart:
+        out.append("Different: " + ", ".join(apart) + ".")
+    return " ".join(out)
+
+
 def signal(card_ids: list[int], audiences: list[str] = ()) -> dict[str, list[str]]:
     """Merge the Qloo signals behind a set of cards (plus a quiz profile) into one query signal."""
     tags: list[str] = []

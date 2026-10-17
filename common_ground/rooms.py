@@ -41,6 +41,9 @@ def make_code(rng: random.Random | None = None) -> str:
 
 HOUSE_LOCK_PAUSE = (4.0, 9.0)    # seconds a house partner takes to pick two cards, like a person would
 HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds it takes to say yes to the song
+EMOTES = ("cheers", "eyes", "fire", "laugh")   # the nudges a partner can send across the table
+EMOTE_GAP = 1.5                  # seconds between two nudges from one phone
+EMOTE_TTL = 8.0                  # how long a nudge stays in the state for the partner's next polls
 
 
 @dataclass
@@ -55,6 +58,8 @@ class Side:
     pending: list[int] | None = None   # a house partner's next plays, waiting for their moment
     due: float = 0.0                   # when that moment is (epoch seconds)
     placed: int = 0                    # cards set down this round before locking: the partner sees them face-down
+    swapped: int = -1                  # the round in which this side used its one swap
+    emote: dict | None = None          # the last nudge sent: {"name", "at"}
 
     @property
     def profile(self) -> list[str]:
@@ -154,6 +159,34 @@ class Room:
         s.plays[self.round] = picks
         return True
 
+    def swap(self, who: str, card_id: int, rng: random.Random | None = None) -> dict | None:
+        """Trade one card in the hand for a fresh one, once per round, before locking in."""
+        s = self.sides[who]
+        if self.phase != "cards" or s.locked(self.round) or s.swapped == self.round:
+            return None
+        hand = s.hands[self.round]
+        if card_id not in hand:
+            return None
+        new = deck.draw_one(set(s.seen), card_id, rng)
+        if new is None:
+            return None
+        hand[hand.index(card_id)] = new
+        s.seen.append(new)
+        s.swapped = self.round
+        self.log.append(f"round {self.round + 1}: {s.name or who} swapped a card")
+        return deck.public(deck.card(new))
+
+    def emote(self, who: str, name: str, now: float | None = None) -> bool:
+        """A nudge across the table. Rate limited; the partner's polls carry it for a few seconds."""
+        now = time.time() if now is None else now
+        if name not in EMOTES:
+            return False
+        s = self.sides[who]
+        if s.emote and now - s.emote["at"] < EMOTE_GAP:
+            return False
+        s.emote = {"name": name, "at": now}
+        return True
+
     def both_locked(self) -> bool:
         return all(s.locked(self.round) for s in self.sides.values())
 
@@ -169,7 +202,8 @@ class Room:
                           "lines": deck.lines_for(h.name or "Your partner", ca, g.name or "Your partner", cb, rng, used_lines)})
         both = [deck.card(c)["name"] for c in ha if c in ga]
         self.meter = min(100, self.meter + gained)
-        self.reveals.append({"round": self.round, "pairs": pairs, "both": both, "meter": self.meter})
+        self.reveals.append({"round": self.round, "pairs": pairs, "both": both, "meter": self.meter,
+                             "words": deck.meter_words(pairs)})
         self.phase = "reveal"
         self.log.append(f"round {self.round + 1}: revealed, meter {self.meter}")
 
@@ -228,6 +262,7 @@ class Room:
         names = {k: (s.name or k) for k, s in self.sides.items()}
         self.result = {
             "meter": self.meter, "title": title,
+            "words": deck.meter_words([p for rv in self.reveals for p in rv["pairs"]]),
             "plays": {names[k]: [deck.card(c)["name"] for c in s.all_plays()] for k, s in self.sides.items()},
             # across the whole game, not round by round: a card you both played in different rounds still counts
             "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].all_plays()) & set(self.sides["guest"].all_plays())}),
@@ -249,7 +284,8 @@ class Room:
         for k, s in self.sides.items():
             d = {"name": s.name, "joined": s.joined, "house": s.house,
                  "profile_labels": [quiz.label(x) for x in s.profile], "locked": s.locked(self.round),
-                 "placed": deck.PLAYS if s.locked(self.round) else s.placed}
+                 "placed": deck.PLAYS if s.locked(self.round) else s.placed, "swapped": s.swapped == self.round,
+                 "emote": s.emote if s.emote and time.time() - s.emote["at"] < EMOTE_TTL else None}
             if k == who and 0 <= self.round < len(s.hands):
                 d["hand"] = [deck.public(deck.card(c)) for c in s.hands[self.round]]
                 d["plays"] = s.plays[self.round]

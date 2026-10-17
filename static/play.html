@@ -31,6 +31,18 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hand{display:grid;grid-template-columns:repeat(3,minmax(0,104px));justify-content:center;gap:8px;margin-top:8px}
 .hand .card{touch-action:none}
 .hand .card.played{opacity:.18;pointer-events:none}
+.hand.swapping .card:not(.played){box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(255,199,0,.35);animation:swapPulse 1.1s ease-in-out infinite}
+@keyframes swapPulse{50%{transform:translateY(-4px)}}
+.swaprow{display:flex;justify-content:center;gap:10px;margin:8px 0 0}
+.swaprow button{margin:0;min-height:40px;padding:8px 14px;font-size:.95rem}
+.nudges{display:flex;justify-content:center;gap:10px;margin:10px 0 0}
+.nudges button{margin:0;width:58px;height:58px;min-height:0;padding:0;font-size:1.7rem;border-radius:50%;background:var(--surface);border:2px solid rgba(189,53,252,.35)}
+.nudges button:active{transform:scale(.92);border-color:var(--gold)}
+.nudges button:disabled{opacity:.5}
+.bubble{position:absolute;left:50%;top:-6px;transform:translate(-50%,0) scale(.4);opacity:0;font-size:2.6rem;line-height:1;z-index:5;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.8))}
+.bubble.on{animation:bubble 2.8s ease-out forwards}
+@keyframes bubble{0%{opacity:0;transform:translate(-50%,24px) scale(.4)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px) scale(.9)}}
+.fit{text-align:center;color:var(--text3);font-size:.95rem;margin:2px 0 8px}
 /* the playing field: their half at the top, yours below, a glowing line between */
 #s-table{position:relative;margin:0 -16px;padding:0 16px 8px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1' fill='%23ffffff' fill-opacity='0.045'/%3E%3C/svg%3E"),radial-gradient(ellipse 110% 60% at 50% 0%,rgba(138,43,226,.22),transparent 60%),radial-gradient(ellipse 110% 60% at 50% 100%,rgba(255,199,0,.10),transparent 60%),linear-gradient(#070309,#0b0612 50%,#070309)}
 #s-table .between{position:relative}
@@ -183,11 +195,13 @@ details[open] summary::after{content:"–"}
 
 <section class="screen" id="s-table">
   <div class="tablehead"><span class="sub" id="roundLabel">Round 1</span><span class="sub" id="tableHint"></span></div>
-  <div class="field them"><div class="who"><span id="themName"></span> <span class="sub" id="themStatus"></span></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div></div></div>
+  <div class="field them"><div class="bubble" id="themBubble"></div><div class="who"><span id="themName"></span> <span class="sub" id="themStatus"></span></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div></div></div>
   <div class="between" id="between"><p class="quip" id="quip"></p><p class="line" id="ln0"></p><p class="line" id="ln1"></p><div class="meter"><i id="meter"></i></div><p class="sub center" id="meterText"></p></div>
   <div class="field me"><div class="who">You</div><div class="slots" id="meSlots"><div class="slot" data-i="0"><i>1</i></div><div class="slot" data-i="1"><i>2</i></div></div></div>
-  <div id="handArea"><p class="center" id="handHint" style="margin:8px 0 0;font-size:1rem;color:var(--text2)">Drag or tap two cards up.</p><div class="hand" id="hand"></div></div>
-  <div id="waitArea" style="display:none"><div class="qlou-big" style="margin-top:8px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div><p class="wait pulse" id="waitMsg"></p></div>
+  <div id="handArea"><p class="center" id="handHint" style="margin:8px 0 0;font-size:1rem;color:var(--text2)">Drag or tap two cards up.</p><div class="hand" id="hand"></div><div class="swaprow" id="swapRow"><button class="ghost" id="swapBtn" onclick="swapMode()">Swap a card</button></div></div>
+  <div id="waitArea" style="display:none"><p class="wait pulse" id="waitMsg" style="margin-top:10px"></p>
+    <p class="sub center" style="margin:10px 0 0">Send a nudge</p><div class="nudges" id="nudges"></div>
+    <div class="qlou-big" style="margin-top:14px"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div></div>
   <div class="stick" id="tableStick">
     <button id="lockBtn" disabled onclick="lockIn()">Pick two cards</button>
     <button id="nextBtn" onclick="next(false)" style="display:none">Hear Q-Lou's pick</button>
@@ -200,6 +214,7 @@ details[open] summary::after{content:"–"}
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
   <p class="say" id="say">Listening to both of you.</p>
   <div id="bet"></div>
+  <p class="sub center venueLine" id="thinkVenue" style="margin-top:18px"></p>
 </section>
 
 <section class="screen" id="s-jukebox">
@@ -225,6 +240,7 @@ details[open] summary::after{content:"–"}
     <div class="art big" id="doneArt" onclick="playHero()"></div>
     <h1 class="song-title" id="doneTitle"></h1>
     <p class="song-artist" id="doneArtist"></p>
+    <p class="fit" id="doneFit"></p>
     <p class="names" id="doneNames"></p>
     <div class="fourcards" id="fourCards"></div>
     <p class="song-album" id="doneWho"></p>
@@ -269,7 +285,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[who==="host"?"gues
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="cards"||s.phase==="reveal"){renderTable(s,me,other);show("table");return}
-  if(s.phase==="thinking"){renderThinking(s.thinking||[]);show("thinking");return}
+  if(s.phase==="thinking"){renderThinking(s.thinking||[]);$("thinkVenue").textContent=s.venue&&s.venue.quip?`${s.venue.name}: ${s.venue.quip}`:"";show("thinking");return}
   if(s.phase==="jukebox"){renderJukebox(s.pick,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 function cardHTML(c,cls){return `<div class="scene"><div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name">${esc(c.name)}</div></div></div>`}
@@ -289,16 +305,33 @@ function setTable(mode){tableMode=mode;$("s-table").className="screen on "+mode;
 function renderTable(s,me,other){const mode=s.phase==="reveal"?"revealed":(me.locked||lockedRound===s.round)?"waiting":"choosing";
   $("themName").textContent=partnerName();$("roundLabel").textContent=`Round ${s.round+1}`;
   (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);
-  if(lastPhase!=="table"+s.round){lastPhase="table"+s.round;selected=[];placedSent=-1;hand=me.hand||[];themShown="";revealedRound=-1;renderHand();renderMySlots();$("themSlots").innerHTML='<div class="slot"></div><div class="slot"></div>';["ln0","ln1"].forEach(id=>{$(id).textContent="";$(id).classList.remove("shown")});$("meter").style.width="0%";$("meterText").textContent=""}
+  if(lastPhase!=="table"+s.round){lastPhase="table"+s.round;selected=[];placedSent=-1;hand=me.hand||[];themShown="";revealedRound=-1;swapping=false;$("swapBtn").disabled=false;$("swapBtn").textContent="Swap a card";renderHand();renderMySlots();$("themSlots").innerHTML='<div class="slot"></div><div class="slot"></div>';["ln0","ln1"].forEach(id=>{$(id).textContent="";$(id).classList.remove("shown")});$("meter").style.width="0%";$("meterText").textContent=""}
   if(mode!=="revealed"){const n=other.locked?2:(other.placed||0);const st=(other.locked?"L":"")+n;if(themShown!==st){themShown=st;$("themSlots").innerHTML=[0,1].map(i=>i<n?`<div class="slot">${backHTML()}</div>`:'<div class="slot"></div>').join("")}
     $("themStatus").textContent=other.locked?"locked in":(n===0?"is choosing…":n===1?"put one down":"has two down");$("tableHint").textContent="";
-    if(mode==="waiting"){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";if(!me.plays||!me.plays.length)selected=selected;renderMySlots(me.plays&&me.plays.length?me.plays:selected)}}
+    showBubble(other.emote);$("swapRow").style.display=mode==="choosing"&&!me.swapped?"":"none";
+    if(mode==="waiting"){renderNudges();$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";if(!me.plays||!me.plays.length)selected=selected;renderMySlots(me.plays&&me.plays.length?me.plays:selected)}}
   else if(revealedRound!==s.round){revealedRound=s.round;renderReveal(s.reveal,me)}
   if(mode==="revealed"){$("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";$("roundLabel").textContent="The reveal"}
   $("waitVenue").style.display=mode==="waiting"&&s.venue&&s.venue.line?"":"none";$("waitVenue").textContent=s.venue&&s.venue.line?`${s.venue.name}: ${s.venue.line}`:"";
   if(tableMode!==mode)setTable(mode);else if(mode==="revealed")$("moreBtn").style.display=state.more_allowed?"":"none"}
-function renderHand(){$("hand").innerHTML=hand.map(c=>cardHTML(c,selected.includes(c.id)?"played":"")).join("");
-  $("hand").querySelectorAll(".card").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>startDrag(e,el,id)})}
+function renderHand(){$("hand").innerHTML=hand.map(c=>cardHTML(c,selected.includes(c.id)?"played":"")).join("");$("hand").classList.toggle("swapping",swapping);
+  $("hand").querySelectorAll(".card").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{if(swapping){e.preventDefault();doSwap(id,el)}else startDrag(e,el,id)}})}
+// one swap a round: tap the button, then the card you want gone; a fresh one deals in its place
+let swapping=false;
+function swapMode(){if(tableMode!=="choosing")return;swapping=!swapping;renderHand();$("swapBtn").textContent=swapping?"Keep them":"Swap a card";$("handHint").textContent=swapping?"Tap the card you want gone.":(selected.length===2?"Tap a card to put it back, or lock it in.":"Drag or tap two cards up.")}
+async function doSwap(id,el){if(selected.includes(id))return;swapping=false;$("swapBtn").disabled=true;
+  try{const out=await api(code+"/swap",{who,card:id});const i=hand.findIndex(c=>c.id===id);if(i>=0&&out.card){hand[i]=out.card;ALL_CARDS[out.card.name]=out.card}
+    if(el){el.style.transition="transform .22s,opacity .22s";el.style.transform="translateX(120%) rotate(12deg)";el.style.opacity="0"}
+    setTimeout(()=>{renderHand();const nel=$("hand").querySelector(`.card[data-id="${out.card&&out.card.id}"]`);if(nel){nel.style.transform="translateY(40px) scale(.6)";nel.style.opacity="0";requestAnimationFrame(()=>{nel.style.transition="transform .3s cubic-bezier(.2,.8,.2,1),opacity .3s";nel.style.transform="";nel.style.opacity=""})}
+      $("swapRow").style.display="none";$("handHint").textContent=selected.length===2?"Tap a card to put it back, or lock it in.":"Drag or tap two cards up.";if(navigator.vibrate)navigator.vibrate(12)},230)}
+  catch(e){renderHand();$("swapBtn").disabled=false;$("swapBtn").textContent="Swap a card"}}
+const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
+let nudgeBusy=false,bubbleSeen=0;
+function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
+async function nudge(name,btn){if(nudgeBusy)return;nudgeBusy=true;document.querySelectorAll("#nudges button").forEach(b=>b.disabled=true);btn.style.transform="scale(1.25)";
+  try{await api(code+"/emote",{who,emote:name})}catch(e){}
+  setTimeout(()=>{nudgeBusy=false;btn.style.transform="";document.querySelectorAll("#nudges button").forEach(b=>b.disabled=false)},1600)}
+function showBubble(em){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))return;bubbleSeen=em.at;const b=$("themBubble");b.textContent=NUDGES[em.name];b.classList.remove("on");void b.offsetWidth;b.classList.add("on");if(navigator.vibrate)navigator.vibrate(8)}
 let placedSent=-1;
 function tellPlaced(){const n=selected.length;if(n===placedSent||!code)return;placedSent=n;api(code+"/placed",{who,n}).catch(()=>{})}
 function renderMySlots(ids){ids=ids||selected;const slots=$("meSlots").querySelectorAll(".slot");slots.forEach((sl,i)=>{const c=hand.find(x=>x.id===ids[i]);sl.innerHTML=c?faceHTML(c,"kin"):`<i>${i+1}</i>`;if(c&&tableMode!=="waiting"){sl.firstChild.onclick=()=>unplay(c.id)}});
@@ -334,7 +367,7 @@ function renderReveal(rv,me){const mine=who==="host"?"a":"b",theirs=who==="host"
   const flips=$("themSlots").querySelectorAll(".card.flip");
   rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(p.match==="exact"?[20,40,20]:12)},500+i*800);
     setTimeout(()=>{$("ln"+i).innerHTML=(i===0?'<img class="qmark" src="static/deck/qlou.jpg" alt="">':"")+esc((p.lines&&p.lines[who])||p.line||"");$("ln"+i).classList.add("shown")},1100+i*800)});
-  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=`In common: ${rv.meter}`},700+rv.pairs.length*800)}
+  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("meterText").textContent=rv.words||""},700+rv.pairs.length*800)}
 async function next(more){try{await api(code+"/next",{more:!!more});lastPhase=null;saidStep=-1;$("say").textContent="Listening to both of you.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
 // Q-Lou's voice on the thinking screen. The raw steps stay behind a fold on the done screen; the pick is never named here.
 function sayFor(s){switch(s.step){case"read":return"Turning your cards into Qloo signals.";case"draft":return`Ranking ${s.pool?Number(s.pool).toLocaleString():"the"} artists Qloo scored for each of you.`;case"pool":return`Pulling ${s.pool||"the"} artists from Qloo for each of you.`;
@@ -374,7 +407,8 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
   $("fourCards").innerHTML=cardsOf(mineN).map(c=>faceHTML(c,"")).join("")+'<span class="gap"></span>'+cardsOf(theirsN).map(c=>faceHTML(c,"")).join("");
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
   $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", ")+".":"";
-  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`In common: ${r.meter}. ${r.title}.${p&&p.scores?` Song fit: you ${Math.round(p.scores[who]*100)}, ${esc(theirKey==="guest"?(state.sides.guest.name||"partner"):(state.sides.host.name||"partner"))} ${Math.round(p.scores[theirKey]*100)}.`:""}`;
+  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`${r.title}. ${r.words||""}`;
+  $("doneFit").textContent=p&&p.scores?`Qloo: you ${Math.round(p.scores[who]*100)}, ${theirKey==="guest"?(state.sides.guest.name||"partner"):(state.sides.host.name||"partner")} ${Math.round(p.scores[theirKey]*100)}`:"";
   $("saveBtn").style.display=navigator.share&&p&&p.artist?"":"none";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["No card in common, and still a song."]).map(n=>`<span class="tag">${esc(n)}</span>`).join("");
   const them=(state.sides[theirKey]||{}).name||"partner";$("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${esc(x.name)} <span class="sub">you ${Math.round(x[who]*100)} · ${esc(them)} ${Math.round(x[theirKey]*100)}</span></p>`).join("")||"<p class='sub'>No shortlist this time.</p>";
@@ -386,5 +420,5 @@ function renderDone(r){const theirKey=who==="host"?"guest":"host";const p=r.pick
     `<div class="steps">${lastSteps.map(s=>`<div class="step${s.step==="error"?" error":""}"><b>${esc(s.step)}</b><span>${esc(s.text)}</span></div>`).join("")}</div>`;
 }
 function shareResult(){const r=state&&state.result;const p=r&&r.pick;if(!p||!p.artist)return;const t=p.tracks&&p.tracks[0];const names=Object.keys(r.plays||{}).join(" and ");
-  const text=`Our Song: ${t?t.track+" by ":""}${p.artist.name}. ${names}, in common ${r.meter}.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}}
+  const text=`Our Song: ${t?t.track+" by ":""}${p.artist.name}. ${names}: ${r.title}.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}}
 </script></body></html>
