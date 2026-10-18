@@ -22,7 +22,7 @@ import threading
 import time
 from dataclasses import MISSING, dataclass, field, fields
 
-from . import deck, matrix, quiz
+from . import deck, matrix, quiz, stats
 from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
@@ -433,6 +433,7 @@ class Room:
             locked = s.toss_locked if self.phase == "toss" else s.play_locked
             d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked,
                  "placed": len(s.plays), "down": len(s.plays) > self.rank, "tokens": s.tokens, "tossed_n": len(s.tossed), "hand_n": len(s.hand),
+                 "profile": stats.profile(s.name) if s.joined else None,
                  "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None}
             if k == who and s.hand:
                 d["hand"] = [deck.public(deck.card(c)) for c in s.hand]

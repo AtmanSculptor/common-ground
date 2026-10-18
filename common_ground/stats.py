@@ -51,6 +51,33 @@ def recent_ids(n: int) -> list[str]:
     return out
 
 
+LEVELS = ((10, 3), (3, 2), (1, 1))   # games played at this venue -> the ring on your picture
+_profiles: dict[str, tuple[float, dict]] = {}
+
+
+def profile(name: str) -> dict:
+    """What this venue knows about a nickname: games, songs that played, the level. No account, no
+    login: the nickname at this bar is the identity (in a jukebox app it would be the app's account).
+    Cached a minute; the log is small but polled often."""
+    key = (name or "").strip().lower()
+    now = time.time()
+    hit = _profiles.get(key)
+    if hit and now - hit[0] < 60:
+        return hit[1]
+    games = songs = 0
+    if key:
+        for r in rows(2000):
+            names = {k.strip().lower() for k in (r.get("plays") or {})}
+            if key in names:
+                games += 1
+                if r.get("played"):
+                    songs += 1
+    level = next((lv for n, lv in LEVELS if games >= n), 0)
+    out = {"games": games, "songs": songs, "level": level}
+    _profiles[key] = (now, out)
+    return out
+
+
 def rows(limit: int = 200) -> list[dict]:
     try:
         lines = FILE.read_text(encoding="utf-8").splitlines()

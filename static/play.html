@@ -64,8 +64,18 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.interlude .field{flex:1 1 0}
 .side{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;padding:3px 0 4px;position:relative}
 .side.them{background:rgba(138,43,226,.07)}.side.me{background:rgba(255,199,0,.045)}
-.who{color:var(--text3);font-size:.78rem;line-height:1.1;height:16px;text-align:center;margin:0}
+.who{color:var(--text3);font-size:.78rem;line-height:1.1;min-height:16px;text-align:center;margin:0;display:flex;align-items:center;justify-content:center;gap:6px}
 .who b{color:var(--text2);font-weight:600}
+/* the picture by a name: a silhouette on a dark disc; the ring says how often this nickname has played here */
+.ava{position:relative;display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#3a1660,#0d0515);border:2px solid rgba(189,53,252,.5);flex:none;overflow:hidden}
+.ava svg{width:18px;height:18px;fill:rgba(189,53,252,.85);margin-top:4px}
+.ava.l1{border-color:var(--aura)}
+.ava.l2{border-color:var(--gold)}
+.ava.l2 svg{fill:#d9a4ff}
+.ava.l3{border-color:var(--gold);box-shadow:0 0 12px rgba(255,199,0,.6);background:radial-gradient(circle at 35% 30%,#5a3d00,#0d0515)}
+.ava.l3 svg{fill:var(--gold)}
+.ava.big{width:40px;height:40px}.ava.big svg{width:28px;height:28px;margin-top:6px}
+.names .ava{vertical-align:middle;margin:0 4px 0 0}
 .slots{display:flex;gap:8px;justify-content:center;align-items:center}
 .slot{width:var(--sw,100px);aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.45);position:relative;display:grid;place-items:center;transition:width .55s cubic-bezier(.25,.75,.25,1),border-color .5s,box-shadow .5s}
 .slot i{font-style:normal;color:var(--text3);font-size:.72rem;font-weight:600;text-align:center;line-height:1.15;padding:0 4px}
@@ -216,7 +226,8 @@ details[open] summary::after{content:"–"}
 <symbol id="su-bar" viewBox="0 0 16 16"><path d="M2.5 3h11L8 9.5zM8 9.5V13M5 13.5h6"/></symbol>
 <symbol id="su-road" viewBox="0 0 16 16"><path d="M2.5 14c3-4 1-7 4-9s6-1 7-3"/><path d="M11 2.5l2.5-.5.5 2.5"/></symbol>
 <symbol id="su-porch" viewBox="0 0 16 16"><path d="M2 8.5L8 3l6 5.5M4 7.5V14h8V7.5"/></symbol>
-<symbol id="su-joker" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v6M6 8h4"/></symbol></defs></svg>
+<symbol id="su-joker" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v6M6 8h4"/></symbol>
+<symbol id="bust" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/></symbol></defs></svg>
 <div class="top"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
 
 <section class="screen on" id="s-lobby">
@@ -250,11 +261,11 @@ details[open] summary::after{content:"–"}
 <section class="screen" id="s-table">
   <div class="tbar"><div class="pill" id="tRoom">Room</div><div class="pill credits"><span id="tTok">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
   <div class="thead"><b id="roundLabel">The deal</b></div>
-  <div class="strip" id="strip"><div class="bubble" id="stripBubble"></div><span class="who"><b id="stripName"></b> <span id="stripStatus"></span></span><span class="minis" id="themMinis"></span></div>
+  <div class="strip" id="strip"><div class="bubble" id="stripBubble"></div><span class="who"><span id="stripAva"></span><b id="stripName"></b> <span id="stripStatus"></span></span><span class="minis" id="themMinis"></span></div>
   <div class="field" id="field">
-    <div class="side them"><div class="bubble" id="themBubble"></div><p class="who"><b id="themName"></b> <span id="themStatus"></span></p><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
+    <div class="side them"><div class="bubble" id="themBubble"></div><p class="who"><span id="themAva"></span><b id="themName"></b> <span id="themStatus"></span></p><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
     <div class="stage" id="stage"><svg class="qcoin"><use href="#coin"/></svg><div class="qblock"><div class="qmini"><img src="static/deck/qlou.jpg" alt=""></div><div class="qsay" id="qsay"></div></div></div>
-    <div class="side me"><p class="who"><b>You</b> <span id="meStatus"></span></p><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div></div>
+    <div class="side me"><p class="who"><span id="meAva"></span><b>You</b> <span id="meStatus"></span></p><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div></div>
   </div>
   <div class="meterwrap"><div class="meter"><i id="meter"></i></div><p class="words" id="words"></p></div>
   <div class="handblock" id="handArea">
@@ -313,7 +324,7 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let code=null, who=null, state=null, timer=null, lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", doneSettled=false;
 // the table's own state, reset by resetTable() whenever a room starts
-let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false,interludeAt=0,fanKey="",lastFlipAt=0;
+let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false,interludeAt=0,fanKey="",lastFlipAt=0,avaKey="";
 const ALL_CARDS={};
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
 let Q=null;fetch("static/quips.json?v=2").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
@@ -336,7 +347,7 @@ function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textCo
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
-function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;tableMode="";$("bet").innerHTML="";qlouClear()}
+function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";$("bet").innerHTML="";qlouClear()}
 async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){forget();clearInterval(timer);show("lobby")}}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
@@ -369,14 +380,16 @@ function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;
     if(tableMode==="play"||tableMode==="playwait"){const hs=rows>1?470:382;F.style.flex=`${1000-hs} 0 0`;h.style.flex=`${hs} 0 0`}else{F.style.flex="";h.style.flex=""}
     const used=[...h.children].filter(e=>e!==hd&&getComputedStyle(e).display!=="none").reduce((a,e)=>a+e.offsetHeight+6,0);const H=h.clientHeight-used-4,W=hd.clientWidth-4;
     const cw=Math.floor(Math.max(40,Math.min((W-(cols-1)*gap)/cols,((H-(rows-1)*gap)/rows)*2/3)));hd.style.setProperty("--cw",cw+"px");hd.style.setProperty("--cols",cols)}else{F.style.flex="";h.style.flex=""}
-  const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-16-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px");T.classList.toggle("tight",sw<84)}}
+  const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-(side.querySelector(".who").offsetHeight||16)-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px");T.classList.toggle("tight",sw<84)}}
 window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
   $("tossBtn").style.display=mode==="toss"?"":"none";$("playBtn").style.display=mode==="play"?"":"none";
   const waiting=mode==="tosswait"||mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
   setTimeout(fitTable,0);setTimeout(fitTable,380)}
 function rankName(i){return (state.rank_names||["Most me","Also me","A bit me"])[i]}
+function avatarHTML(side,big){const lv=side&&side.profile?side.profile.level:0;const g=side&&side.profile?side.profile.games:0;return `<span class="ava l${lv}${big?" big":""}" title="${g} game${g===1?"":"s"} here"><svg><use href="#bust"/></svg></span>`}
 function renderTable(s,me,other){const n=names();const pn=partnerName();$("themName").textContent=pn;$("stripName").textContent=pn;if(s.toss_max)TOSS_MAX=s.toss_max;
+  const ak=(other.profile?other.profile.level:0)+":"+(me.profile?me.profile.level:0);if(avaKey!==ak){avaKey=ak;$("stripAva").innerHTML=avatarHTML(other);$("themAva").innerHTML=avatarHTML(other);$("meAva").innerHTML=avatarHTML(me)}
   (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);(s.pairs||[]).forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
   if(s.phase==="toss"){
     if(lastPhase!=="toss"){lastPhase="toss";hand=me.hand||[];tosses=[];chosen=null;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;setMode(me.locked?"tosswait":"toss");
@@ -513,7 +526,7 @@ function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p
   heroUrl=t&&t.preview||"";$("doneArt").innerHTML=artHTML(t);$("doneArt").style.display=p&&p.artist&&played?"":"none";
   $("doneTitle").textContent=p&&p.artist&&played?(t?t.track:p.artist.name):"";
   $("doneArtist").textContent=p&&p.artist&&played&&t?p.artist.name:"";
-  $("doneNames").textContent=nm.join(" and ");
+  $("doneNames").innerHTML=nm.map(x=>{const side=Object.values(state.sides).find(sd=>sd.name===x);return avatarHTML(side,true)+esc(x)}).join('<span style="margin:0 8px">and</span>');
   const mineN=nm[who==="host"?0:1],theirsN=nm[who==="host"?1:0];const cardsOf=x=>(r.plays[x]||[]).map(c=>ALL_CARDS[c]).filter(Boolean);
   $("sixCards").innerHTML=cardsOf(mineN).map(c=>faceHTML(c,"")).join("")+'<span class="gap"></span>'+cardsOf(theirsN).map(c=>faceHTML(c,"")).join("");
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
