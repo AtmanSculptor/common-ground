@@ -307,7 +307,7 @@ details[open] summary::after{content:"–"}
     <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
   <button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button>
-  <button id="againBtn" class="ghost" onclick="location.reload()">Play again</button>
+  <button id="againBtn" class="ghost" onclick="forget();location.reload()">Play again</button>
   <div style="margin-top:18px">
     <details><summary id="hoodTitle">Under the hood</summary>
       <h2>What you both played</h2><div id="both"></div>
@@ -333,16 +333,18 @@ function pickLine(list,salt,vars){if(!list||!list.length)return "";const line=li
 function fill(line,vars){vars=vars||{};return line.replace(/\{(\w+)\}/g,(m,k)=>vars[k]!=null?vars[k]:m)}
 function names(){const h=state.sides.host.name||"Host",g=state.sides.guest.name||"Partner";return {a:h,b:g}}
 function q(path,salt,vars){let o=Q;for(const k of path.split(".")){o=o&&o[k]}return pickLine(o,path+"|"+(salt||""),Object.assign(names(),vars||{}))}
-try{const s=JSON.parse(localStorage.getItem("oursong")||"null");if(s&&s.code){code=s.code;who=s.who;startPoll()}}catch(e){}
+// the room rides in the URL hash (#CODE/host): the demo page runs with no storage, and a reload must not lose the table
+try{const m=/^#([A-Z]{4})\/(host|guest)$/.exec(location.hash||"");if(m){code=m[1];who=m[2];startPoll()}}catch(e){}
+try{if(!code){const s=JSON.parse(localStorage.getItem("oursong")||"null");if(s&&s.code){code=s.code;who=s.who;startPoll()}}}catch(e){}
 try{const j=new URLSearchParams(location.search).get("join");if(j&&!code){$("joinCode").value=j.toUpperCase();show("join")}}catch(e){}
 function show(id){const was=document.querySelector(".screen.on");document.body.classList.toggle("tablemode",id==="table");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");window.scrollTo(0,0);if(id==="table")setTimeout(fitTable,0)}
 function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
   return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)throw new Error("Easy there, slow down a second.");if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
-function remember(){try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
-function forget(){try{localStorage.removeItem("oursong")}catch(e){}}
+function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){try{location.hash=code+"/"+who}catch(e2){}}try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
+function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}try{localStorage.removeItem("oursong")}catch(e){}}
 async function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){alert(e.message)}}
 async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name});code=r.code;who="guest";remember();startPoll()}catch(e){alert(e.message)}}
-function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;return u.toString()}catch(e){return code}}
+function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;u.hash="";return u.toString()}catch(e){return code}}
 function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textContent="Copied. Your partner opens Our Song and joins with it."}catch(e){}}
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
@@ -495,7 +497,7 @@ function showBubble(em,where){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))ret
 // Q-Lou's voice while he thinks; the raw steps stay under the fold on the done screen; the pick is never named here
 function sayFor(s){const pool=s.pool?Number(s.pool).toLocaleString():"2,003";const t=Q&&Q.thinking||[];switch(s.step){case"read":return fill(t[0]||"Reading your cards.",{pool});case"draft":case"pool":case"score":return fill(t[1]||"Asking Qloo.",{pool});case"curve":return fill(t[2]||"Grading on a curve.",{pool});case"verify":return fill(t[3]||"Checking live.",{pool});case"pick":return fill(t[4]||"The weaker score decides.",{pool});case"error":return "Qloo is slow tonight. Hang on.";default:return null}}
 function renderThinking(steps){const last=state.offers&&state.offers[state.offers.length-1];
-  if(last&&last.status==="declined"){if(saidStep!==-2){saidStep=-2;const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));qlouSay(`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`,0)}return}
+  if(last&&last.status==="declined"){if(saidStep!==-2){saidStep=-2;const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));qlouClear();qlouSay(`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`,0)}return}
   for(let i=saidStep+1;i<steps.length;i++){const line=sayFor(steps[i]);if(line)qlouSay(line,3200)}
   saidStep=steps.length-1}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.classList.add("chosen")}
