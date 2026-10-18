@@ -269,7 +269,8 @@ def test_the_reveal_comes_with_words_and_the_pull(client, monkeypatch):
     assert words and words.endswith(".")
     for p in rv["pairs"]:
         assert p["a"]["name"] in words or p["b"]["name"] in words
-    assert ("Same card" in words) == bool(rv["both"])
-    assert ("Close:" in words) == any(p["match"] == "kin" for p in rv["pairs"])
-    assert ("Different:" in words) == any(p["match"] == "none" for p in rv["pairs"])
+    c = rv["counts"]                                   # the words follow the scored pairing (same card first, then closest), not the rank pairs
+    assert ("Same card" in words) == bool(rv["both"]) == (c["same"] > 0)
+    assert ("Close:" in words) == (c["close"] > 0) and ("Different:" in words) == (c["apart"] > 0)
+    assert c["same"] + c["close"] + c["apart"] == 3
     assert rv["pull"] is None or ({"host", "guest", "agreement"} <= set(rv["pull"]))
