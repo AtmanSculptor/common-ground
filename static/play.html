@@ -164,10 +164,17 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .fcard{position:relative;flex:none;width:var(--cw);aspect-ratio:2/3;transition:transform .45s cubic-bezier(.25,.75,.25,1),opacity .45s,filter .45s,width .45s;touch-action:none}
 .fcard .card{width:100%;height:100%}
 .fcard.played{opacity:.18;pointer-events:none}
-.fcard.tossing{filter:grayscale(.8) brightness(.6)}
-.fcard.tossing .card{box-shadow:0 0 0 2px var(--coral)}
-.fcard.tossing .badge{display:grid;background:var(--coral);border-color:var(--coral);color:#000}
-.fcard.tossing .badge::before{content:"✕"}
+/* a discard turns the card face down (a real flip), with a mark on the back; tap again and it turns back */
+.fcard .card{transform-style:preserve-3d;transition:transform .55s cubic-bezier(.3,.7,.2,1)}
+.fcard .card>img,.fcard .card>.frame,.fcard .card>.suit,.fcard .card>.badge,.fcard .card>.name{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.fcard .card>img,.fcard .card>.frame{border-radius:var(--r)}
+.fcard .card .cardback{position:absolute;inset:0;border-radius:var(--r);background:#000 url(static/deck/back.jpg) center/cover;border:2px solid rgba(255,127,80,.7);transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center}
+.fcard .card .cardback::after{content:"✕";width:30px;height:30px;border-radius:50%;background:var(--coral);color:#000;font-weight:800;display:grid;place-items:center;font-size:.9rem;box-shadow:0 0 14px rgba(255,127,80,.6)}
+.fcard .card{overflow:visible}
+.fcard .card>.name{border-radius:0 0 var(--r) var(--r)}
+.fcard.tossing .card,.fcard.facedown .card{transform:rotateY(180deg)}
+.fcard.facedown .card .cardback{border-color:rgba(189,53,252,.5)}
+.fcard.facedown .card .cardback::after{display:none}
 .card.match .badge::before{content:"★"}
 /* a card's name scales with the card, so a word never breaks in two: about 13 percent of the width, between .6 and .82 rem */
 .fcard .card .name{font-size:clamp(.6rem,calc(var(--cw,90px) * .125),.74rem);font-weight:600;padding:4px 3px 5px;overflow-wrap:normal;hyphens:manual;background:linear-gradient(transparent,rgba(0,0,0,.78))}
@@ -455,7 +462,7 @@ function renderHud(s,me,other){if(!$("hudL")||getComputedStyle($("hudL")).displa
   ln(`Room <b>${esc(s.code)}</b> at ${esc(v)}.`);
   if(s.phase==="lobby"){ln(`Waiting for a partner. Share the code, or play the demo and Q-Lou seats a house partner.`,true)}
   if(s.phase!=="lobby"){ln(`Six cards each from a deck of 101, one of each suit and two more. Every card stands for one Qloo signal.`);
-    const sideLine=(k,sd)=>{const nm=esc(sd.name||k);if(s.phase==="toss")return sd.locked?`<b>${nm}</b> ${sd.tossed_n?`sent ${sd.tossed_n} back (they count as not ${nm})`:"kept all six"}.`:`<b>${nm}</b> is looking at six cards.`;
+    const sideLine=(k,sd)=>{const nm=esc(sd.name||k);if(s.phase==="toss")return sd.locked?`<b>${nm}</b> ${sd.tossed_n?`discarded ${sd.tossed_n} (they count as not ${nm})`:"kept all six"}.`:`<b>${nm}</b> is looking at six cards.`;
       const ts=s.toss_summary&&s.toss_summary[k];return ts&&ts.length?`<b>${nm}</b> sent back ${ts.map(esc).join(", ")}: they pull against.`:`<b>${nm}</b> kept all six.`};
     ln(sideLine("host",s.sides.host)+" "+sideLine("guest",s.sides.guest),s.phase==="toss")}
   (s.pairs||[]).forEach((p,i)=>{const kind=p.match==="exact"?"the same card":p.match==="kin"?"the same suit, close":"different";
@@ -472,7 +479,7 @@ function renderHud(s,me,other){if(!$("hudL")||getComputedStyle($("hudL")).displa
   (s.offers||[]).forEach(o=>{if(o.status==="declined"&&o.said_no&&o.said_no.length)ln(`${o.said_no.map(k=>esc(s.sides[k].name||k)).join(" and ")} said no to ${esc(o.artist.name)}. Next pick.`)});
   if(s.phase==="done"&&s.result){const r=s.result;ln(r.pick&&r.pick.played?`<b>Both yes.</b> ${r.paid_by==="house"?"On the house: the joker paid.":"Two tokens each."} Logged for the venue: the last 25 picks sit out of the draft.`:`<b>No match tonight.</b> Three picks, nobody charged.`,true)}
   const html=L.join("");if(html!==hudKey){hudKey=html;$("hudLog").innerHTML=html;$("hudL").scrollTop=$("hudL").scrollHeight}}
-function faceHTML(c,cls){const su=c.suit||"";return `<div class="card ${cls||""}${su?" s-"+su:""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div>${su?`<div class="suit" title="${su}"><svg><use href="#su-${su}"/></svg></div>`:""}<div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
+function faceHTML(c,cls,back){const su=c.suit||"";return `<div class="card ${cls||""}${su?" s-"+su:""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div>${su?`<div class="suit" title="${su}"><svg><use href="#su-${su}"/></svg></div>`:""}<div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div>${back?'<div class="cardback"></div>':""}</div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':''}<div class="name${longName(c.name)}">${esc(c.name)}</div></div></div>`}
 
@@ -511,9 +518,10 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
       qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
     const mode=me.locked?"tosswait":"toss";if(tableMode!==mode)setMode(mode);
     const hn=other.hand_n||4;$("themMinis").innerHTML=[...Array(hn)].map((_,i)=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
-    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):"is choosing";
-    if(mode==="tosswait"){$("handHint").textContent="Waiting for "+pn+" to toss…"}
+    $("stripStatus").textContent=other.locked?(other.tossed_n?`discarded ${other.tossed_n}`:"kept them all"):"is choosing";
+    if(mode==="tosswait"&&Date.now()>tossSettleUntil){$("handHint").textContent="Waiting for "+pn+"…"}
     showBubble(other.emote,"stripBubble");return}
+  if(s.phase==="play"&&Date.now()<tossSettleUntil){$("stripStatus").textContent=other.tossed_n?`discarded ${other.tossed_n}`:"kept them all";return}   // the fresh cards get their moment first
   if(s.phase==="play"||s.phase==="thinking"){
     if(lastPhase!=="play"&&lastPhase!=="thinking"){const fresh=lastPhase==="toss"||lastPhase===null;lastPhase="play";const old=hand;hand=me.hand||[];chosen=null;shownPairs=(s.pairs||[]).length;shownRank=-1;
       setMode("play");renderFan();renderSlots(s,me,other);
@@ -561,16 +569,28 @@ function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.sp
   if(key)return pickLine(sp[key],"sp"+p.rank);const vars={ca:a,cb:b};return q("pairs."+(p.match==="exact"?"exact":p.match==="kin"?"kin":"none"),"pr"+p.rank,vars)}
 // the hand along the bottom: one card of each suit (the joker makes five); 2 x 2 at the deal, a row in the rounds
 function fanLayout(){fitTable()}
-function renderFan(){const played=state&&state.sides[who].plays||[];$("fan").innerHTML=hand.filter(c=>!played.includes(c.id)).map(c=>`<div class="fcard ${chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
+function renderFan(){const played=state&&state.sides[who].plays||[];const deal=tableMode==="toss"||tableMode==="tosswait";$("fan").innerHTML=hand.filter(c=>!played.includes(c.id)).map(c=>`<div class="fcard ${chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"",deal)}</div>`).join("");
   $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")choose(id,el)}});fitTable();
-  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${["one","two","three","all four","all five"][k-1]||k}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Three is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to three go.":"Tap what isn't you. Up to three."}}
-function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody tosses a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();renderFan();if(navigator.vibrate)navigator.vibrate(8)}
-async function lockToss(){try{$("tossBtn").disabled=true;await api(code+"/toss",{who,cards:tosses});poll()}catch(e){alert(e.message);$("tossBtn").disabled=false}}
+  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Discard ${["one","two","three"][k-1]||k}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Three is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to three go.":"Tap what isn't you to discard it. Up to three."}}
+function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody discards a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();
+  const el=$("fan").querySelector(`.fcard[data-id="${id}"]`);if(el)el.classList.toggle("tossing",tosses.includes(id));   // the card turns over in place
+  const k=tosses.length;$("tossBtn").textContent=k?`Discard ${["one","two","three"][k-1]||k}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Three is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to three go.":"Tap what isn't you to discard it. Up to three.";
+  if(navigator.vibrate)navigator.vibrate(8)}
+// the discards go back to Q-Lou, the fresh cards come from him face down and turn over; the deal stays on screen for the moment
+let tossSettleUntil=0;
+async function lockToss(){try{$("tossBtn").disabled=true;const gone=tosses.slice();const out=await api(code+"/toss",{who,cards:gone});
+    const fresh=(out.hand||[]).filter(c=>!hand.some(h=>h.id===c.id)).map(c=>c.id);
+    tossSettleUntil=Date.now()+(gone.length?3400:1200);setMode("tosswait");$("handHint").textContent=gone.length?"":"Waiting for "+partnerName()+"…";
+    flyOut(gone);setTimeout(()=>{hand=out.hand||hand;tosses=[];renderFan();if(fresh.length)dealIn(fresh,true)},gone.length?620:0);
+    setTimeout(poll,gone.length?3300:300)}catch(e){alert(e.message);$("tossBtn").disabled=false}}
+function flyOut(ids){const to=$("stage").getBoundingClientRect();ids.forEach((id,i)=>{const el=$("fan").querySelector(`.fcard[data-id="${id}"]`);if(!el)return;const r=el.getBoundingClientRect();
+  setTimeout(()=>{el.style.visibility="hidden";const f=document.createElement("div");f.className="flyer back";f.style.left=r.left+"px";f.style.top=r.top+"px";f.style.width=r.width+"px";f.style.height=r.height+"px";document.body.appendChild(f);
+    requestAnimationFrame(()=>{f.style.transform=`translate(${to.left+to.width/2-r.left-r.width/2}px,${to.top+to.height/2-r.top-r.height/2}px) scale(.25)`;f.style.opacity="0"});setTimeout(()=>f.remove(),640)},i*110)})}
 // cards fly in from Q-Lou's spot: all four at the deal, the replacements after the toss
-function dealIn(ids){const from=$("stage").getBoundingClientRect();const els=[...$("fan").querySelectorAll(".fcard")].filter(el=>!ids||ids.includes(+el.dataset.id));
-  els.forEach((el,i)=>{el.style.visibility="hidden";setTimeout(()=>{const to=el.getBoundingClientRect();const f=document.createElement("div");f.className="flyer back";f.style.left=(from.left+from.width/2-to.width/2)+"px";f.style.top=(from.top+from.height/2-to.height/2)+"px";f.style.width=to.width+"px";f.style.height=to.height+"px";f.style.transform="scale(.3)";document.body.appendChild(f);
+function dealIn(ids,turn){const from=$("stage").getBoundingClientRect();const els=[...$("fan").querySelectorAll(".fcard")].filter(el=>!ids||ids.includes(+el.dataset.id));
+  els.forEach((el,i)=>{el.style.visibility="hidden";if(turn)el.classList.add("facedown");setTimeout(()=>{const to=el.getBoundingClientRect();const f=document.createElement("div");f.className="flyer back";f.style.left=(from.left+from.width/2-to.width/2)+"px";f.style.top=(from.top+from.height/2-to.height/2)+"px";f.style.width=to.width+"px";f.style.height=to.height+"px";f.style.transform="scale(.3)";document.body.appendChild(f);
     requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-(from.left+from.width/2-to.width/2)}px,${to.top-(from.top+from.height/2-to.height/2)}px)`});
-    setTimeout(()=>{f.remove();el.style.visibility=""},660)},i*130)});
+    setTimeout(()=>{f.remove();el.style.visibility="";if(turn)setTimeout(()=>el.classList.remove("facedown"),120)},660)},i*130)});
   const minis=[...$("themMinis").querySelectorAll("i")];if(!ids)minis.forEach((m,i)=>{m.style.opacity=0;setTimeout(()=>{m.style.transition="opacity .5s";m.style.opacity=""},400+i*130)})}
 // a tap puts the card in the live slot; "Play it" sends it; a tap on the slot takes it back
 function choose(id,el){if(tableMode!=="play"||state.sides[who].down)return;if(chosen===id)return;qlouActed();chosen=id;const c=hand.find(x=>x.id===id);

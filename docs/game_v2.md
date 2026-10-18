@@ -22,7 +22,7 @@ and after the deal only one button: "Play it".
    from anywhere; the joker takes one of the two extra seats when it shows. Shown 2 x 3, big. Toss up
    to three; a fresh card of the same suit comes from Q-Lou for each one tossed, so the hand keeps
    one of each. A tossed card counts as "not me" in the engine (a small negative weight). "Keep them
-   all" or "Toss two" is a gold pill above the cards, never at the bottom edge.
+   all" or "Discard two" is a gold pill above the cards, never at the bottom edge.
 1. **Round 1 of 3: Most me.** One slot on your side is live (gold). Tap the card that is most you,
    it lands in the slot, tap "Play it" (or tap it in the slot to take it back). The line under your
    partner's name says "is choosing" or "has a card down". When both are down, their card flips,
@@ -79,7 +79,7 @@ Gemini 3.5 Flash Lite through OpenRouter, Brent's key. Switching to another mode
   artists over 0.07 to 0.09 and genre cards over 0.01 to 0.02, so before this a rank-3 life card
   outweighed a rank-1 genre card.
 - Draft score per artist per partner = weighted mean over the three played cards (3, 2, 1) minus a
-  small share of the tossed cards' affinity (not me). Silence still counts as the column floor.
+  small share of the discarded cards' affinity (not me). Silence still counts as the column floor.
 - Everything else stays: curve per partner, the weaker score decides, near ties go to the better
   known artist, verify the top three live, compare for "you share", the control.
 - Three weighted cards each instead of four flat across an optional round: at least as much signal,

@@ -13,7 +13,7 @@
   "round": {
     "toss": [
       "Six cards. The ones that aren't you come back to me. Up to three.",
-      "Six cards, one of each suit and two more. Keep what's true, toss the rest.",
+      "Six cards, one of each suit and two more. Keep what's true, discard the rest.",
       "Fresh deck, two people, one jukebox. What isn't you goes back to me."
     ],
     "r1": [
@@ -42,7 +42,7 @@
   },
   "toss_result": {
     "both_kept": [
-      "Nobody tossed. Confident table.",
+      "Nobody discarded. Confident table.",
       "Six and six, untouched."
     ],
     "both_tossed": [
@@ -54,8 +54,8 @@
       "{b} kept everything. {a} sent {na} back."
     ],
     "both_same": [
-      "Both of you dumped {card}. Noted.",
-      "{card}, tossed by both. I'll remember that at pick time.",
+      "Both of you discarded {card}. Noted.",
+      "{card}, discarded by both. I'll remember that at pick time.",
       "Two people, same reject: {card}. That's a kind of agreement."
     ],
     "fresh": [
