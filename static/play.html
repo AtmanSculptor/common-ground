@@ -34,88 +34,97 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .venueLine:empty{display:none}
 .fit{text-align:center;color:var(--text3);font-size:.95rem;margin:2px 0 8px}
 
-/* ---- the table: one screen, never scrolls ---- */
-#s-table{position:fixed;inset:0;max-width:560px;margin:0 auto;padding:8px 12px calc(16px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:4px;overflow-y:auto;
+/* ---- the table: one screen, never scrolls. Below the room bar the field (both sides, Q-Lou's line between) takes
+   1.618 parts and the hand takes 1. At the deal there are no slots yet, so the hand takes the whole table. ---- */
+#s-table{position:fixed;inset:0;max-width:560px;margin:0 auto;padding:8px 12px calc(18px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:0;overflow-y:auto;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22'%3E%3Ccircle cx='11' cy='11' r='1' fill='%23ffffff' fill-opacity='0.045'/%3E%3C/svg%3E"),radial-gradient(ellipse 110% 55% at 50% 0%,rgba(138,43,226,.22),transparent 60%),radial-gradient(ellipse 110% 55% at 50% 100%,rgba(255,199,0,.10),transparent 60%),linear-gradient(#070309,#0b0612 50%,#070309)}
 #s-table.on{display:flex}
-.tbar{display:flex;justify-content:space-between;align-items:center;flex:none}
-.thead{flex:none;text-align:center;line-height:1.2}
-.thead b{display:block;font-size:.8rem;color:var(--gold);letter-spacing:.08em;text-transform:uppercase}
-.field{position:relative;border-radius:16px;padding:4px 0 6px;flex:none}
-.field.them{background:rgba(138,43,226,.07)}
-.field.me{background:rgba(255,199,0,.045)}
-.field .who{text-align:center;color:var(--text3);font-size:.8rem;margin:0 0 3px;min-height:1.1em}
-.slots{display:grid;grid-template-columns:repeat(3,var(--slot));gap:8px;justify-content:center;transition:grid-template-columns .4s}
-.slot{aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.55);position:relative;transition:width .4s,border-color .3s}
-.slot i{position:absolute;inset:0;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:.74rem;line-height:1.1;text-align:center;padding:4px;color:var(--gold);text-shadow:0 1px 6px #000}
-.slot:has(.card){border-color:transparent}
-.slot:has(.card) i{display:none}
-.slot .card{position:absolute;inset:-2px;width:auto;height:auto;cursor:pointer}
-.slot.over{border-color:var(--gold);box-shadow:0 0 18px rgba(255,199,0,.35)}
-.field.me .slot:empty::after{content:"";position:absolute;inset:0;border-radius:var(--r);background:radial-gradient(circle at 50% 40%,rgba(42,13,68,.5),transparent 70%)}
-#s-table.play .field.me .slots.untouched .slot{animation:slotpulse 2s ease-in-out infinite}
-@keyframes slotpulse{0%,100%{border-color:rgba(189,53,252,.35)}50%{border-color:rgba(189,53,252,.7);box-shadow:0 0 14px rgba(189,53,252,.25)}}
-.field.them{--slot:clamp(48px,calc(var(--vh,700px) * .085),74px)}
-#s-table.toss .field.me,#s-table.tosswait .field.me{display:none}
-#s-table.toss .field.them,#s-table.tosswait .field.them{display:flex;align-items:center;justify-content:center;gap:10px;padding:6px 8px}
-#s-table.toss .field.them .who,#s-table.tosswait .field.them .who{margin:0}
-#s-table.toss .minis,#s-table.tosswait .minis{min-height:0;gap:3px}
-#s-table.toss .minis i,#s-table.tosswait .minis i{width:13px;border-radius:3px}
-.field.me{--slot:clamp(58px,calc(var(--vh,700px) * .11),92px)}
-#s-table.reveal .field.them,#s-table.reveal .field.me{--slot:clamp(66px,calc(var(--vh,700px) * .115),98px)}
-.slot .card .name{font-size:.68rem;padding:4px 2px 5px;line-height:1.05;overflow-wrap:anywhere}
-.card .name.long{font-size:.58rem;letter-spacing:-.01em}
-#s-table.reveal .slot .card .name{font-size:.78rem;padding:5px 3px 6px}
-.slot .card .frame{border-width:1px}
-.field.them .slot .card{pointer-events:none}
-.minis{display:flex;justify-content:center;gap:4px;min-height:calc(var(--slot) * 1.5)}
-.minis i{display:block;width:calc(var(--slot) * .62);aspect-ratio:2/3;border-radius:6px;background:#000 url(static/deck/back.jpg) center/cover;border:1px solid rgba(189,53,252,.35);opacity:.9}
+.tbar{display:flex;justify-content:space-between;align-items:center;flex:none;height:34px}
+.thead{flex:none;text-align:center;height:24px;line-height:24px}
+.thead b{font-size:.78rem;color:var(--gold);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.thead b.hi{color:#fff;text-transform:none;letter-spacing:0;font-size:.95rem}
+/* the deal: the partner's side is one line */
+.strip{flex:none;display:none;align-items:center;justify-content:center;gap:10px;padding:6px 8px;border-radius:16px;background:rgba(138,43,226,.07);position:relative;margin-top:2px}
+#s-table.toss .strip,#s-table.tosswait .strip{display:flex}
+.strip .who{height:auto}
+.minis{display:flex;gap:3px}
+.minis i{display:block;width:13px;aspect-ratio:2/3;border-radius:3px;background:#000 url(static/deck/back.jpg) center/cover;border:1px solid rgba(189,53,252,.35);opacity:.9}
 .minis i.gone{opacity:.15}
+/* the field: their side, the line, your side */
+.field{flex:618 0 0;min-height:0;display:flex;flex-direction:column;position:relative}
+#s-table.toss .field,#s-table.tosswait .field{flex:none}
+#s-table.toss .side,#s-table.tosswait .side{display:none}
+#s-table.interlude .field{flex:1 1 0}
+.side{flex:1 1 0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:16px;padding:3px 0 4px;position:relative}
+.side.them{background:rgba(138,43,226,.07)}.side.me{background:rgba(255,199,0,.045)}
+.who{color:var(--text3);font-size:.78rem;line-height:1.1;height:16px;text-align:center;margin:0}
+.who b{color:var(--text2);font-weight:600}
+.slots{display:flex;gap:8px;justify-content:center;align-items:center}
+.slot{width:var(--sw,100px);aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.45);position:relative;display:grid;place-items:center;transition:width .35s,border-color .3s,box-shadow .3s}
+.slot i{font-style:normal;color:var(--text3);font-size:.72rem;font-weight:600;text-align:center;line-height:1.15;padding:0 4px}
+.slot.live{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,199,0,.25),0 0 18px rgba(255,199,0,.25);animation:slotpulse 2s ease-in-out infinite}
+.slot.live i{color:var(--gold)}
+@keyframes slotpulse{50%{box-shadow:0 0 0 1px rgba(255,199,0,.45),0 0 26px rgba(255,199,0,.45)}}
+.slot.down{border-style:solid;border-color:rgba(255,199,0,.55);animation:none}
+.slot.done{border-style:solid;border-color:rgba(189,53,252,.25);animation:none}
+.slot .card{position:absolute;inset:-2px;width:auto;height:auto}
+.slot .card .name{font-size:.76rem;padding:6px 4px 7px;overflow-wrap:anywhere}
+.card .name.long{font-size:.64rem;letter-spacing:-.01em}
+.side.them .slot .card{pointer-events:none}
+.slot .card .frame{border-width:2px}
 .bubble{position:absolute;left:50%;top:-6px;transform:translate(-50%,0) scale(.4);opacity:0;font-size:2.4rem;line-height:1;z-index:5;pointer-events:none;filter:drop-shadow(0 4px 10px rgba(0,0,0,.8))}
 .bubble.on{animation:bubble 2.8s ease-out forwards}
 @keyframes bubble{0%{opacity:0;transform:translate(-50%,24px) scale(.4)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px) scale(.9)}}
-
-/* the center: Q-Lou's spot on the line between the two fields */
-.stage{position:relative;flex:none;min-height:34px;display:flex;align-items:center;justify-content:center;gap:10px;padding:2px 4px;transition:min-height .35s}
+/* the line between, where Q-Lou sits; when he talks the line opens and the slots give him the room */
+.stage{flex:none;min-height:26px;position:relative;display:flex;align-items:center;justify-content:center;padding:4px 0;transition:min-height .35s}
 .stage::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(189,53,252,.6),rgba(255,199,0,.5),transparent);z-index:0}
-.stage.talking{min-height:clamp(80px,calc(var(--vh,700px) * .13),116px)}
-#s-table.reveal .stage{min-height:clamp(90px,calc(var(--vh,700px) * .15),130px)}
-.qcoin{position:absolute;left:50%;top:50%;width:26px;height:26px;transform:translate(-50%,-50%);z-index:1;filter:drop-shadow(0 0 8px rgba(255,199,0,.7));transition:opacity .3s,transform .3s}
-.stage.talking .qcoin{opacity:0;transform:translate(-50%,-50%) scale(.3)}
-.qmini{position:relative;z-index:2;width:clamp(48px,calc(var(--vh,700px) * .08),70px);aspect-ratio:2/3;border-radius:10px;overflow:hidden;flex:none;box-shadow:0 0 22px rgba(189,53,252,.55);transform:scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .25s}
-.qmini img{width:100%;height:100%;object-fit:cover;display:block}
+.stage.talking{min-height:84px}
+#s-table.toss .stage,#s-table.tosswait .stage{min-height:34px}
+.qcoin{position:relative;width:24px;height:24px;z-index:1;filter:drop-shadow(0 0 8px rgba(255,199,0,.7));transition:opacity .3s,transform .3s}
+.stage.talking .qcoin{position:absolute;opacity:0;transform:scale(.3)}
+.qblock{position:relative;z-index:2;display:none;align-items:center;gap:10px;width:94%;max-width:400px}
+.stage.talking .qblock{display:flex}
+.qblock .qmini{width:54px;aspect-ratio:2/3;border-radius:10px;overflow:hidden;flex:none;box-shadow:0 0 22px rgba(189,53,252,.6);transform:scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,.9,.3,1.2),opacity .25s}
+.qblock .qmini img{width:100%;height:100%;object-fit:cover;display:block}
 .stage.talking .qmini{transform:scale(1);opacity:1}
-.qsay{position:relative;z-index:2;background:#0d0714;border:1px solid rgba(189,53,252,.4);border-radius:14px;padding:8px 12px;font-size:.92rem;line-height:1.25;max-width:78%;color:var(--text);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;text-align:left}
-.qsay::before{content:"";position:absolute;left:-7px;top:16px;border:6px solid transparent;border-right-color:rgba(189,53,252,.4);border-left:0}
+.qsay{background:rgba(13,7,20,.96);border:1px solid rgba(189,53,252,.5);border-radius:14px;padding:9px 12px;font-size:.92rem;line-height:1.25;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.7);opacity:0;transform:translateY(6px);transition:opacity .3s,transform .3s;text-align:left}
 .stage.talking .qsay{opacity:1;transform:none}
-.words{flex:none;text-align:center;color:var(--text2);font-size:.82rem;line-height:1.25;min-height:0;padding:0 4px}
-#s-table .meterwrap{flex:none;display:none;padding:0 6px}
-#s-table.reveal .meterwrap{display:block}
-
-/* the hand: four across along the bottom (five when the joker rides along), nothing overlapping */
-.handwrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:flex-end}
-.hint{text-align:center;color:var(--text2);font-size:.9rem;margin:0 0 4px;min-height:1.2em}
-.fan{position:relative;height:var(--fanh,120px);display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-end;gap:var(--gap,6px);padding:0 4px 4px;--cw:90px}
+/* the meter, after the third flip */
+#s-table .meterwrap{flex:none;display:none;padding:6px 6px 0}
+#s-table.interlude .meterwrap{display:block}
+.words{text-align:center;color:var(--text2);font-size:.82rem;line-height:1.25;margin:0;padding:0 4px}
+/* the hand block: the action pill, the hint, the cards */
+.handblock{flex:382 0 0;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
+#s-table.toss .handblock,#s-table.tosswait .handblock{flex:1 1 0}
+#s-table.interlude .handblock{flex:none;padding:8px 0 2px;gap:8px}
+.actrow{flex:none;min-height:40px;display:flex;align-items:center;justify-content:center;gap:10px}
+.act{flex:none;height:40px;padding:0 22px;border-radius:999px;border:2px solid var(--gold);background:rgba(255,199,0,.1);color:var(--gold);font:inherit;font-weight:700;font-size:.95rem;letter-spacing:.04em;display:inline-flex;align-items:center;gap:8px;box-shadow:0 0 18px rgba(255,199,0,.18);margin:0;width:auto;transition:opacity .2s,transform .08s}
+.act:active{transform:scale(.96);background:rgba(255,199,0,.25);color:var(--gold)}
+.act:disabled{opacity:.35;box-shadow:none}
+.act.quiet{border-color:rgba(189,53,252,.55);color:var(--text2);background:rgba(189,53,252,.1);box-shadow:none}
+.act.quiet.chosen{border-color:var(--gold);color:var(--gold);background:rgba(255,199,0,.12)}
+.hint{text-align:center;color:var(--text2);font-size:.86rem;height:20px;line-height:20px;margin:0}
+.fan{display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-end;gap:var(--gap,6px);width:100%;padding:0 2px;--cw:90px}
+#s-table.toss .fan,#s-table.tosswait .fan{--gap:8px}
+#s-table.interlude .fan,#s-table.interlude .hint{display:none}
 .fcard{position:relative;flex:none;width:var(--cw);aspect-ratio:2/3;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s,filter .25s;touch-action:none}
 .fcard .card{width:100%;height:100%}
-.fcard.played{opacity:.15;pointer-events:none}
+.fcard.played{opacity:.18;pointer-events:none}
 .fcard.tossing{filter:grayscale(.8) brightness(.6)}
 .fcard.tossing .card{box-shadow:0 0 0 2px var(--coral)}
 .fcard.tossing .badge{display:grid;background:var(--coral);border-color:var(--coral);color:#000}
 .fcard.tossing .badge::before{content:"✕"}
 .card.match .badge::before{content:"★"}
 .fcard .card .name{font-size:.66rem;font-weight:600;padding:4px 3px 5px;overflow-wrap:anywhere;background:linear-gradient(transparent,rgba(0,0,0,.78))}
-body.grid .fcard .card .name{font-size:.82rem;padding:6px 4px 7px}
-body.grid .fan{--gap:8px}
-.waitbox{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
-.wait{color:var(--text3);text-align:center;margin:0}
-.nudges{display:flex;justify-content:center;gap:10px;margin:2px 0 0}
-.nudges button{margin:0;width:52px;height:52px;min-height:0;padding:0;font-size:1.5rem;border-radius:50%;background:var(--surface);border:2px solid rgba(189,53,252,.35)}
+#s-table.toss .fcard .card .name,#s-table.tosswait .fcard .card .name{font-size:.82rem;padding:6px 4px 7px}
+.nudges{display:flex;justify-content:center;gap:10px;margin:0}
+.nudges button{margin:0;width:40px;height:40px;min-height:0;padding:0;font-size:1.3rem;border-radius:50%;background:var(--surface);border:2px solid rgba(189,53,252,.35)}
 .nudges button:active{transform:scale(.92);border-color:var(--gold)}
 .nudges button:disabled{opacity:.5}
-.tact{flex:none;padding-top:2px}
-.tact button{margin:0;padding:12px 18px}
-.tact .venueLine{text-align:center;margin:4px 0 0;font-size:.82rem}
+.betcap{text-align:center;color:var(--text2);font-size:.86rem;margin:0 0 2px}
+.betrow{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;padding:0 4px}
+.betrow .act{height:36px;padding:0 14px;font-size:.86rem;letter-spacing:0}
+.wait{color:var(--text3);text-align:center;margin:0}
 .flyer{position:fixed;z-index:50;pointer-events:none;border-radius:var(--r);overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.6);transition:transform .34s cubic-bezier(.2,.8,.2,1),width .34s,height .34s,opacity .3s}
 .flyer.back{background:#000 url(static/deck/back.jpg) center/cover}
 .dragging{position:fixed;z-index:60;pointer-events:none;border-radius:var(--r);overflow:hidden;box-shadow:0 14px 34px rgba(0,0,0,.7)}
@@ -230,21 +239,20 @@ details[open] summary::after{content:"–"}
 
 <section class="screen" id="s-table">
   <div class="tbar"><div class="pill" id="tRoom">Room</div><div class="pill credits"><span id="tTok">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
-  <div class="thead"><b id="roundLabel">Round 1 of 3</b></div>
-  <div class="field them"><div class="bubble" id="themBubble"></div><div class="who"><span id="themName"></span> <span id="themStatus"></span></div><div class="minis" id="themMinis" style="display:none"></div><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
-  <div class="stage" id="stage"><svg class="qcoin"><use href="#coin"/></svg><div class="qmini"><img src="static/deck/qlou.jpg" alt=""></div><div class="qsay" id="qsay"></div></div>
-  <div class="field me"><div class="who">You</div><div class="slots untouched" id="meSlots"><div class="slot" data-i="0"><i>Most me</i></div><div class="slot" data-i="1"><i>Also me</i></div><div class="slot" data-i="2"><i>A bit me</i></div></div></div>
+  <div class="thead"><b id="roundLabel">The deal</b></div>
+  <div class="strip" id="strip"><div class="bubble" id="stripBubble"></div><span class="who"><b id="stripName"></b> <span id="stripStatus"></span></span><span class="minis" id="themMinis"></span></div>
+  <div class="field" id="field">
+    <div class="side them"><div class="bubble" id="themBubble"></div><p class="who"><b id="themName"></b> <span id="themStatus"></span></p><div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div></div>
+    <div class="stage" id="stage"><svg class="qcoin"><use href="#coin"/></svg><div class="qblock"><div class="qmini"><img src="static/deck/qlou.jpg" alt=""></div><div class="qsay" id="qsay"></div></div></div>
+    <div class="side me"><p class="who"><b>You</b> <span id="meStatus"></span></p><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div></div>
+  </div>
   <div class="meterwrap"><div class="meter"><i id="meter"></i></div><p class="words" id="words"></p></div>
-  <div class="tact" id="tact"><button id="tossBtn" onclick="lockToss()" style="display:none">Keep them all</button><button id="lockBtn" disabled onclick="lockPlay()" style="display:none">Put three down</button><button id="nextBtn" onclick="next()" style="display:none">Hear Q-Lou's pick</button></div>
-  <div class="handwrap" id="handArea"><p class="hint" id="handHint"></p><div class="fan" id="fan"></div></div>
-  <div class="waitbox" id="waitArea" style="display:none"><p class="wait pulse" id="waitMsg"></p><p class="sub center" style="margin:4px 0 0;font-size:.85rem">Send a nudge</p><div class="nudges" id="nudges"></div></div>
-</section>
-
-<section class="screen" id="s-thinking">
-  <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="say" id="say">Give me five seconds.</p>
-  <div id="bet"></div>
-  <p class="sub center venueLine" id="thinkVenue" style="margin-top:18px"></p>
+  <div class="handblock" id="handArea">
+    <div class="actrow" id="actRow"><button class="act" id="tossBtn" onclick="lockToss()" style="display:none">Keep them all</button><button class="act" id="playBtn" onclick="playIt()" style="display:none">Play it</button><div class="nudges" id="nudges" style="display:none"></div></div>
+    <div id="bet"></div>
+    <p class="hint" id="handHint"></p>
+    <div class="fan" id="fan"></div>
+  </div>
 </section>
 
 <section class="screen" id="s-jukebox">
@@ -323,8 +331,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   $("lobbyVenue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}`:"";
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
-  if(s.phase==="toss"||s.phase==="play"||s.phase==="reveal"){show("table");renderTable(s,me,other);return}
-  if(s.phase==="thinking"){renderThinking(s.thinking||[]);$("thinkVenue").textContent=s.venue&&s.venue.quip?`${s.venue.name}: ${s.venue.quip}`:"";show("thinking");return}
+  if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"){show("table");renderTable(s,me,other);return}
   if(s.phase==="jukebox"){renderJukebox(s,me,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
@@ -340,138 +347,131 @@ function nextSay(){const n=sayQueue.shift();clearTimeout(sayTimer);sticky=false;
   setTimeout(fitTable,400);if(n.hold===0){sticky=true}else{sayTimer=setTimeout(nextSay,n.hold+300)}}
 function qlouClear(){sayQueue=[];clearTimeout(sayTimer);saying=false;sticky=false;$("stage").classList.remove("talking");setTimeout(fitTable,400)}
 function qlouActed(){if(sticky&&!sayQueue.length)qlouClear()}
-// the table is sized from the real screen: slots and the stage from --vh, the fan from what is left; if it still does
-// not fit (a short desktop pane), --vh shrinks until it does. The section can scroll as a last resort, never trapping the button.
-function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;const vv=window.visualViewport;const real=Math.round(vv?vv.height:innerHeight);let vh=real;
-  for(let i=0;i<4;i++){T.style.setProperty("--vh",vh+"px");
-    const fixed=["tbar","thead"].map(c=>T.querySelector("."+c)).concat([T.querySelector(".field.them"),$("stage"),T.querySelector(".field.me"),$("tact")]).concat([...T.querySelectorAll(".meterwrap,#waitArea")].filter(e=>getComputedStyle(e).display!=="none"));
-    const used=fixed.reduce((a,e)=>a+(e?e.offsetHeight:0),0)+4*(fixed.length+1)+18+(getComputedStyle($("handArea")).display!=="none"?$("handHint").offsetHeight+8:0);
-    const fanh=Math.max(78,Math.min(document.body.classList.contains("grid")?520:156,real-used-6));T.style.setProperty("--fanh",fanh+"px");fanLayout();
-    const over=T.scrollHeight-T.clientHeight;if(over<=0)break;vh=Math.round(vh*Math.max(.6,1-over/real)-4)}}
-window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
-
 // ---- the table ----
-let hand=[],selected=[],tosses=[],tableMode="",themShown="",dealt=false,placedSent=-1;
+// Sizes come from the real screen, every time it changes: the slots from the room each side has, the hand
+// cards from the room under the pill and the hint. Nothing is guessed from the viewport height.
+function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;
+  const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-16-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px")}
+  const h=$("handArea"),hd=$("fan");if(hd&&getComputedStyle(hd).display!=="none"){const n=Math.max(4,hd.children.length),grid=tableMode==="toss"||tableMode==="tosswait";const cols=grid?(n<=4?2:3):n,rows=Math.ceil(n/cols),gap=grid?8:6;
+    const used=[...h.children].filter(e=>e!==hd&&getComputedStyle(e).display!=="none").reduce((a,e)=>a+e.offsetHeight+6,0);const H=h.clientHeight-used-4,W=hd.clientWidth-4;
+    const cw=Math.floor(Math.max(40,Math.min((W-(cols-1)*gap)/cols,((H-(rows-1)*gap)/rows)*2/3)));hd.style.setProperty("--cw",cw+"px")}}
+window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
+let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=4,interludeShown=false,tossSaid=false;
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
-  const choosing=mode==="toss"||mode==="play";$("handArea").style.display=choosing?"":"none";$("waitArea").style.display=(mode==="tosswait"||mode==="playwait")?"":"none";
-  $("tossBtn").style.display=mode==="toss"?"":"none";$("lockBtn").style.display=mode==="play"?"":"none";$("nextBtn").style.display="none";
-  $("themMinis").style.display=(mode==="toss"||mode==="tosswait")?"":"none";$("themSlots").style.display=(mode==="toss"||mode==="tosswait")?"none":"";
-  if(mode==="tosswait"||mode==="playwait")renderNudges();setTimeout(fitTable,0)}
-function renderTable(s,me,other){const n=names();$("themName").textContent=partnerName();if(s.toss_max)TOSS_MAX=s.toss_max;
-  (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);
+  $("tossBtn").style.display=mode==="toss"?"":"none";$("playBtn").style.display=mode==="play"?"":"none";
+  const waiting=mode==="tosswait"||mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
+  setTimeout(fitTable,0);setTimeout(fitTable,380)}
+function rankName(i){return (state.rank_names||["Most me","Also me","A bit me"])[i]}
+function renderTable(s,me,other){const n=names();const pn=partnerName();$("themName").textContent=pn;$("stripName").textContent=pn;if(s.toss_max)TOSS_MAX=s.toss_max;
+  (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);(s.pairs||[]).forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
   if(s.phase==="toss"){
-    if(lastPhase!=="toss"){lastPhase="toss";hand=me.hand||[];tosses=[];selected=[];themShown="";setMode(me.locked?"tosswait":"toss");
-      $("roundLabel").textContent="Round 1 of 3: Toss";
-      renderFan();renderMySlots();if(!dealt){dealt=true;setTimeout(dealIn,50)}
+    if(lastPhase!=="toss"){lastPhase="toss";hand=me.hand||[];tosses=[];chosen=null;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;setMode(me.locked?"tosswait":"toss");
+      $("roundLabel").textContent="The deal";renderFan();renderSlots(s,me,other);if(!dealt){dealt=true;setTimeout(dealIn,50)}
       qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
-    const mode=me.locked?"tosswait":"toss";if(tableMode!==mode){setMode(mode)}
+    const mode=me.locked?"tosswait":"toss";if(tableMode!==mode)setMode(mode);
     const hn=other.hand_n||4;$("themMinis").innerHTML=[...Array(hn)].map((_,i)=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
-    $("themStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):`is looking at ${hn===5?"five":"four"} cards`;
-    if(mode==="tosswait"){$("waitMsg").textContent="Waiting for "+partnerName()+" to toss…";$("handHint").textContent=""}
-    showBubble(other.emote);return}
-  if(s.phase==="play"){
-    if(lastPhase!=="play"){const fresh=lastPhase==="toss"||lastPhase===null;lastPhase="play";const old=hand;hand=me.hand||[];selected=me.plays&&me.plays.length?me.plays.slice():[];placedSent=-1;themShown="";
-      $("roundLabel").textContent="Round 2 of 3: Play";
-      setMode(me.locked?"playwait":"play");renderFan();renderMySlots();if(fresh){const ts=s.toss_summary;qlouClear();qlouSay((ts?tossLine(ts)+" ":"")+q("round.play","r2"),0);
-        const replaced=hand.filter(c=>!old.some(o=>o.id===c.id));if(replaced.length)setTimeout(()=>dealIn(replaced.map(c=>c.id)),50)}}
-    const mode=me.locked?"playwait":"play";if(tableMode!==mode)setMode(mode);
-    const k=other.locked?3:(other.placed||0);const st=(other.locked?"L":"")+k;if(themShown!==st){themShown=st;$("themSlots").innerHTML=[0,1,2].map(i=>i<k?`<div class="slot">${backHTML()}</div>`:'<div class="slot"></div>').join("")}
-    $("themStatus").textContent=other.locked?"locked in":(k===0?"is choosing…":k===1?"put one down":k===2?"has two down":"has three down");
-    if(mode==="playwait"){$("waitMsg").textContent="Waiting for "+partnerName()+" to lock in…";renderMySlots(me.plays&&me.plays.length?me.plays:selected)}
-    showBubble(other.emote);return}
-  if(s.phase==="reveal"){
-    if(lastPhase!=="reveal"){lastPhase="reveal";setMode("reveal");$("roundLabel").textContent="Round 3 of 3: Reveal";$("themStatus").textContent="";renderReveal(s.reveal)}
-    $("nextBtn").textContent=s.pick_ready?"Q-Lou has your song":"Hear Q-Lou's pick";return}}
+    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):`is looking at ${hn===5?"five":"four"} cards`;
+    if(mode==="tosswait"){$("handHint").textContent="Waiting for "+pn+" to toss…"}
+    showBubble(other.emote,"stripBubble");return}
+  if(s.phase==="play"||s.phase==="thinking"){
+    if(lastPhase!=="play"&&lastPhase!=="thinking"){const fresh=lastPhase==="toss"||lastPhase===null;lastPhase="play";const old=hand;hand=me.hand||[];chosen=null;shownPairs=(s.pairs||[]).length;shownRank=-1;
+      setMode("play");renderFan();renderSlots(s,me,other);
+      if(fresh&&!tossSaid){tossSaid=true;const ts=s.toss_summary;qlouClear();qlouSay((ts?tossLine(ts)+" ":"")+q("round.r1","r1"),0);
+        const replaced=hand.filter(c=>!old.some(o=>o.id===c.id));if(replaced.length&&old.length)setTimeout(()=>dealIn(replaced.map(c=>c.id)),50)}}
+    if(s.phase==="thinking"){lastPhase="thinking";renderInterlude(s,me,other);return}
+    const pairs=s.pairs||[];
+    if(pairs.length>shownPairs){flipPair(s,pairs[shownPairs],shownPairs);shownPairs++;return}   // the flip owns the screen for a moment
+    const r=s.rank;const mode=me.down?"playwait":"play";if(tableMode!==mode)setMode(mode);
+    if(shownRank!==r){shownRank=r;$("roundLabel").textContent=`Round ${r+1} of 3: ${rankName(r)}`;renderFan()}
+    renderSlots(s,me,other);
+    $("themStatus").textContent=other.down?"has a card down":"is choosing";$("meStatus").textContent=me.down?"· your card is down":"";
+    if(mode==="play"){$("playBtn").disabled=chosen==null;$("handHint").textContent=chosen?"Tap it again to take it back.":`Tap the card that is ${r===0?"most you":r===1?"also you":"a bit you"}.`}
+    else $("handHint").textContent=other.down?"Both down. Flipping…":"Waiting for "+pn+"…";
+    showBubble(other.emote,"themBubble");return}}
 function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names();
   if(!na&&!nb)return q("toss_result.both_kept","tk");
   if(na&&nb)return q("toss_result.both_tossed","tt",{na,nb});
-  // one kept: {a} tossed, {b} kept, whichever way round
   const v=na?{a:n.a,b:n.b,na}:{a:n.b,b:n.a,na:nb};return fill(pickLine(Q&&Q.toss_result&&Q.toss_result.one_kept,"ok"),v)}
-// the hand along the bottom: one card of each suit side by side (the joker makes five), the ones in play or tossed marked
-let TOSS_MAX=2;
-function fanLayout(){const F=$("fan");const n=Math.max(4,F.querySelectorAll(".fcard").length);const grid=document.body.classList.contains("grid");const gap=grid?8:6;
-  const cols=grid?(n<=4?2:3):n,rows=Math.ceil(n/cols);const fanh=parseFloat(getComputedStyle($("s-table")).getPropertyValue("--fanh"))||120;const w=F.clientWidth-8;
-  const cw=Math.floor(Math.min((w-(cols-1)*gap)/cols,((fanh-4-(rows-1)*gap)/rows)*2/3));F.style.setProperty("--cw",cw+"px")}
-try{const hl=new URLSearchParams(location.search).get("hand");if(hl==="grid")document.body.classList.add("grid")}catch(e){}
-function renderFan(){$("fan").innerHTML=hand.map(c=>`<div class="fcard ${selected.includes(c.id)?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
-  $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{if(tableMode==="toss"){e.preventDefault();toggleToss(id)}else if(tableMode==="play")startDrag(e,el,id)}});fanLayout();
-  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${k===1?"one":"two"}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Two is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to two go.":"Tap the cards that aren't you. Up to two."}}
-window.addEventListener("resize",fanLayout);
+// the slots: pairs already flipped show both faces; the round being played shows your card (if down) and their back (if down)
+function renderSlots(s,me,other){const pairs=s.pairs||[];const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";const r=s.rank;const myPlays=me.plays||[];
+  const both=(s.reveal&&s.reveal.both)||[];const cls=(p,side)=>both.includes(p[side].name)?"match":p.match==="exact"?"match":p.match==="kin"?"kin":"";
+  $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=pairs[i];
+    if(p){if(!sl.classList.contains("done")||!sl.firstChild){sl.className="slot done";sl.dataset.key="";sl.innerHTML=faceHTML(p[mine],cls(p,mine))}return}
+    if(i===r&&s.phase==="play"){const down=myPlays[r]!=null;const id=down?myPlays[r]:chosen;const c=id!=null?(hand.find(x=>x.id===id)||ALL_CARDS[Object.keys(ALL_CARDS).find(k=>ALL_CARDS[k].id===id)]):null;
+      const key=(down?"d":"l")+(id==null?"":id);if(sl.dataset.key===key)return;sl.dataset.key=key;
+      sl.className="slot "+(down?"down":"live");sl.innerHTML=c?faceHTML(c,""):`<i>${rankName(i)}</i>`;if(c&&!down){sl.firstChild.onclick=()=>unchoose()}return}
+    sl.className="slot";sl.dataset.key="";sl.innerHTML=`<i>${rankName(i)}</i>`});
+  $("themSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=pairs[i];
+    if(p){if(!sl.classList.contains("done")){sl.className="slot done";sl.innerHTML=faceHTML(p[theirs],cls(p,theirs))}return}
+    if(i===r&&s.phase==="play"){if(other.down){if(!sl.classList.contains("down")){sl.className="slot down";sl.innerHTML=backHTML()}}else{sl.className="slot live";sl.innerHTML=`<i>${theirRank(i)}</i>`}return}
+    sl.className="slot";sl.innerHTML=`<i>${theirRank(i)}</i>`})}
+function theirRank(i){return rankName(i).replace("me",partnerName())}
+// both cards are down: theirs flips, yours settles, Q-Lou says one thing about the pair and it stays until you act
+function flipPair(s,p,i){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";const kind=p.match;
+  const mcls=kind==="exact"?"match":kind==="kin"?"kin":"";
+  const ts=$("themSlots").querySelectorAll(".slot")[i],ms=$("meSlots").querySelectorAll(".slot")[i];
+  ts.className="slot done";ts.innerHTML=flipHTML(p[theirs],mcls,kind==="exact");ms.className="slot done";ms.innerHTML=faceHTML(p[mine],mcls);
+  const flip=ts.querySelector(".card.flip");setTimeout(()=>{flip&&flip.classList.add("shown");if(navigator.vibrate)navigator.vibrate(kind==="exact"?[20,40,20]:12)},120);
+  $("themStatus").textContent="";$("meStatus").textContent="";$("handHint").textContent="";
+  qlouClear();setTimeout(()=>{qlouSay(pairLine(p),0)},700);lastFlipAt=Date.now();
+  setTimeout(()=>{shownRank=-1;poll()},1600)}
+let lastFlipAt=0;
+function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.specific||{};const key=Object.keys(sp).find(k=>{const [x,y]=k.split("|");return (x===a&&y===b)||(x===b&&y===a)});
+  if(key)return pickLine(sp[key],"sp"+p.rank);const vars={ca:a,cb:b};return q("pairs."+(p.match==="exact"?"exact":p.match==="kin"?"kin":"none"),"pr"+p.rank,vars)}
+// the hand along the bottom: one card of each suit (the joker makes five); 2 x 2 at the deal, a row in the rounds
+function fanLayout(){fitTable()}
+function renderFan(){const played=state&&state.sides[who].plays||[];$("fan").innerHTML=hand.map(c=>`<div class="fcard ${played.includes(c.id)||chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
+  $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")choose(id,el)}});fitTable();
+  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${["one","two","three","all four","all five"][k-1]||k}`:"Keep them all";$("handHint").textContent=k?"Tap a card to keep it.":"Tap what isn't you. Toss any, or all."}}
 function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody tosses a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();renderFan();if(navigator.vibrate)navigator.vibrate(8)}
 async function lockToss(){try{$("tossBtn").disabled=true;await api(code+"/toss",{who,cards:tosses});poll()}catch(e){alert(e.message);$("tossBtn").disabled=false}}
-// cards fly in from Q-Lou's spot: all six at the deal, the replacements after the toss
+// cards fly in from Q-Lou's spot: all four at the deal, the replacements after the toss
 function dealIn(ids){const from=$("stage").getBoundingClientRect();const els=[...$("fan").querySelectorAll(".fcard")].filter(el=>!ids||ids.includes(+el.dataset.id));
   els.forEach((el,i)=>{el.style.visibility="hidden";setTimeout(()=>{const to=el.getBoundingClientRect();const f=document.createElement("div");f.className="flyer back";f.style.left=(from.left+from.width/2-to.width/2)+"px";f.style.top=(from.top+from.height/2-to.height/2)+"px";f.style.width=to.width+"px";f.style.height=to.height+"px";f.style.transform="scale(.3)";document.body.appendChild(f);
     requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-(from.left+from.width/2-to.width/2)}px,${to.top-(from.top+from.height/2-to.height/2)}px)`});
     setTimeout(()=>{f.remove();el.style.visibility=""},360)},i*90)});
   const minis=[...$("themMinis").querySelectorAll("i")];if(!ids)minis.forEach((m,i)=>{m.style.opacity=0;setTimeout(()=>{m.style.transition="opacity .3s";m.style.opacity=""},300+i*90)})}
-function tellPlaced(){const k=selected.length;if(k===placedSent||!code||tableMode!=="play")return;placedSent=k;api(code+"/placed",{who,n:k}).catch(()=>{})}
-function renderMySlots(ids){ids=ids||selected;const labels=["Most me","Also me","A bit me"];const slots=$("meSlots").querySelectorAll(".slot");
-  slots.forEach((sl,i)=>{const c=hand.find(x=>x.id===ids[i]);sl.innerHTML=c?faceHTML(c,""):`<i>${labels[i]}</i>`;if(c&&tableMode==="play"){sl.firstChild.onclick=()=>unplay(c.id);sl.firstChild.onpointerdown=e=>startSlotDrag(e,sl.firstChild,i)}});
-  $("meSlots").classList.toggle("untouched",ids.length===0);
-  const ready=ids.length===3;$("lockBtn").disabled=!ready;$("lockBtn").textContent=ready?"Lock it in":(ids.length===0?"Put three down":ids.length===1?"Two more":"One more");
-  if(tableMode==="play")$("handHint").textContent=ready?"Tap a card to put it back, or lock it in.":"Drag or tap. Most you goes on top.";tellPlaced()}
-function play(id,fromEl,slotIndex){if(selected.includes(id)||selected.length>=3)return;qlouActed();let i=slotIndex;if(i==null||selected[i]!=null){i=selected.length}
-  if(i>selected.length)i=selected.length;selected.splice(i,0,id);const slot=$("meSlots").querySelectorAll(".slot")[i];
-  if(fromEl){const c=hand.find(x=>x.id===id);fly(fromEl.getBoundingClientRect(),slot.getBoundingClientRect(),c.img,()=>{renderFan();renderMySlots()})}else{renderFan();renderMySlots()}
-  if(navigator.vibrate)navigator.vibrate(10)}
-function unplay(id){const i=selected.indexOf(id);if(i<0||tableMode!=="play")return;selected.splice(i,1);renderFan();renderMySlots()}
+// a tap puts the card in the live slot; "Play it" sends it; a tap on the slot takes it back
+function choose(id,el){if(tableMode!=="play"||state.sides[who].down)return;if(chosen===id)return;qlouActed();chosen=id;const c=hand.find(x=>x.id===id);
+  const slot=$("meSlots").querySelectorAll(".slot")[state.rank];fly(el.getBoundingClientRect(),slot.getBoundingClientRect(),c.img,()=>{renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()])});
+  $("playBtn").disabled=false;$("handHint").textContent="Tap it again to take it back.";if(navigator.vibrate)navigator.vibrate(10)}
+function unchoose(){if(tableMode!=="play"||chosen==null)return;chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);$("handHint").textContent=`Tap the card that is ${state.rank===0?"most you":state.rank===1?"also you":"a bit you"}.`}
+async function playIt(){if(chosen==null){$("handHint").textContent="Tap a card first.";return}try{$("playBtn").disabled=true;const id=chosen;await api(code+"/play",{who,card:id});chosen=null;poll()}catch(e){alert(e.message);$("playBtn").disabled=false}}
 function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   f.style.left=from.left+"px";f.style.top=from.top+"px";f.style.width=from.width+"px";f.style.height=from.height+"px";document.body.appendChild(f);
   requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-from.left}px,${to.top-from.top}px)`;f.style.width=to.width+"px";f.style.height=to.height+"px"});
   setTimeout(()=>{f.remove();done&&done()},340)}
-// drag from the fan onto a slot (the slot you drop on is the rank); a short tap plays into the next slot
-let drag=null;
-function slotAt(x,y){const slots=[...$("meSlots").querySelectorAll(".slot")];let best=-1,bd=1e9;slots.forEach((sl,i)=>{const r=sl.getBoundingClientRect();const cx=r.left+r.width/2,cy=r.top+r.height/2;const d=Math.hypot(x-cx,y-cy);if(d<bd){bd=d;best=i}});
-  const r=$("meSlots").getBoundingClientRect();return (y<r.bottom+24&&y>r.top-70&&x>r.left-40&&x<r.right+40)?best:-1}
-function startDrag(e,el,id){if(tableMode!=="play"||selected.includes(id))return;e.preventDefault();drag={el,id,x0:e.clientX,y0:e.clientY,moved:false,ghost:null};el.setPointerCapture&&el.setPointerCapture(e.pointerId);
-  el.onpointermove=ev=>{if(!drag)return;const dx=ev.clientX-drag.x0,dy=ev.clientY-drag.y0;if(!drag.moved&&Math.hypot(dx,dy)<10)return;
-    if(!drag.moved){drag.moved=true;const r=el.getBoundingClientRect();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=faceHTML(hand.find(x=>x.id===id),"");g.firstChild.style.position="absolute";g.firstChild.style.inset="0";document.body.appendChild(g);drag.ghost=g;el.style.opacity=.3}
-    drag.ghost.style.transform=`translate(${dx}px,${dy}px) scale(1.08)`;const si=slotAt(ev.clientX,ev.clientY);$("meSlots").querySelectorAll(".slot").forEach((x,i)=>x.classList.toggle("over",i===si))};
-  el.onpointerup=ev=>{if(!drag)return;const d=drag;drag=null;el.onpointermove=null;el.onpointerup=null;el.style.opacity="";$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.remove("over"));
-    if(!d.moved){play(id,el);return}
-    const si=slotAt(ev.clientX,ev.clientY);if(si>=0){qlouActed();const r=d.ghost.getBoundingClientRect();d.ghost.remove();
-      if(selected[si]!=null){const out=selected[si];selected[si]=id;renderFan();renderMySlots();if(navigator.vibrate)navigator.vibrate(10)}
-      else{let i=Math.min(si,selected.length);selected.splice(i,0,id);fly(r,$("meSlots").querySelectorAll(".slot")[i].getBoundingClientRect(),hand.find(x=>x.id===id).img,()=>{renderFan();renderMySlots()});if(navigator.vibrate)navigator.vibrate(10)}}
-    else{d.ghost.style.transition="transform .25s";d.ghost.style.transform="";setTimeout(()=>d.ghost.remove(),260)}};
-  el.onpointercancel=el.onpointerup}
-// drag a placed card onto another slot to swap ranks
-function startSlotDrag(e,el,from){if(tableMode!=="play")return;let moved=false;const x0=e.clientX,y0=e.clientY;el.setPointerCapture&&el.setPointerCapture(e.pointerId);
-  el.onpointermove=ev=>{if(!moved&&Math.hypot(ev.clientX-x0,ev.clientY-y0)<12)return;moved=true;el.style.transform=`translate(${ev.clientX-x0}px,${ev.clientY-y0}px) scale(1.06)`;el.style.zIndex=20;const si=slotAt(ev.clientX,ev.clientY);$("meSlots").querySelectorAll(".slot").forEach((x,i)=>x.classList.toggle("over",i===si&&i!==from))};
-  el.onpointerup=ev=>{el.onpointermove=null;el.onpointerup=null;el.style.transform="";el.style.zIndex="";$("meSlots").querySelectorAll(".slot").forEach(x=>x.classList.remove("over"));if(!moved){el.onclick&&el.onclick();return}
-    const si=slotAt(ev.clientX,ev.clientY);if(si>=0&&si!==from&&si<selected.length){const t=selected[si];selected[si]=selected[from];selected[from]=t;renderMySlots();if(navigator.vibrate)navigator.vibrate(10)}
-    el.onclick=null;setTimeout(()=>{},0)};el.onpointercancel=el.onpointerup}
-async function lockPlay(){if(selected.length!==3)return;try{$("lockBtn").disabled=true;await api(code+"/play",{who,cards:selected});poll()}catch(e){alert(e.message);$("lockBtn").disabled=false}}
-// the reveal: the pairs flip rank by rank, the meter says in plain words what matched, then Q-Lou says one thing and it stays
-function countsLine(c){if(!c)return "";const n=x=>x===0?"no":String(x);const parts=[];
+// after the third flip: the meter and the words, Q-Lou's pull line, then his steps while he thinks, and the four names to call
+function countsLine(c){if(!c)return "";const parts=[];
   parts.push(c.same?`${c.same===1?"1 card the same":c.same+" cards the same"}`:"no card the same");if(c.close)parts.push(`${c.close} close`);if(c.apart)parts.push(`${c.apart} apart`);
   return "Cards in common: "+parts.join(", ")+"."}
-function renderReveal(rv){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";rv.pairs.forEach(p=>{ALL_CARDS[p.a.name]=p.a;ALL_CARDS[p.b.name]=p.b});
-  const both=rv.both||[];const cls=(p,side)=>both.includes(p[side].name)?"match":(p.match==="kin"?"kin":"");
-  $("meSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=rv.pairs[i];if(!p)return;sl.innerHTML=faceHTML(p[mine],cls(p,mine))});
-  $("themSlots").innerHTML=rv.pairs.map(p=>`<div class="slot">${flipHTML(p[theirs],cls(p,theirs),cls(p,theirs)==="match")}</div>`).join("");
-  $("meter").style.width="0%";$("words").textContent="";
-  const flips=$("themSlots").querySelectorAll(".card.flip");qlouClear();
-  rv.pairs.forEach((p,i)=>{setTimeout(()=>{flips[i]&&flips[i].classList.add("shown");if(navigator.vibrate)navigator.vibrate(cls(p,mine)==="match"?[20,40,20]:12)},500+i*700)});
-  const after=500+rv.pairs.length*700+300;
-  setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=countsLine(rv.counts);
-    const pl=rv.pull;const pool=state.pick&&state.pick.pool?Number(state.pick.pool).toLocaleString():"2,003";
-    if(!pl)qlouSay(q("pull_none","pn",{pool}),0);else if(pl.host===pl.guest)qlouSay(q("pull_same","ps",{ca:pl.host,pool}),0);else qlouSay(q("pull","pl",{ca:pl.host,cb:pl.guest,pool}),0);
-    $("nextBtn").style.display=""},after)}
+function renderInterlude(s,me,other){const pairs=s.pairs||[];
+  if(pairs.length>shownPairs){flipPair(s,pairs[shownPairs],shownPairs);shownPairs++;return}
+  if(Date.now()-lastFlipAt<2600)return;                      // the third pair gets its moment first
+  if(!interludeShown){interludeShown=true;setMode("interlude");$("roundLabel").textContent="The reveal";$("themStatus").textContent="";$("meStatus").textContent="";$("handHint").textContent="";
+    const rv=s.reveal;renderSlots(s,me,other);$("meter").style.width="0%";$("words").textContent="";
+    setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=countsLine(rv.counts);
+      const pl=rv.pull;const pool=s.pick&&s.pick.pool?Number(s.pick.pool).toLocaleString():"2,003";
+      if(!pl)qlouSay(q("pull_none","pn",{pool}),0);else if(pl.host===pl.guest)qlouSay(q("pull_same","ps",{ca:pl.host,pool}),0);else qlouSay(q("pull","pl",{ca:pl.host,cb:pl.guest,pool}),0);
+      saidStep=-1;interludeAt=Date.now()},900);return}
+  if(tableMode!=="interlude")setMode("interlude");
+  renderBet(s.thinking||[]);
+  if(Date.now()-interludeAt>3000)renderThinking(s.thinking||[])}
+function renderBet(steps){if($("bet").innerHTML)return;const st=steps.find(x=>x.bet&&x.bet.length);if(!st)return;
+  $("bet").innerHTML=`<p class="betcap">Four are in the running. Call it.</p><div class="betrow">${st.bet.map(n=>`<button class="act quiet" onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`;setTimeout(fitTable,0)}
+let interludeAt=0;
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
 async function nudge(name,btn){if(nudgeBusy)return;nudgeBusy=true;document.querySelectorAll("#nudges button").forEach(b=>b.disabled=true);btn.style.transform="scale(1.25)";
   try{await api(code+"/emote",{who,emote:name})}catch(e){}
   setTimeout(()=>{nudgeBusy=false;btn.style.transform="";document.querySelectorAll("#nudges button").forEach(b=>b.disabled=false)},1600)}
-function showBubble(em){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))return;bubbleSeen=em.at;const b=$("themBubble");b.textContent=NUDGES[em.name];b.classList.remove("on");void b.offsetWidth;b.classList.add("on");if(navigator.vibrate)navigator.vibrate(8)}
-async function next(){try{await api(code+"/next",{});lastPhase=null;saidStep=-1;$("say").textContent="Give me five seconds.";$("bet").innerHTML="";myBet=null;poll()}catch(e){}}
+function showBubble(em,where){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))return;bubbleSeen=em.at;const b=$(where||"themBubble");b.textContent=NUDGES[em.name];b.classList.remove("on");void b.offsetWidth;b.classList.add("on");if(navigator.vibrate)navigator.vibrate(8)}
 // Q-Lou's voice while he thinks; the raw steps stay under the fold on the done screen; the pick is never named here
 function sayFor(s){const pool=s.pool?Number(s.pool).toLocaleString():"2,003";const t=Q&&Q.thinking||[];switch(s.step){case"read":return fill(t[0]||"Reading your cards.",{pool});case"draft":case"pool":case"score":return fill(t[1]||"Asking Qloo.",{pool});case"curve":return fill(t[2]||"Grading on a curve.",{pool});case"verify":return fill(t[3]||"Checking live.",{pool});case"pick":return fill(t[4]||"The weaker score decides.",{pool});case"error":return "Qloo is slow tonight. Hang on.";default:return null}}
 function renderThinking(steps){const last=state.offers&&state.offers[state.offers.length-1];
-  if(last&&last.status==="declined"){const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));$("say").textContent=`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`;saidStep=steps.length-1;return}
-  for(let i=saidStep+1;i<steps.length;i++){const s=steps[i];const line=sayFor(s);if(line){$("say").textContent=line}
-    if(s.bet&&s.bet.length&&!$("bet").innerHTML){$("bet").innerHTML=`<h2 class="center" style="margin-top:14px">Four are in the running. Which one will Q-Lou pick?</h2><div class="bet">${s.bet.map(n=>`<button onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`}}
+  if(last&&last.status==="declined"){if(saidStep!==-2){saidStep=-2;const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));qlouSay(`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`,0)}return}
+  for(let i=saidStep+1;i<steps.length;i++){const line=sayFor(steps[i]);if(line)qlouSay(line,0)}
   saidStep=steps.length-1}
 function placeBet(btn,name){myBet=name;document.querySelectorAll("#bet button").forEach(b=>{b.disabled=true;b.style.opacity=b===btn?1:.4});btn.classList.add("chosen")}
 function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" alt=""><div class="t"><b>${esc(t.track)}</b><span>${esc(t.album||"")}${t.year?" · "+esc(t.year):""}</span></div><button class="ghost" onclick="playPreview('${esc(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
@@ -494,7 +494,7 @@ function renderJukebox(s,me,other){const p=s.pick;if(!p)return;const key=p.artis
   else if(!s.on_the_house&&me.tokens<s.half){$("voteMsg").textContent=q("outcome.short","sh")}}
 function playHero(){playPreview(heroUrl,$("heroPlay"))}
 function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.src=u;a.play().catch(()=>{});btn&&(btn.textContent="❚❚");return}if(a.paused){a.play().catch(()=>{});btn&&(btn.textContent="❚❚")}else{a.pause();btn&&(btn.textContent="▶")}}
-async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;poll()}catch(e){alert(e.message)}}
+async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;interludeAt=0;poll()}catch(e){alert(e.message)}}
 function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p.tracks[0];const nm=Object.keys(r.plays||{});const n=names();
   const played=p&&p.played;
   $("doneKicker").textContent=played?(p.paid_by==="house"?q("outcome.house","oh"):q("outcome.both","ob")):q("outcome.nothing","on");

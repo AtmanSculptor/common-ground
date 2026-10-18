@@ -28,7 +28,7 @@ from .qloo import Qloo
 
 PLAYS = 3                # cards each partner puts on the table, one per round, ranked
 TOSS_MAX = deck.HAND     # at the deal you may toss any of your cards, all four if you like
-INTERLUDE_MIN = 8.0      # seconds the table holds after the third flip before the song can arrive
+INTERLUDE_MIN = 12.0     # seconds the table holds after the third flip before the song can arrive: the meter, the words, the call
 MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
 ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
 START_TOKENS = 10        # the demo balance; a jukebox app sets the real one

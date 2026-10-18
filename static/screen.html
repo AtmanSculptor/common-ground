@@ -106,24 +106,24 @@ async function poll(){
   $("venue").textContent=s.venue&&s.venue.name?`${s.venue.name}${s.venue.line?" · "+s.venue.line:""}`:"";
   $("foot").textContent=`Room ${s.code} · artists and taste scores by Qloo`;
   if(s.phase==="lobby"){$("idleSay").textContent=`${A.name} is waiting for a partner.`;$("idleSub").innerHTML=B.joined?"":`Join with the code <span class="code">${esc(s.code)}</span>`;stage("st-idle");return}
-  if(s.phase==="toss"||s.phase==="play"||s.phase==="reveal"){renderTable(s,A,B);stage("st-table");return}
-  if(s.phase==="thinking"){const steps=s.thinking||[];const last=steps[steps.length-1]||{};$("say").textContent=({read:"Reading both hands.",draft:"Asking Qloo about two thousand artists.",verify:"Checking the top three live.",pick:"The weaker score decides."})[last.step]||"Give me five seconds.";stage("st-thinking");return}
+  if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"){renderTable(s,A,B);stage("st-table");return}
   if(s.phase==="jukebox"&&s.pick){renderJukebox(s.pick,A,B);stage("st-jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result,A,B);stage("st-done")}}
 function renderTable(s,A,B){
   $("nameA").textContent=A.name||"Host";$("nameB").textContent=B.name||"Partner";
-  if(lastRound!==s.phase){lastRound=s.phase;shownReveal=false;themShown={};["slotsA","slotsB"].forEach(id=>$(id).innerHTML='<div class="slot"></div><div class="slot"></div><div class="slot"></div>');["ln0","ln1"].forEach(id=>$(id).textContent="");$("meterBox").style.display="none";
-    $("meterText").textContent=s.phase==="toss"?"Round 1 of 3: toss what isn't you":s.phase==="play"?"Round 2 of 3: three cards, most you on top":"Round 3 of 3: the reveal"}
-  if(s.phase==="toss"){for(const [side,status] of [[A,"statusA"],[B,"statusB"]]){$(status).textContent=side.locked?(side.tossed_n?`tossed ${side.tossed_n}`:"kept all six"):"is looking at six cards"}return}
-  if(s.phase==="play"){for(const [k,side,slots,status] of [["A",A,"slotsA","statusA"],["B",B,"slotsB","statusB"]]){const n=side.locked?3:(side.placed||0);
-      if(themShown[k]!==n){themShown[k]=n;$(slots).innerHTML=[0,1,2].map(i=>i<n?`<div class="slot">${down()}</div>`:'<div class="slot"></div>').join("")}
-      $(status).textContent=side.locked?"locked in":(n===0?"is choosing":n===1?"put one down":n===2?"has two down":"has three down")}return}
-  if(s.phase==="reveal"&&!shownReveal){shownReveal=true;const rv=s.reveal;$("statusA").textContent="";$("statusB").textContent="";const both=rv.both||[];const cls=(p,k)=>both.includes(p[k].name)?"match":p.match==="kin"?"kin":"";
-    $("slotsA").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.a,"down "+cls(p,"a"))}</div>`).join("");
-    $("slotsB").innerHTML=rv.pairs.map(p=>`<div class="slot">${card(p.b,"down "+cls(p,"b"))}</div>`).join("");
-    const a=$("slotsA").querySelectorAll(".card"),b=$("slotsB").querySelectorAll(".card");
-    rv.pairs.forEach((p,i)=>{setTimeout(()=>{a[i].classList.remove("down");b[i].classList.remove("down");$("ln0").textContent=["Rank one. Most them.","Rank two. Also them.","Rank three. A bit them."][i]},600+i*1800)});
-    setTimeout(()=>{$("ln0").textContent="";$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";const c=rv.counts||{};$("meterText").textContent=`Cards in common: ${c.same||0} the same, ${c.close||0} close, ${c.apart||0} apart.`;if(rv.pull)$("ln1").textContent=rv.pull.host===rv.pull.guest?`${rv.pull.host} from both of them is doing the pulling.`:`${rv.pull.host} and ${rv.pull.guest} are pulling the same way.`},800+rv.pairs.length*1800)}}
+  const names=s.rank_names||["Most me","Also me","A bit me"];const pairs=s.pairs||[];const r=s.rank||0;
+  if(lastRound!==s.phase){lastRound=s.phase;shownReveal=false;themShown={};["slotsA","slotsB"].forEach(id=>$(id).innerHTML='<div class="slot"></div><div class="slot"></div><div class="slot"></div>');["ln0","ln1"].forEach(id=>$(id).textContent="");$("meterBox").style.display="none"}
+  if(s.phase==="toss"){$("meterText").textContent="The deal: toss what isn't you";for(const [side,status] of [[A,"statusA"],[B,"statusB"]]){$(status).textContent=side.locked?(side.tossed_n?`tossed ${side.tossed_n}`:"kept them all"):"is looking at four cards"}return}
+  // the rounds: flipped pairs face up, the card down for this round face down, the rest empty
+  const both=(s.reveal&&s.reveal.both)||[];const cls=(p,k)=>both.includes(p[k].name)?"match":p.match==="exact"?"match":p.match==="kin"?"kin":"";
+  for(const [k,side,slots] of [["a",A,"slotsA"],["b",B,"slotsB"]]){const key=pairs.length+":"+(side.down?1:0)+":"+s.phase;
+    if(themShown[k]!==key){themShown[k]=key;$(slots).innerHTML=[0,1,2].map(i=>pairs[i]?`<div class="slot">${card(pairs[i][k],cls(pairs[i],k))}</div>`:(i===r&&side.down&&s.phase==="play")?`<div class="slot">${down()}</div>`:'<div class="slot"></div>').join("")}}
+  if(s.phase==="play"){$("meterText").textContent=`Round ${r+1} of 3: ${names[r]}`;$("statusA").textContent=A.down?"card down":"is choosing";$("statusB").textContent=B.down?"card down":"is choosing";
+    const last=pairs[pairs.length-1];$("ln0").textContent=last?`${last.a.name} and ${last.b.name}: ${last.match==="exact"?"the same card":last.match==="kin"?"close":"different"}.`:"";return}
+  if(s.phase==="thinking"){$("statusA").textContent="";$("statusB").textContent="";const rv=s.reveal;
+    if(!shownReveal&&rv){shownReveal=true;$("meterBox").style.display="";$("meter").style.width=rv.meter+"%";const c=rv.counts||{};$("meterText").textContent=`Cards in common: ${c.same||0} the same, ${c.close||0} close, ${c.apart||0} apart.`;
+      $("ln0").textContent=rv.pull?(rv.pull.host===rv.pull.guest?`${rv.pull.host} from both of them is doing the pulling.`:`${rv.pull.host} and ${rv.pull.guest} are pulling the same way.`):""}
+    const steps=s.thinking||[];const lastStep=steps[steps.length-1]||{};$("ln1").textContent=({read:"Q-Lou is reading both hands.",draft:"Asking Qloo about two thousand artists.",verify:"Checking the top three live.",pick:"The weaker score decides."})[lastStep.step]||"Q-Lou is thinking."}}
 function renderJukebox(p,A,B){const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0);const t0=p.tracks&&p.tracks[0];
   if(lastPick!==key){lastPick=key;$("art").innerHTML=t0&&t0.art?`<img src="${esc(t0.art)}" alt="">`:"";$("song").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:""}
   const v=p.voted||{};$("votes").innerHTML=[["host",A],["guest",B]].map(([k,side])=>`<span class="vote ${v[k]?"yes":""}">${esc(side.name||k)}${v[k]?" said yes":""}</span>`).join("")}

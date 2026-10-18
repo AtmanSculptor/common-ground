@@ -13,9 +13,22 @@
   ],
   "round": {
     "toss": [
-      "Four each, one of each suit. Toss what isn't you, up to two.",
-      "Round one. Four cards, one of each suit. Anything that isn't you goes back, two at most.",
-      "Round one. Keep what's true, toss up to two."
+      "Four each, one of each suit. Toss what isn't you, all four if you like.",
+      "The deal. Four cards, one of each suit. Anything that isn't you goes back.",
+      "Keep what's true, toss the rest. Fresh ones come from me."
+    ],
+    "r1": [
+      "Round one. One card: the one that is most you. Then I'll show you what {b} put down.",
+      "Round one. Put down the card you'd defend. One. {b} is doing the same.",
+      "One card each, most you first. I'll flip them together."
+    ],
+    "r2": [
+      "Round two. Also you.",
+      "Round two. The next one down."
+    ],
+    "r3": [
+      "Round three. A bit you. Last card.",
+      "Last card. A bit you."
     ],
     "play": [
       "Round two. Three cards, most you on top.",
