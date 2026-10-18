@@ -952,5 +952,115 @@
     "urn:tag:genre:music:trap_rap"
    ]
   }
+ },
+ {
+  "id": 95,
+  "name": "Island time",
+  "cat": "music",
+  "img": "static/deck/95_island_time.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:reggae"
+   ]
+  }
+ },
+ {
+  "id": 96,
+  "name": "Banjo on the porch",
+  "cat": "music",
+  "img": "static/deck/96_banjo_on_the_porch.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:bluegrass"
+   ]
+  }
+ },
+ {
+  "id": 97,
+  "name": "Three chords, no apology",
+  "cat": "music",
+  "img": "static/deck/97_three_chords_no_apology.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:punk"
+   ]
+  }
+ },
+ {
+  "id": 98,
+  "name": "Banda night",
+  "cat": "music",
+  "img": "static/deck/98_banda_night.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:banda"
+   ]
+  }
+ },
+ {
+  "id": 99,
+  "name": "Tejano Tuesday",
+  "cat": "music",
+  "img": "static/deck/99_tejano_tuesday.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:tejano"
+   ]
+  }
+ },
+ {
+  "id": 100,
+  "name": "Orders the veggie burger",
+  "cat": "table",
+  "img": "static/deck/100_orders_the_veggie_burger.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:vegan"
+   ]
+  }
+ },
+ {
+  "id": 101,
+  "name": "Checks the market at the bar",
+  "cat": "table",
+  "img": "static/deck/101_checks_the_market_at_the_bar.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:investing_interests:stocks_bonds"
+   ]
+  }
+ },
+ {
+  "id": 102,
+  "name": "Zillow at midnight",
+  "cat": "heart",
+  "img": "static/deck/102_zillow_at_midnight.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:investing_interests:real_estate"
+   ]
+  }
+ },
+ {
+  "id": 103,
+  "name": "Reads the comments",
+  "cat": "heart",
+  "img": "static/deck/103_reads_the_comments.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:news_junkie"
+   ]
+  }
+ },
+ {
+  "id": 104,
+  "name": "Rink rat",
+  "cat": "life",
+  "img": "static/deck/104_rink_rat.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:hockey"
+   ]
+  }
  }
 ]
