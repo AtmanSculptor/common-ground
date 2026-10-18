@@ -304,6 +304,8 @@ details[open] summary::after{content:"–"}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let code=null, who=null, state=null, timer=null, lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", doneSettled=false;
+// the table's own state, reset by resetTable() whenever a room starts
+let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false,interludeAt=0,fanKey="",lastFlipAt=0;
 const ALL_CARDS={};
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
 let Q=null;fetch("static/quips.json?v=2").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
@@ -324,7 +326,9 @@ async function joinGame(){const name=$("joinName").value.trim()||"Partner";const
 function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;return u.toString()}catch(e){return code}}
 function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textContent="Copied. Your partner opens Our Song and joins with it."}catch(e){}}
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
-function startPoll(){if(timer)clearInterval(timer);poll();timer=setInterval(poll,1200)}
+function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
+// a new room starts from nothing: no hand, no tosses, no round carried over from the last one
+function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;tableMode="";$("bet").innerHTML="";qlouClear()}
 async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){forget();clearInterval(timer);show("lobby")}}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
@@ -359,7 +363,6 @@ function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;
     const cw=Math.floor(Math.max(40,Math.min((W-(cols-1)*gap)/cols,((H-(rows-1)*gap)/rows)*2/3)));hd.style.setProperty("--cw",cw+"px");hd.style.setProperty("--cols",cols)}else{F.style.flex="";h.style.flex=""}
   const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-16-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px");T.classList.toggle("tight",sw<84)}}
 window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
-let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false;
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
   $("tossBtn").style.display=mode==="toss"?"":"none";$("playBtn").style.display=mode==="play"?"":"none";
   const waiting=mode==="tosswait"||mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
@@ -419,7 +422,6 @@ function flipPair(s,p,i){const mine=who==="host"?"a":"b",theirs=who==="host"?"b"
   $("themStatus").textContent="";$("meStatus").textContent="";$("handHint").textContent="";
   qlouClear();setTimeout(()=>{qlouSay(pairLine(p),0)},700);lastFlipAt=Date.now();
   setTimeout(()=>{shownRank=-1;poll()},1600)}
-let lastFlipAt=0;
 function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.specific||{};const key=Object.keys(sp).find(k=>{const [x,y]=k.split("|");return (x===a&&y===b)||(x===b&&y===a)});
   if(key)return pickLine(sp[key],"sp"+p.rank);const vars={ca:a,cb:b};return q("pairs."+(p.match==="exact"?"exact":p.match==="kin"?"kin":"none"),"pr"+p.rank,vars)}
 // the hand along the bottom: one card of each suit (the joker makes five); 2 x 2 at the deal, a row in the rounds
@@ -463,7 +465,6 @@ function renderInterlude(s,me,other){const pairs=s.pairs||[];
   if(Date.now()-interludeAt>3000)renderThinking(s.thinking||[])}
 function renderBet(steps){if($("bet").innerHTML)return;const st=steps.find(x=>x.bet&&x.bet.length);if(!st)return;
   $("bet").innerHTML=`<p class="betcap">Four are in the running. Call it.</p><div class="betrow">${st.bet.map(n=>`<button class="act quiet" onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`;setTimeout(fitTable,0)}
-let interludeAt=0,fanKey="";
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
