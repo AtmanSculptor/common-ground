@@ -86,7 +86,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 /* the deal: the partner's side is one line */
 .strip{flex:none;display:none;align-items:center;justify-content:center;gap:10px;padding:6px 8px;border-radius:16px;background:rgba(138,43,226,.07);position:relative;margin-top:2px}
 #s-table.toss .strip,#s-table.tosswait .strip{display:flex}
-.strip .who{height:auto}
+.strip .who{height:auto;white-space:nowrap}
+.strip{overflow:hidden}
 .minis{display:flex;gap:3px}
 .minis i{display:block;width:13px;aspect-ratio:2/3;border-radius:3px;background:#000 url(static/deck/back.jpg) center/cover;border:1px solid rgba(189,53,252,.35);opacity:.9}
 .minis i.gone{opacity:.15}
@@ -505,7 +506,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
       qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
     const mode=me.locked?"tosswait":"toss";if(tableMode!==mode)setMode(mode);
     const hn=other.hand_n||4;$("themMinis").innerHTML=[...Array(hn)].map((_,i)=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
-    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):"is looking at six cards";
+    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):"is choosing";
     if(mode==="tosswait"){$("handHint").textContent="Waiting for "+pn+" to toss…"}
     showBubble(other.emote,"stripBubble");return}
   if(s.phase==="play"||s.phase==="thinking"){
