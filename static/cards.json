@@ -620,5 +620,116 @@
     "urn:audience:hobbies_and_interests:musician"
    ]
   }
+ },
+ {
+  "id": 65,
+  "name": "Fishing before dawn",
+  "cat": "life",
+  "img": "static/deck/65_fishing_before_dawn.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:fishing"
+   ]
+  }
+ },
+ {
+  "id": 66,
+  "name": "Motorcycle Sunday",
+  "cat": "life",
+  "img": "static/deck/66_motorcycle_sunday.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:motorcycles",
+    "urn:audience:hobbies_and_interests:racing"
+   ]
+  }
+ },
+ {
+  "id": 67,
+  "name": "Golf shirt, no golf",
+  "cat": "life",
+  "img": "static/deck/67_golf_shirt_no_golf.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:golf"
+   ]
+  }
+ },
+ {
+  "id": 68,
+  "name": "Camera around the neck",
+  "cat": "life",
+  "img": "static/deck/68_camera_around_the_neck.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:photography"
+   ]
+  }
+ },
+ {
+  "id": 69,
+  "name": "Pool noodle",
+  "cat": "life",
+  "img": "static/deck/69_pool_noodle.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:swimming"
+   ]
+  }
+ },
+ {
+  "id": 70,
+  "name": "Sunday league",
+  "cat": "life",
+  "img": "static/deck/70_sunday_league.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:soccer"
+   ]
+  }
+ },
+ {
+  "id": 71,
+  "name": "Batting cage",
+  "cat": "life",
+  "img": "static/deck/71_batting_cage.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:baseball"
+   ]
+  }
+ },
+ {
+  "id": 72,
+  "name": "Jumped out of a plane once",
+  "cat": "life",
+  "img": "static/deck/72_jumped_out_of_a_plane_once.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:adrenaline_rushers"
+   ]
+  }
+ },
+ {
+  "id": 73,
+  "name": "Knows the entrance music",
+  "cat": "life",
+  "img": "static/deck/73_knows_the_entrance_music.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:wrestling"
+   ]
+  }
+ },
+ {
+  "id": 74,
+  "name": "Pickleball convert",
+  "cat": "life",
+  "img": "static/deck/74_pickleball_convert.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:tennis"
+   ]
+  }
  }
 ]
