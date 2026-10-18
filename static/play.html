@@ -115,6 +115,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .slot i{font-style:normal;color:var(--text3);font-size:.72rem;font-weight:600;text-align:center;line-height:1.15;padding:0 4px}
 .slot.live{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,199,0,.25),0 0 18px rgba(255,199,0,.25);animation:slotpulse 2s ease-in-out infinite}
 .slot.live i{color:var(--gold)}
+.slot.live.over{border-style:solid;background:rgba(255,199,0,.12);box-shadow:0 0 0 2px var(--gold),0 0 30px rgba(255,199,0,.5);animation:none}
+.slot.nudge{animation:slotnudge .5s ease}
+@keyframes slotnudge{0%,100%{transform:none}30%{transform:scale(1.06)}60%{transform:scale(.98)}}
 @keyframes slotpulse{50%{box-shadow:0 0 0 1px rgba(255,199,0,.45),0 0 26px rgba(255,199,0,.45)}}
 .slot.down{border-style:solid;border-color:rgba(255,199,0,.55);animation:none}
 .slot.done{border-style:solid;border-color:rgba(189,53,252,.25);animation:none}
@@ -129,10 +132,10 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .bubble.on{animation:bubble 2.8s ease-out forwards}
 @keyframes bubble{0%{opacity:0;transform:translate(-50%,24px) scale(.4)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px) scale(.9)}}
 /* the line between, where Q-Lou sits; when he talks the line opens and the slots give him the room */
-.stage{flex:none;min-height:26px;position:relative;display:flex;align-items:center;justify-content:center;padding:4px 0;transition:min-height .55s cubic-bezier(.25,.75,.25,1)}
+.stage{flex:none;min-height:74px;position:relative;display:flex;align-items:center;justify-content:center;padding:4px 0}
 .stage::before{content:"";position:absolute;left:8%;right:8%;top:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(189,53,252,.6),rgba(255,199,0,.5),transparent);z-index:0}
-.stage.talking{min-height:84px}
-#s-table.toss .stage,#s-table.tosswait .stage{min-height:34px}
+.stage.talking{min-height:74px}
+#s-table.toss .stage,#s-table.tosswait .stage{min-height:74px}
 .qcoin{position:relative;width:24px;height:24px;z-index:1;filter:drop-shadow(0 0 8px rgba(255,199,0,.7));transition:opacity .3s,transform .3s}
 .stage.talking .qcoin{position:absolute;opacity:0;transform:scale(.3)}
 .qblock{position:relative;z-index:2;display:none;align-items:center;gap:10px;width:94%;max-width:400px}
@@ -141,8 +144,22 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .stage.talking .qmini img{animation:breathe 4s ease-in-out infinite}
 .qblock .qmini img{width:100%;height:100%;object-fit:cover;display:block}
 .stage.talking .qmini{transform:scale(1);opacity:1}
-.qsay{background:rgba(13,7,20,.96);border:1px solid rgba(189,53,252,.5);border-radius:14px;padding:9px 12px;font-size:.92rem;line-height:1.25;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.7);opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;text-align:left}
+.qsay{background:rgba(13,7,20,.96);border:1px solid rgba(189,53,252,.5);border-radius:14px;padding:7px 11px;font-size:.88rem;line-height:1.22;color:var(--text);box-shadow:0 8px 30px rgba(0,0,0,.7);opacity:0;transform:translateY(6px);transition:opacity .5s,transform .5s;text-align:left}
 .stage.talking .qsay{opacity:1;transform:none}
+/* the song enters the playing field: the cards clear, the song rises where the table was */
+.songarea{display:none;flex:1 1 0;min-height:0;flex-direction:column;align-items:center;overflow-y:auto;padding:4px 4px 0;scrollbar-width:none}
+.songarea::-webkit-scrollbar{display:none}
+#s-table.song .songarea{display:flex;animation:rise .75s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+#s-table.song .field,#s-table.song .meterwrap,#s-table.song .handblock,#s-table.song .stage,#s-table.song .strip{display:none}
+.field.clearing .slot .card{transition:opacity .55s ease,transform .55s ease;opacity:0;transform:translateY(-26px) scale(.92)}
+.field.clearing .meter i{opacity:0}
+.songarea .art{flex:none;width:min(150px,20vh);height:min(150px,20vh);margin:4px auto 2px}
+.songarea .song-title{font-size:1.35rem;margin:6px 0 0}
+.songarea .qlou{margin-top:8px;padding:10px;width:100%}
+.songarea #askPlay{margin:10px 0 0;font-size:1.25rem}
+.songarea #moreBox{width:100%;margin-top:10px}
+.songarea .brow button{min-width:0}
 /* the meter, after the third flip */
 #s-table .meterwrap{flex:none;display:none;padding:6px 6px 0}
 #s-table.interlude .meterwrap{display:block}
@@ -284,15 +301,14 @@ details[open] summary::after{content:"–"}
   body.tablemode #screens{overflow:hidden;padding:0}
   #screens{display:flex;flex-direction:column}
   .top{flex:none}
-  #s-lobby.on,#s-join.on,#s-lobbywait.on,#s-jukebox.on{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
+  #s-lobby.on,#s-join.on,#s-lobbywait.on{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
   #s-lobby .qlou-big,#s-lobbywait .qlou-big{flex:1 1 0;min-height:90px;width:auto;max-width:none;margin:4px auto;display:flex;justify-content:center}
   #s-lobby .qlou-big .scene,#s-lobbywait .qlou-big .scene{height:100%;aspect-ratio:2/3;max-width:230px}
   #s-lobby .qlou-big .card,#s-lobbywait .qlou-big .card{height:100%;width:100%}
   #s-lobby .sub{font-size:.95rem;margin:4px 0}
   #s-lobbywait .sub,#s-lobbywait .wait{margin:4px 0}
   #s-lobbywait .code{font-size:2.8rem;margin:4px 0}
-  #s-jukebox .art{flex:none;width:min(160px,22vh);height:min(160px,22vh)}
-  #s-jukebox #moreBox{flex:1 1 auto;min-height:0;overflow:auto}
+
   #s-table{position:absolute;max-width:none}
   .hud{display:block;position:static;height:calc(864px * var(--pz,1));width:auto}
   #hudR{grid-column:1;grid-row:1}#phone{grid-column:2;grid-row:1}#hudL{grid-column:3;grid-row:1}
@@ -354,16 +370,8 @@ details[open] summary::after{content:"–"}
     <div class="side me"><p class="who"><span id="meAva"></span><b>You</b> <span id="meStatus"></span></p><div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div></div>
   </div>
   <div class="meterwrap"><div class="meter"><i id="meter"></i></div><p class="words" id="words"></p></div>
-  <div class="handblock" id="handArea">
-    <div class="actrow" id="actRow"><button class="act" id="tossBtn" onclick="lockToss()" style="display:none">Keep them all</button><button class="act" id="playBtn" onclick="playIt()" style="display:none">Play it</button><div class="nudges" id="nudges" style="display:none"></div></div>
-    <div id="bet"></div>
-    <p class="hint" id="handHint"></p>
-    <div class="fan" id="fan"></div>
-  </div>
-</section>
-
-<section class="screen" id="s-jukebox">
-  <p class="sub center" id="betVerdict"></p>
+  <div class="songarea" id="songArea">
+  <p class="sub center" id="betVerdict" style="margin:0 0 2px"></p>
   <div class="art" id="art" onclick="playHero()"></div>
   <h1 class="song-title" id="songTitle"></h1>
   <p class="song-artist" id="artist"></p>
@@ -375,6 +383,13 @@ details[open] summary::after{content:"–"}
   <p class="wait" id="voteMsg"></p>
   <details id="moreBox" style="margin-top:14px"><summary id="moreTitle">More by this artist</summary><div id="tracks"></div></details>
   <audio id="preview" preload="none"></audio>
+  </div>
+  <div class="handblock" id="handArea">
+    <div class="actrow" id="actRow"><button class="act" id="tossBtn" onclick="lockToss()" style="display:none">Keep them all</button><div class="nudges" id="nudges" style="display:none"></div></div>
+    <div id="bet"></div>
+    <p class="hint" id="handHint"></p>
+    <div class="fan" id="fan"></div>
+  </div>
 </section>
 
 <section class="screen" id="s-done">
@@ -436,7 +451,7 @@ function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textCo
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
-function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";$("bet").innerHTML="";qlouClear()}
+function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";songEntering=false;$("bet").innerHTML="";qlouClear()}
 async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){forget();clearInterval(timer);show("lobby")}}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
@@ -447,7 +462,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   try{renderHud(s,me,other)}catch(e){}
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"){show("table");renderTable(s,me,other);return}
-  if(s.phase==="jukebox"){renderJukebox(s,me,other);show("jukebox");return}
+  if(s.phase==="jukebox"){show("table");enterSong();renderJukebox(s,me,other);return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
 // ---- the laptop frame's left panel: the game as Q-Lou sees it, rebuilt from the state on every poll ----
@@ -504,9 +519,13 @@ window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewpo
 function fitStage(){const k=Math.max(.35,Math.min(1.12,(innerHeight-36)/864));document.documentElement.style.setProperty("--pz",k.toFixed(3))}
 fitStage();window.addEventListener("resize",()=>{fitStage();setTimeout(fitTable,50)});
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
-  $("tossBtn").style.display=mode==="toss"?"":"none";$("playBtn").style.display=mode==="play"?"":"none";
+  $("tossBtn").style.display=mode==="toss"?"":"none";
   const waiting=mode==="tosswait"||mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
   setTimeout(fitTable,0);setTimeout(fitTable,380)}
+let songEntering=false;
+function enterSong(){if(tableMode==="song"||songEntering)return;const F=$("field");
+  if(tableMode==="interlude"&&F){songEntering=true;qlouClear();F.classList.add("clearing");setTimeout(()=>{F.classList.remove("clearing");songEntering=false;setMode("song");$("roundLabel").textContent="The song";toTop()},620)}
+  else setMode("song");$("roundLabel").textContent="The song"}
 function rankName(i){return (state.rank_names||["Most me","Also me","A bit me"])[i]}
 function avatarHTML(side,big){const lv=side&&side.profile?side.profile.level:0;const g=side&&side.profile?side.profile.games:0;return `<span class="ava l${lv}${big?" big":""}" title="${g} game${g===1?"":"s"} here"><svg><use href="#bust"/></svg></span>`}
 function renderTable(s,me,other){const n=names();const pn=partnerName();$("themName").textContent=pn;$("stripName").textContent=pn;if(s.toss_max)TOSS_MAX=s.toss_max;
@@ -535,7 +554,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
     const fk=(me.plays||[]).join(",")+"|"+chosen+"|"+r;if(fanKey!==fk){fanKey=fk;renderFan()}
     renderSlots(s,me,other);
     $("themStatus").textContent=other.down?"has a card down":"is choosing";$("meStatus").textContent=me.down?"· your card is down":"";
-    if(mode==="play"){$("playBtn").disabled=chosen==null;$("handHint").textContent=chosen?"Tap it again to take it back.":`Tap the card that is ${r===0?"most you":r===1?"also you":"a bit you"}.`}
+    if(mode==="play"){$("handHint").textContent=`Drag the card that is ${r===0?"most you":r===1?"also you":"a bit you"} into the gold slot.`}
     else $("handHint").textContent=other.down?"Both down. Flipping…":"Waiting for "+pn+"…";
     showBubble(other.emote,"themBubble");return}}
 function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names();
@@ -549,7 +568,7 @@ function renderSlots(s,me,other){const pairs=s.pairs||[];const mine=who==="host"
     if(p){if(!sl.classList.contains("done")||!sl.firstChild){sl.className="slot done";sl.dataset.key="";sl.innerHTML=faceHTML(p[mine],cls(p,mine))}return}
     if(i===r&&s.phase==="play"){const down=myPlays[r]!=null;const id=down?myPlays[r]:chosen;const c=id!=null?(hand.find(x=>x.id===id)||ALL_CARDS[Object.keys(ALL_CARDS).find(k=>ALL_CARDS[k].id===id)]):null;
       const key=(down?"d":"l")+(id==null?"":id);if(sl.dataset.key===key)return;sl.dataset.key=key;
-      sl.className="slot "+(down?"down":"live");sl.innerHTML=c?faceHTML(c,""):`<i>${rankName(i)}</i>`;if(c&&!down){sl.firstChild.onclick=()=>unchoose()}return}
+      sl.className="slot "+(down?"down":"live");sl.innerHTML=c?faceHTML(c,""):`<i>${rankName(i)}</i>`;return}
     sl.className="slot";sl.dataset.key="";sl.innerHTML=`<i>${rankName(i)}</i>`});
   $("themSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=pairs[i];
     if(p){if(!sl.classList.contains("done")){sl.className="slot done";sl.innerHTML=faceHTML(p[theirs],cls(p,theirs))}return}
@@ -570,7 +589,7 @@ function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.sp
 // the hand along the bottom: one card of each suit (the joker makes five); 2 x 2 at the deal, a row in the rounds
 function fanLayout(){fitTable()}
 function renderFan(){const played=state&&state.sides[who].plays||[];const deal=tableMode==="toss"||tableMode==="tosswait";$("fan").innerHTML=hand.filter(c=>!played.includes(c.id)).map(c=>`<div class="fcard ${chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"",deal)}</div>`).join("");
-  $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")choose(id,el)}});fitTable();
+  $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")startDrag(e,el,id)}});fitTable();
   if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Discard ${["one","two","three"][k-1]||k}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Three is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to three go.":"Tap what isn't you to discard it. Up to three."}}
 function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody discards a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();
   const el=$("fan").querySelector(`.fcard[data-id="${id}"]`);if(el)el.classList.toggle("tossing",tosses.includes(id));   // the card turns over in place
@@ -593,11 +612,22 @@ function dealIn(ids,turn){const from=$("stage").getBoundingClientRect();const el
     setTimeout(()=>{f.remove();el.style.visibility="";if(turn)setTimeout(()=>el.classList.remove("facedown"),120)},660)},i*130)});
   const minis=[...$("themMinis").querySelectorAll("i")];if(!ids)minis.forEach((m,i)=>{m.style.opacity=0;setTimeout(()=>{m.style.transition="opacity .5s";m.style.opacity=""},400+i*130)})}
 // a tap puts the card in the live slot; "Play it" sends it; a tap on the slot takes it back
-function choose(id,el){if(tableMode!=="play"||state.sides[who].down)return;if(chosen===id)return;qlouActed();chosen=id;const c=hand.find(x=>x.id===id);
-  const slot=$("meSlots").querySelectorAll(".slot")[state.rank];fly(el.getBoundingClientRect(),slot.getBoundingClientRect(),c.img,()=>{renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()])});
-  $("playBtn").disabled=false;$("handHint").textContent="Tap it again to take it back.";if(navigator.vibrate)navigator.vibrate(10)}
-function unchoose(){if(tableMode!=="play"||chosen==null)return;chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);$("handHint").textContent=`Tap the card that is ${state.rank===0?"most you":state.rank===1?"also you":"a bit you"}.`}
-async function playIt(){if(chosen==null){$("handHint").textContent="Tap a card first.";return}try{$("playBtn").disabled=true;const id=chosen;await api(code+"/play",{who,card:id});chosen=null;poll()}catch(e){alert(e.message);$("playBtn").disabled=false}}
+// drag a card into the gold slot and it is played; let go anywhere else and it springs back. A tap just points at the slot.
+let drag=null;
+function startDrag(e,el,id){if(tableMode!=="play"||state.sides[who].down||drag)return;const c=hand.find(x=>x.id===id);if(!c)return;
+  const r=el.getBoundingClientRect();drag={id,el,x0:e.clientX,y0:e.clientY,r,moved:false,ghost:null};try{el.setPointerCapture(e.pointerId)}catch(x){}
+  el.onpointermove=ev=>{if(!drag)return;const dx=ev.clientX-drag.x0,dy=ev.clientY-drag.y0;if(!drag.moved&&Math.hypot(dx,dy)<8)return;
+    if(!drag.moved){drag.moved=true;qlouActed();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=faceHTML(c,"");g.firstChild.style.position="absolute";g.firstChild.style.inset="0";document.body.appendChild(g);drag.ghost=g;el.style.opacity=.25}
+    drag.ghost.style.transform=`translate(${dx}px,${dy}px) scale(1.06)`;const over=overLiveSlot(ev.clientX,ev.clientY);liveSlot().classList.toggle("over",over)};
+  el.onpointerup=el.onpointercancel=ev=>{const d=drag;if(!d)return;drag=null;el.onpointermove=null;el.onpointerup=null;el.onpointercancel=null;liveSlot().classList.remove("over");
+    if(!d.moved){pointAtSlot();return}
+    if(overLiveSlot(ev.clientX,ev.clientY)){const g=d.ghost;const to=liveSlot().getBoundingClientRect();g.style.transition="transform .3s cubic-bezier(.25,.75,.25,1),width .3s,height .3s";g.style.transform=`translate(${to.left-r.left}px,${to.top-r.top}px)`;g.style.width=to.width+"px";g.style.height=to.height+"px";
+      chosen=d.id;setTimeout(()=>{g.remove();renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()])},320);playIt(d.id);if(navigator.vibrate)navigator.vibrate(12)}
+    else{d.ghost.style.transition="transform .3s";d.ghost.style.transform="";setTimeout(()=>{d.ghost.remove();el.style.opacity=""},300)}}}
+function liveSlot(){return $("meSlots").querySelectorAll(".slot")[state.rank]}
+function overLiveSlot(x,y){const r=liveSlot().getBoundingClientRect();const m=Math.max(24,r.width*.35);return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
+function pointAtSlot(){const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Drag it into the gold slot.";if(navigator.vibrate)navigator.vibrate(6)}
+async function playIt(id){try{await api(code+"/play",{who,card:id});chosen=null;poll()}catch(e){chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);alert(e.message)}}
 function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   f.style.left=from.left+"px";f.style.top=from.top+"px";f.style.width=from.width+"px";f.style.height=from.height+"px";document.body.appendChild(f);
   requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-from.left}px,${to.top-from.top}px)`;f.style.width=to.width+"px";f.style.height=to.height+"px"});
