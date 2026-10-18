@@ -330,7 +330,7 @@ def missing_cards(m: dict | None, cards: list[dict] | None = None) -> list[dict]
     """Cards in the deck that the matrix has no column for yet (new art landed)."""
     cards = cards or list(deck.cards())
     have = set((m or {}).get("scores", {}))
-    return [c for c in cards if str(c["id"]) not in have]
+    return [c for c in cards if str(c["id"]) not in have and c.get("signal")]     # the joker has nothing to score
 
 
 def add_cards(q: Qloo, cards: list[dict], *, path: pathlib.Path | None = None,

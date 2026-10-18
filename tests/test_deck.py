@@ -12,13 +12,16 @@ def test_every_card_has_a_verified_signal_and_art():
     assert len(ids) == len(set(ids))
     for c in cards:
         sig = c["signal"]
+        if c["cat"] == deck.JOKER:
+            assert not sig, "the joker has no signal"
+            continue
         assert sig.get("tags") or sig.get("audiences"), c["name"]
         for t in sig.get("tags", []):
             assert t.startswith("urn:tag:"), t
         for a in sig.get("audiences", []):
             assert a.startswith("urn:audience:"), a
         assert c["img"].startswith("static/deck/") and c["img"].endswith(".jpg") and pathlib.Path(c["img"]).exists(), c["name"]
-        assert c["cat"] in {"music", "life", "table", "place", "heart", "book", "game"}
+        assert c["cat"] in {"music", "life", "table", "place", "heart", "book", "game", "joker"}
 
 
 def test_dead_tags_are_not_in_the_deck():

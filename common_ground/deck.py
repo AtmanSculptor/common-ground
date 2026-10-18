@@ -39,10 +39,13 @@ def public(c: dict) -> dict:
     return {k: v for k, v in c.items() if k != "signal"}
 
 
+JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
+
+
 def deal(seen: set[int], rng: random.Random | None = None) -> list[int]:
     rng = rng or random
     music = [c["id"] for c in cards() if c["cat"] in MUSIC_CATS and c["id"] not in seen]
-    other = [c["id"] for c in cards() if c["cat"] not in MUSIC_CATS and c["id"] not in seen]
+    other = [c["id"] for c in cards() if c["cat"] not in MUSIC_CATS and c["cat"] != JOKER and c["id"] not in seen]
     hand = rng.sample(music, min(MUSIC_IN_HAND, len(music))) + rng.sample(other, min(HAND - MUSIC_IN_HAND, len(other)))
     rng.shuffle(hand)
     return hand
@@ -53,7 +56,7 @@ def draw_one(seen: set[int], like: int, rng: random.Random | None = None) -> int
     life for life) so the hand keeps its mix, never one this side has already seen."""
     rng = rng or random
     music = card(like)["cat"] in MUSIC_CATS
-    pool = [c["id"] for c in cards() if (c["cat"] in MUSIC_CATS) == music and c["id"] not in seen]
+    pool = [c["id"] for c in cards() if (c["cat"] in MUSIC_CATS) == music and c["cat"] != JOKER and c["id"] not in seen]
     return rng.choice(pool) if pool else None
 
 

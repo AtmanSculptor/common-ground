@@ -1062,5 +1062,78 @@
     "urn:audience:hobbies_and_interests:hockey"
    ]
   }
+ },
+ {
+  "id": 105,
+  "name": "Spreadsheet for everything",
+  "cat": "heart",
+  "img": "static/deck/105_spreadsheet_for_everything.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:professional_area:finance_professional"
+   ]
+  }
+ },
+ {
+  "id": 106,
+  "name": "IT guy",
+  "cat": "heart",
+  "img": "static/deck/106_it_guy.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:professional_area:technology_professional"
+   ]
+  }
+ },
+ {
+  "id": 107,
+  "name": "Reusable everything",
+  "cat": "heart",
+  "img": "static/deck/107_reusable_everything.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:global_issues:climate_activism"
+   ]
+  }
+ },
+ {
+  "id": 108,
+  "name": "Bought an NFT once",
+  "cat": "heart",
+  "img": "static/deck/108_bought_an_nft_once.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:investing_interests:nft_collectors"
+   ]
+  }
+ },
+ {
+  "id": 109,
+  "name": "Wedding season",
+  "cat": "heart",
+  "img": "static/deck/109_wedding_season.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:life_stage:engaged"
+   ]
+  }
+ },
+ {
+  "id": 110,
+  "name": "Mariachi at the table",
+  "cat": "music",
+  "img": "static/deck/110_mariachi_at_the_table.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:mariachi"
+   ]
+  }
+ },
+ {
+  "id": 111,
+  "name": "On the house",
+  "cat": "joker",
+  "img": "static/deck/111_on_the_house.jpg",
+  "signal": {}
  }
 ]
