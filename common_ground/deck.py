@@ -43,10 +43,12 @@ def public(c: dict) -> dict:
     return {k: v for k, v in c.items() if k != "signal"}
 
 
-def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float = JOKER_CHANCE) -> list[int]:
+def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float | None = None) -> list[int]:
     """One card from each suit, in suit order, never one this side has seen; now and then the joker
     rides along as a fifth card."""
     rng = rng or random
+    if joker_chance is None:
+        joker_chance = JOKER_CHANCE
     hand = []
     for suit in SUITS:
         pool = [c["id"] for c in cards() if c["suit"] == suit and c["id"] not in seen]

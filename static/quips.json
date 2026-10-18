@@ -6,16 +6,16 @@
     "Lines under 'cards' and 'pairs' are kept for later; the table says one thing per round now."
   ],
   "deal": [
-    "Five each. Don't get attached.",
-    "Five cards. Two of them are lying to you.",
-    "Fresh deck, two strangers, one jukebox. Five each.",
-    "Here's five. I've seen your type, but I haven't seen your hand."
+    "Four each, one of every suit. Don't get attached.",
+    "Four cards. One of them is lying to you.",
+    "Fresh deck, two strangers, one jukebox. Four each.",
+    "Here's four. One of each. I've seen your type, but I haven't seen your hand."
   ],
   "round": {
     "toss": [
-      "Five each. Toss what isn't you, up to three.",
-      "Round one. Five cards. Anything that isn't you goes back, three at most.",
-      "Round one. Keep what's true, toss up to three."
+      "Four each, one of each suit. Toss what isn't you, up to two.",
+      "Round one. Four cards, one of each suit. Anything that isn't you goes back, two at most.",
+      "Round one. Keep what's true, toss up to two."
     ],
     "play": [
       "Round two. Three cards, most you on top.",
@@ -31,14 +31,14 @@
   "toss_result": {
     "both_kept": [
       "Nobody tossed. Confident table.",
-      "Five and five, untouched."
+      "Four and four, untouched."
     ],
     "both_tossed": [
       "{a} tossed {na}, {b} tossed {nb}.",
       "{na} from {a}, {nb} from {b}."
     ],
     "one_kept": [
-      "{a} tossed {na}. {b} kept all five.",
+      "{a} tossed {na}. {b} kept all four.",
       "{b} kept everything, {a} sent {na} back."
     ],
     "both_same": [
@@ -398,6 +398,11 @@
       "The plain model guessed nothing useful. I did.",
       "No guess from the plain model this time. I showed up anyway."
     ],
+    "ask_house": [
+      "On the house tonight. Somebody played the joker. Play it?",
+      "The joker's on the table, so this one's free. Both say yes and it plays.",
+      "No tokens for this one. The house is buying, if you both say yes."
+    ],
     "ask": [
       "Both say yes and it's two tokens each.",
       "Two and two if you both say yes. Otherwise I keep looking.",
@@ -410,6 +415,11 @@
     "Fine. Different song, same numbers behind it."
   ],
   "outcome": {
+    "house": [
+      "On the house. The joker paid.",
+      "Free song. Somebody played the joker and both of you said yes.",
+      "The house is buying. Don't get used to it."
+    ],
     "both": [
       "Two each. That's your song. I'll remember it.",
       "Both yes. Half each. The cheapest good decision you'll make tonight.",

@@ -135,13 +135,14 @@ class Room:
         s = self.sides[who]
         if self.phase != "toss" or s.toss_locked:
             return False
-        picks = [c for c in dict.fromkeys(cards) if c in s.hand][:TOSS_MAX]
-        if len(picks) != len(dict.fromkeys(cards)):
+        asked = [c for c in dict.fromkeys(cards) if deck.card(c)["suit"] != deck.JOKER]   # the joker stays: nobody tosses a free song
+        picks = [c for c in asked if c in s.hand][:TOSS_MAX]
+        if len(picks) != len(asked):
             return False
         for c in picks:
             new = deck.draw_one(set(s.seen), c, rng)
             if new is None:
-                break
+                continue
             s.hand[s.hand.index(c)] = new
             s.seen.append(new)
             s.tossed.append(c)
@@ -406,7 +407,7 @@ class Room:
         for k, s in self.sides.items():
             locked = s.toss_locked if self.phase == "toss" else s.play_locked
             d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked,
-                 "placed": PLAYS if s.play_locked else s.placed, "tokens": s.tokens, "tossed_n": len(s.tossed),
+                 "placed": PLAYS if s.play_locked else s.placed, "tokens": s.tokens, "tossed_n": len(s.tossed), "hand_n": len(s.hand),
                  "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None}
             if k == who and s.hand:
                 d["hand"] = [deck.public(deck.card(c)) for c in s.hand]

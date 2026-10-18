@@ -87,11 +87,11 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table .meterwrap{flex:none;display:none;padding:0 6px}
 #s-table.reveal .meterwrap{display:block}
 
-/* the hand: a fan along the bottom */
+/* the hand: four across along the bottom (five when the joker rides along), nothing overlapping */
 .handwrap{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;justify-content:flex-end}
 .hint{text-align:center;color:var(--text2);font-size:.9rem;margin:0 0 4px;min-height:1.2em}
-.fan{position:relative;height:var(--fanh,120px);display:flex;justify-content:center;align-items:flex-end;padding-bottom:4px}
-.fcard{position:absolute;bottom:4px;height:100%;aspect-ratio:2/3;transform-origin:50% 120%;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s,filter .25s;touch-action:none}
+.fan{position:relative;height:var(--fanh,120px);display:flex;justify-content:center;align-items:flex-end;gap:6px;padding:0 4px 4px;--n:4}
+.fcard{position:relative;flex:none;width:min(calc(var(--fanh,120px) * .6667),calc((100% - (var(--n) - 1) * 6px) / var(--n)));aspect-ratio:2/3;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s,filter .25s;touch-action:none}
 .fcard .card{width:100%;height:100%}
 .fcard.played{opacity:.15;pointer-events:none}
 .fcard.tossing{filter:grayscale(.8) brightness(.6)}
@@ -99,8 +99,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .fcard.tossing .badge{display:grid;background:var(--coral);border-color:var(--coral);color:#000}
 .fcard.tossing .badge::before{content:"✕"}
 .card.match .badge::before{content:"★"}
-.fcard .card .name{font-size:.7rem;padding:5px 4px 6px;text-align:left;overflow-wrap:anywhere}
-.fcard:last-child .card .name{text-align:center}
+.fcard .card .name{font-size:.7rem;padding:5px 3px 6px;overflow-wrap:anywhere}
 .waitbox{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
 .wait{color:var(--text3);text-align:center;margin:0}
 .nudges{display:flex;justify-content:center;gap:10px;margin:2px 0 0}
@@ -119,6 +118,12 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .card .frame{position:absolute;inset:0;border:2px solid rgba(189,53,252,.35);border-radius:var(--r);pointer-events:none}
 .card .name{position:absolute;left:0;right:0;bottom:0;padding:10px 6px 10px;text-align:center;font-weight:800;font-size:1rem;line-height:1.1;text-shadow:0 2px 8px #000;background:linear-gradient(transparent,rgba(0,0,0,.85))}
 .card .badge{position:absolute;top:5px;right:5px;width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:none;place-items:center;font-weight:800;font-size:.75rem;background:rgba(0,0,0,.5)}
+.card .suit{position:absolute;top:5px;left:5px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);display:grid;place-items:center;pointer-events:none}
+.card .suit svg{width:12px;height:12px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.card.s-stage{--suitc:#ff4df0}.card.s-bar{--suitc:#ffb84d}.card.s-road{--suitc:#7fb0ff}.card.s-porch{--suitc:#ff8fb0}.card.s-joker{--suitc:#FFC700}
+.card .frame{border-color:color-mix(in srgb,var(--suitc,#bd35fc) 55%,transparent)}
+.card .suit{color:var(--suitc,#bd35fc)}
+.card.s-joker .frame{border-color:var(--gold);box-shadow:inset 0 0 14px rgba(255,199,0,.35)}
 .card.match{box-shadow:0 0 26px rgba(255,199,0,.6)}
 .card.match .badge{display:grid;background:var(--gold);border-color:var(--gold);color:#000}
 .card.kin{box-shadow:0 0 18px rgba(189,53,252,.5)}
@@ -180,12 +185,17 @@ details[open] summary::after{content:"–"}
 .foot a{color:var(--text3)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style></head><body>
-<svg width="0" height="0" style="position:absolute"><defs><symbol id="coin" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#FFC700"/><circle cx="10" cy="10" r="6.5" fill="none" stroke="#B88900" stroke-width="1.4"/><path d="M7 6.5h4.2a2.3 2.3 0 010 4.6H8.6v2.6H7z" fill="#B88900"/></symbol></defs></svg>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="coin" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="#FFC700"/><circle cx="10" cy="10" r="6.5" fill="none" stroke="#B88900" stroke-width="1.4"/><path d="M7 6.5h4.2a2.3 2.3 0 010 4.6H8.6v2.6H7z" fill="#B88900"/></symbol>
+<symbol id="su-stage" viewBox="0 0 16 16"><circle cx="5.5" cy="12" r="2.3"/><path d="M7.8 12V3l5 1.6"/></symbol>
+<symbol id="su-bar" viewBox="0 0 16 16"><path d="M2.5 3h11L8 9.5zM8 9.5V13M5 13.5h6"/></symbol>
+<symbol id="su-road" viewBox="0 0 16 16"><path d="M2.5 14c3-4 1-7 4-9s6-1 7-3"/><path d="M11 2.5l2.5-.5.5 2.5"/></symbol>
+<symbol id="su-porch" viewBox="0 0 16 16"><path d="M2 8.5L8 3l6 5.5M4 7.5V14h8V7.5"/></symbol>
+<symbol id="su-joker" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v6M6 8h4"/></symbol></defs></svg>
 <div class="top"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. Six cards each. Q-Lou finds the one song you'd both put on, and you split the tokens.</p>
+  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. Four cards each, one of each suit. Q-Lou finds the one song you'd both put on, and you split the tokens.</p>
   <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
@@ -311,7 +321,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   if(s.phase==="jukebox"){renderJukebox(s,me,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
-function faceHTML(c,cls){return `<div class="card ${cls||""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div><div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
+function faceHTML(c,cls){const su=c.suit||"";return `<div class="card ${cls||""}${su?" s-"+su:""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div>${su?`<div class="suit" title="${su}"><svg><use href="#su-${su}"/></svg></div>`:""}<div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':''}<div class="name${longName(c.name)}">${esc(c.name)}</div></div></div>`}
 
@@ -340,7 +350,7 @@ function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").cl
   $("tossBtn").style.display=mode==="toss"?"":"none";$("lockBtn").style.display=mode==="play"?"":"none";$("nextBtn").style.display="none";
   $("themMinis").style.display=(mode==="toss"||mode==="tosswait")?"":"none";$("themSlots").style.display=(mode==="toss"||mode==="tosswait")?"none":"";
   if(mode==="tosswait"||mode==="playwait")renderNudges();setTimeout(fitTable,0)}
-function renderTable(s,me,other){const n=names();$("themName").textContent=partnerName();
+function renderTable(s,me,other){const n=names();$("themName").textContent=partnerName();if(s.toss_max)TOSS_MAX=s.toss_max;
   (me.hand||[]).forEach(c=>ALL_CARDS[c.name]=c);
   if(s.phase==="toss"){
     if(lastPhase!=="toss"){lastPhase="toss";hand=me.hand||[];tosses=[];selected=[];themShown="";setMode(me.locked?"tosswait":"toss");
@@ -348,8 +358,8 @@ function renderTable(s,me,other){const n=names();$("themName").textContent=partn
       renderFan();renderMySlots();if(!dealt){dealt=true;setTimeout(dealIn,50)}
       qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
     const mode=me.locked?"tosswait":"toss";if(tableMode!==mode){setMode(mode)}
-    $("themMinis").innerHTML=[0,1,2,3,4].map(i=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
-    $("themStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept all five"):"is looking at five cards";
+    const hn=other.hand_n||4;$("themMinis").innerHTML=[...Array(hn)].map((_,i)=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
+    $("themStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):`is looking at ${hn===5?"five":"four"} cards`;
     if(mode==="tosswait"){$("waitMsg").textContent="Waiting for "+partnerName()+" to toss…";$("handHint").textContent=""}
     showBubble(other.emote);return}
   if(s.phase==="play"){
@@ -370,14 +380,14 @@ function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names()
   if(na&&nb)return q("toss_result.both_tossed","tt",{na,nb});
   // one kept: {a} tossed, {b} kept, whichever way round
   const v=na?{a:n.a,b:n.b,na}:{a:n.b,b:n.a,na:nb};return fill(pickLine(Q&&Q.toss_result&&Q.toss_result.one_kept,"ok"),v)}
-// the fan along the bottom: six cards overlapping, the ones in play or tossed marked
-function fanLayout(){const els=[...$("fan").querySelectorAll(".fcard")];const n=els.length;if(!n)return;const w=$("fan").clientWidth,cw=els[0].offsetWidth||80;const step=Math.min(cw*.78,(w-cw-8)/Math.max(1,n-1));
-  els.forEach((el,i)=>{const x=(i-(n-1)/2)*step;const rot=(i-(n-1)/2)*4;const lift=Math.abs(i-(n-1)/2)*3;el.style.transform=`translateX(${x}px) translateY(${lift}px) rotate(${rot}deg)`;el.style.zIndex=10+i})}
+// the hand along the bottom: one card of each suit side by side (the joker makes five), the ones in play or tossed marked
+let TOSS_MAX=2;
+function fanLayout(){const n=$("fan").querySelectorAll(".fcard").length;$("fan").style.setProperty("--n",Math.max(4,n))}
 function renderFan(){$("fan").innerHTML=hand.map(c=>`<div class="fcard ${selected.includes(c.id)?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
   $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{if(tableMode==="toss"){e.preventDefault();toggleToss(id)}else if(tableMode==="play")startDrag(e,el,id)}});fanLayout();
-  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${k===1?"one":k===2?"two":"three"}`:"Keep all five";$("handHint").textContent=k?"Tap a card to keep it. Up to three go.":"Tap the cards that aren't you."}}
+  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${k===1?"one":"two"}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Two is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to two go.":"Tap the cards that aren't you. Up to two."}}
 window.addEventListener("resize",fanLayout);
-function toggleToss(id){const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=3)return;tosses.push(id)}qlouActed();renderFan();if(navigator.vibrate)navigator.vibrate(8)}
+function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody tosses a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();renderFan();if(navigator.vibrate)navigator.vibrate(8)}
 async function lockToss(){try{$("tossBtn").disabled=true;await api(code+"/toss",{who,cards:tosses});poll()}catch(e){alert(e.message);$("tossBtn").disabled=false}}
 // cards fly in from Q-Lou's spot: all six at the deal, the replacements after the toss
 function dealIn(ids){const from=$("stage").getBoundingClientRect();const els=[...$("fan").querySelectorAll(".fcard")].filter(el=>!ids||ids.includes(+el.dataset.id));
@@ -466,18 +476,18 @@ function renderJukebox(s,me,other){const p=s.pick;if(!p)return;const key=p.artis
     $("art").innerHTML=artHTML(t0);$("songTitle").textContent=t0?t0.track:p.artist.name;$("artist").textContent=t0?p.artist.name:"";
     $("album").textContent=t0?`${t0.album||""}${t0.year?" · "+t0.year:""}`:`No preview in the demo catalog. On the jukebox this is ${p.artist.name}'s top play.`;
     $("why").innerHTML="<b>Q-Lou:</b> "+esc(songLine(p,other));
-    $("askLine").textContent=q("song.ask","ask");$("yesBtn").innerHTML=`Yes, ${s.half} tokens <svg class="coin"><use href="#coin"/></svg>`;$("yesBtn").disabled=me.tokens<s.half;
+    $("askLine").textContent=s.on_the_house?q("song.ask_house","askh"):q("song.ask","ask");$("yesBtn").innerHTML=s.on_the_house?`Yes, on the house`:`Yes, ${s.half} tokens <svg class="coin"><use href="#coin"/></svg>`;$("yesBtn").disabled=!s.on_the_house&&me.tokens<s.half;
     $("moreTitle").textContent=`More by ${p.artist.name}`;$("moreBox").style.display=p.tracks&&p.tracks.length>1?"":"none";
     $("tracks").innerHTML=p.tracks&&p.tracks.length>1?p.tracks.slice(1).map(trackHTML).join(""):"";
-    if(fresh){$("voteMsg").textContent="";["yesBtn","noBtn"].forEach(id=>{$(id).classList.remove("chosen")});$("noBtn").disabled=false;$("yesBtn").disabled=me.tokens<s.half;window.scrollTo(0,0)}}
+    if(fresh){$("voteMsg").textContent="";["yesBtn","noBtn"].forEach(id=>{$(id).classList.remove("chosen")});$("noBtn").disabled=false;$("yesBtn").disabled=!s.on_the_house&&me.tokens<s.half;window.scrollTo(0,0)}}
   if(p.voted&&p.voted[who]){$("voteMsg").textContent="Waiting for "+them+"…";$("yesBtn").disabled=true;$("noBtn").disabled=true}
-  else if(me.tokens<s.half){$("voteMsg").textContent=q("outcome.short","sh")}}
+  else if(!s.on_the_house&&me.tokens<s.half){$("voteMsg").textContent=q("outcome.short","sh")}}
 function playHero(){playPreview(heroUrl,$("heroPlay"))}
 function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.src=u;a.play().catch(()=>{});btn&&(btn.textContent="❚❚");return}if(a.paused){a.play().catch(()=>{});btn&&(btn.textContent="❚❚")}else{a.pause();btn&&(btn.textContent="▶")}}
 async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;poll()}catch(e){alert(e.message)}}
 function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p.tracks[0];const nm=Object.keys(r.plays||{});const n=names();
   const played=p&&p.played;
-  $("doneKicker").textContent=played?q("outcome.both","ob"):q("outcome.nothing","on");
+  $("doneKicker").textContent=played?(p.paid_by==="house"?q("outcome.house","oh"):q("outcome.both","ob")):q("outcome.nothing","on");
   heroUrl=t&&t.preview||"";$("doneArt").innerHTML=artHTML(t);$("doneArt").style.display=p&&p.artist&&played?"":"none";
   $("doneTitle").textContent=p&&p.artist&&played?(t?t.track:p.artist.name):"";
   $("doneArtist").textContent=p&&p.artist&&played&&t?p.artist.name:"";
@@ -495,7 +505,7 @@ function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p
   const b=p&&p.baseline;$("baseline").innerHTML=b&&p.scores?`<div class="vs"><div class="r llm"><span>A plain language model guessed</span><b>${esc(b.guess)}</b></div><div class="r llm"><span>Qloo scores that</span><b>${b.scores&&b.scores[who]!=null?Math.round(b.scores[who]*100)+" · "+Math.round(b.scores[tk]*100):"no data"}</b></div><div class="r"><span>Q-Lou's pick</span><b>${esc(p.artist.name)}</b></div><div class="r"><span>Qloo scores that</span><b>${Math.round(p.scores[who]*100)} · ${Math.round(p.scores[tk]*100)}</b></div><p class="sub" style="margin:8px 0 0">The guess ${b.verdict==="holds"?"held up":b.verdict==="splits"?"splits the two of you":b.verdict==="misses"?"misses you both":"could not be scored"}. Q-Lou's lines come from a file, not a model; the numbers are Qloo's.</p></div>`:"<p class='sub'>The control did not run this time.</p>";
   const ex=p&&p.explain&&p.explain.both||[];
   $("hoodTitle").textContent=p?`Under the hood: ${p.pool?Number(p.pool).toLocaleString()+" artists, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s`:"Under the hood";
-  $("howBox").innerHTML=(p?`<p class="sub" style="margin-top:0">${p.pool?Number(p.pool).toLocaleString()+" artists in the running, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s. Three cards each, weighted 3, 2, 1; a tossed card pulls against. Every number is Qloo's, not a guess.</p>`:"")+
+  $("howBox").innerHTML=(p?`<p class="sub" style="margin-top:0">${p.pool?Number(p.pool).toLocaleString()+" artists in the running, ":""}${p.calls||0} Qloo calls, ${p.seconds||0}s. Three cards each, weighted 3, 2, 1, every card on the same scale; a tossed card pulls against. Every number is Qloo's, not a guess.</p>`:"")+
     (ex.length?`<p class="rank">What drove it: ${ex.map(d=>esc(d.label)+" "+Math.round(d.score*100)).join(", ")}</p>`:"")+
     `<div class="steps">${lastSteps.map(s=>`<div class="step${s.step==="error"?" error":""}"><b>${esc(s.step)}</b><span>${esc(s.text)}</span></div>`).join("")}</div>`}
 function shareResult(){const r=state&&state.result;const p=r&&r.pick;if(!p||!p.artist)return;const t=p.tracks&&p.tracks[0];const nm=Object.keys(r.plays||{}).join(" and ");
