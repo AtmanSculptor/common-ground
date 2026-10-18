@@ -168,8 +168,20 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .fcard.tossing .badge{display:grid;background:var(--coral);border-color:var(--coral);color:#000}
 .fcard.tossing .badge::before{content:"✕"}
 .card.match .badge::before{content:"★"}
-.fcard .card .name{font-size:.66rem;font-weight:600;padding:4px 3px 5px;overflow-wrap:anywhere;background:linear-gradient(transparent,rgba(0,0,0,.78))}
-#s-table.toss .fcard .card .name,#s-table.tosswait .fcard .card .name{font-size:.82rem;padding:6px 4px 7px}
+/* a card's name scales with the card, so a word never breaks in two: about 13 percent of the width, between .6 and .82 rem */
+.fcard .card .name{font-size:clamp(.6rem,calc(var(--cw,90px) * .125),.74rem);font-weight:600;padding:4px 3px 5px;overflow-wrap:normal;hyphens:manual;background:linear-gradient(transparent,rgba(0,0,0,.78))}
+#s-table.toss .fcard .card .name,#s-table.tosswait .fcard .card .name{font-size:clamp(.62rem,calc(var(--cw,90px) * .13),.82rem);padding:5px 4px 6px}
+.fcard .card .name.long{letter-spacing:-.02em}
+/* a short window (a zoomed-in browser, a small laptop): the deal's chrome gives the cards the room */
+@media (max-height:640px){
+  #s-table.toss .stage.talking,#s-table.tosswait .stage.talking{min-height:62px}
+  #s-table.toss .qsay,#s-table.tosswait .qsay{font-size:.82rem;padding:6px 10px}
+  #s-table.toss .qblock .qmini,#s-table.tosswait .qblock .qmini{width:40px}
+  #s-table.toss .hint,#s-table.tosswait .hint{height:18px;line-height:18px;font-size:.8rem}
+  #s-table.toss .act,#s-table.tosswait .act{height:36px;font-size:.88rem}
+  #s-table.toss .strip,#s-table.tosswait .strip{padding:3px 8px}
+  #s-table .thead{height:20px;line-height:20px}
+}
 .nudges{display:flex;justify-content:center;gap:10px;margin:0}
 .nudges button{margin:0;width:40px;min-width:0;height:40px;min-height:0;padding:0;font-size:1.3rem;border-radius:50%;background:var(--surface);border:2px solid rgba(189,53,252,.35);box-shadow:none}
 .nudges button:active{transform:scale(.92);border-color:var(--gold)}
