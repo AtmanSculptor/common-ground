@@ -326,6 +326,62 @@ def build(q: Qloo, *, out: pathlib.Path | None = None, checkpoint: pathlib.Path 
     return m
 
 
+def missing_cards(m: dict | None, cards: list[dict] | None = None) -> list[dict]:
+    """Cards in the deck that the matrix has no column for yet (new art landed)."""
+    cards = cards or list(deck.cards())
+    have = set((m or {}).get("scores", {}))
+    return [c for c in cards if str(c["id"]) not in have]
+
+
+def add_cards(q: Qloo, cards: list[dict], *, path: pathlib.Path | None = None,
+              on_progress: Callable[[dict], None] | None = None, workers: int = WORKERS) -> dict:
+    """Score new cards against the pool as it stands and write them into the matrix. The pool
+    itself does not change; the monthly rebuild folds in each new card's own top artists."""
+    path = path or FILE
+    m = load(path)
+    if not m:
+        raise RuntimeError("no matrix to add cards to")
+    ids = list(m["entities"])
+    t0 = time.time()
+
+    def progress(stage: str, **data: Any) -> None:
+        if on_progress:
+            on_progress({"stage": stage, "t": round(time.time() - t0, 1), "calls": q.calls, **data})
+
+    def score_card(c: dict) -> tuple[str, dict[str, float]]:
+        col: dict[str, float] = {}
+        for i in range(0, len(ids), BATCH):
+            batch = ids[i:i + BATCH]
+            for attempt in range(RETRIES):
+                try:
+                    ents = q.insights(ARTIST, result_entities=batch, take=len(batch), **c["signal"])
+                    break
+                except Exception as e:
+                    progress("score-error", card=c["name"], attempt=attempt + 1, error=str(e)[:160])
+                    time.sleep(RETRY_PAUSE * (2 ** attempt))
+            else:
+                ents = []
+            for e in ents:
+                v = affinity(e)
+                if abs(v - NO_SIGNAL) > 1e-6:
+                    col[e["entity_id"]] = round(v, 4)
+        progress("score", card=c["name"], scored=len(col))
+        return str(c["id"]), col
+
+    with ThreadPoolExecutor(max_workers=workers) as ex:
+        results = list(ex.map(score_card, cards))
+    m = json.loads(path.read_text(encoding="utf-8"))     # fresh from disk: never mutate the cached copy games are reading
+    for key, col in results:
+        m["scores"][key] = col
+    m["cards"] = len(m["scores"])
+    m["added_cards"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(m, separators=(",", ":")), encoding="utf-8")
+    os.replace(tmp, path)          # the old matrix serves games until this instant; load() sees the new mtime
+    progress("done", cards=[c["name"] for c in cards], seconds=round(time.time() - t0, 1))
+    return {"cards": [c["name"] for c in cards], "calls": q.calls, "scored": {k: len(v) for k, v in results}}
+
+
 def extend(q: Qloo, names: list[str], *, path: pathlib.Path | None = None, popularity_min: float = POPULARITY_MIN,
            on_progress: Callable[[dict], None] | None = None) -> dict:
     """Add outside names to the built matrix: resolve them, score the new ones against every card

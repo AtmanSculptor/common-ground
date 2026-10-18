@@ -84,11 +84,16 @@ def _keeper() -> None:
     time.sleep(120)
     while True:
         try:
-            need = matrix.due(matrix.load())
+            m = matrix.load()
+            new_cards = matrix.missing_cards(m) if m else []
+            need = "cards" if new_cards else matrix.due(m)
             if need and _matrix_job["status"] != "running":
                 _matrix_job.update({"status": "running", "progress": [], "started": time.time(), "by": "keeper", "what": need})
                 q = Qloo(timeout=60)
-                if need == "build":
+                if need == "cards":
+                    out = matrix.add_cards(q, new_cards, on_progress=lambda d: _matrix_job["progress"].append(d))
+                    _matrix_job.update({"status": "done", "cards": out["cards"], "calls": out["calls"]})
+                elif need == "build":
                     m = matrix.build(q, on_progress=lambda d: _matrix_job["progress"].append(d))
                     _matrix_job.update({"status": "done", "artists": len(m["entities"]), "cards": m["cards"], "calls": m["calls"]})
                 else:
@@ -199,6 +204,28 @@ def matrix_build(request: Request):
 
     threading.Thread(target=work, daemon=True).start()
     return {"ok": True, "status": "running"}
+
+
+@app.post("/api/admin/matrix/cards")
+def matrix_cards(request: Request):
+    """Score the cards the matrix has no column for yet (new art landed). Loopback only."""
+    _local_only(request)
+    new_cards = matrix.missing_cards(matrix.load())
+    if not new_cards:
+        return {"ok": True, "status": "nothing to do"}
+    if _matrix_job["status"] == "running":
+        return {"ok": False, "status": "running"}
+    _matrix_job.update({"status": "running", "progress": [], "started": time.time(), "by": "admin", "what": "cards"})
+
+    def work():
+        try:
+            out = matrix.add_cards(Qloo(timeout=60), new_cards, on_progress=lambda d: _matrix_job["progress"].append(d))
+            _matrix_job.update({"status": "done", "cards": out["cards"], "calls": out["calls"]})
+        except Exception as e:
+            _matrix_job.update({"status": "error", "error": str(e)[:200]})
+
+    threading.Thread(target=work, daemon=True).start()
+    return {"ok": True, "status": "running", "cards": [c["name"] for c in new_cards]}
 
 
 @app.get("/api/admin/search")

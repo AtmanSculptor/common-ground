@@ -254,3 +254,17 @@ def test_rank_weights_and_tosses_move_the_draft():
     assert matrix.partner_scores(m, [], tossed=[1]) == {}              # nothing played, nothing ranked
     d = matrix.draft(m, [1], [2], a_weights=[3], b_weights=[3], a_tossed=[2], b_tossed=[1])
     assert [r["id"] for r in d] and all(0 <= r["a"] <= 1 for r in d)
+
+
+def test_new_cards_get_columns_without_a_rebuild(tmp_path, fake_qloo, monkeypatch):
+    path = tmp_path / "m.json"
+    m = {"built": "2026-10-01T00:00:00Z", "entities": {"a1": {"name": "A", "popularity": .95}, "a2": {"name": "B", "popularity": .93}},
+         "scores": {"1": {"a1": 0.9, "a2": 0.6}}}
+    path.write_text(json.dumps(m), encoding="utf-8")
+    cards = [{"id": 1, "name": "Old", "signal": {"tags": ["t"]}}, {"id": 99, "name": "New card", "signal": {"audiences": ["urn:audience:x:y"]}}]
+    assert [c["name"] for c in matrix.missing_cards(matrix.load(path), cards)] == ["New card"]
+    out = matrix.add_cards(fake_qloo, [cards[1]], path=path, workers=1)
+    assert out["cards"] == ["New card"] and out["scored"]["99"] >= 1
+    m2 = matrix.load(path)
+    assert "99" in m2["scores"] and m2["cards"] == 2 and set(m2["entities"]) == {"a1", "a2"}   # the pool is untouched
+    assert matrix.missing_cards(m2, cards) == []

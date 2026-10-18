@@ -510,5 +510,115 @@
     "urn:audience:global_issues:sustainability"
    ]
   }
+ },
+ {
+  "id": 55,
+  "name": "Nap enthusiast",
+  "cat": "heart",
+  "img": "static/deck/55_nap_enthusiast.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:casual_escapists"
+   ]
+  }
+ },
+ {
+  "id": 56,
+  "name": "True crime at bedtime",
+  "cat": "heart",
+  "img": "static/deck/56_true_crime_at_bedtime.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:secret_unravelers"
+   ]
+  }
+ },
+ {
+  "id": 57,
+  "name": "Mercury in retrograde",
+  "cat": "heart",
+  "img": "static/deck/57_mercury_in_retrograde.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:lifestyle_preferences_beliefs:astrology"
+   ]
+  }
+ },
+ {
+  "id": 58,
+  "name": "Rewatches the same movie",
+  "cat": "heart",
+  "img": "static/deck/58_rewatches_the_same_movie.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:leisure:cinephile"
+   ]
+  }
+ },
+ {
+  "id": 59,
+  "name": "Glue gun ready",
+  "cat": "heart",
+  "img": "static/deck/59_glue_gun_ready.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:arts_crafts"
+   ]
+  }
+ },
+ {
+  "id": 60,
+  "name": "Works weekends",
+  "cat": "heart",
+  "img": "static/deck/60_works_weekends.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:professional_area:hospitality_professional"
+   ]
+  }
+ },
+ {
+  "id": 61,
+  "name": "Tattoo sleeve",
+  "cat": "heart",
+  "img": "static/deck/61_tattoo_sleeve.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:tattoos"
+   ]
+  }
+ },
+ {
+  "id": 62,
+  "name": "Night shift",
+  "cat": "heart",
+  "img": "static/deck/62_night_shift.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:professional_area:medical_professional"
+   ]
+  }
+ },
+ {
+  "id": 63,
+  "name": "Self-care Sunday",
+  "cat": "heart",
+  "img": "static/deck/63_self-care_sunday.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:global_issues:mental_health"
+   ]
+  }
+ },
+ {
+  "id": 64,
+  "name": "Sings in the car",
+  "cat": "heart",
+  "img": "static/deck/64_sings_in_the_car.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:musician"
+   ]
+  }
  }
 ]
