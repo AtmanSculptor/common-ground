@@ -842,5 +842,115 @@
     "urn:tag:genre:brand:wine_and_spirits:beer"
    ]
   }
+ },
+ {
+  "id": 85,
+  "name": "Outlaw country",
+  "cat": "music",
+  "img": "static/deck/85_outlaw_country.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:outlaw_country"
+   ]
+  }
+ },
+ {
+  "id": 86,
+  "name": "Red dirt road",
+  "cat": "music",
+  "img": "static/deck/86_red_dirt_road.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:red_dirt"
+   ]
+  }
+ },
+ {
+  "id": 87,
+  "name": "Cumbia till the lights come on",
+  "cat": "music",
+  "img": "static/deck/87_cumbia_till_the_lights_come_on.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:cumbia"
+   ]
+  }
+ },
+ {
+  "id": 88,
+  "name": "80s night",
+  "cat": "music",
+  "img": "static/deck/88_80s_night.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:new_wave"
+   ]
+  }
+ },
+ {
+  "id": 89,
+  "name": "Flannel in the closet",
+  "cat": "music",
+  "img": "static/deck/89_flannel_in_the_closet.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:grunge"
+   ]
+  }
+ },
+ {
+  "id": 90,
+  "name": "Disco never died",
+  "cat": "music",
+  "img": "static/deck/90_disco_never_died.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:disco"
+   ]
+  }
+ },
+ {
+  "id": 91,
+  "name": "Hair metal, hair gone",
+  "cat": "music",
+  "img": "static/deck/91_hair_metal_hair_gone.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:hair_metal"
+   ]
+  }
+ },
+ {
+  "id": 92,
+  "name": "Yacht rock, no yacht",
+  "cat": "music",
+  "img": "static/deck/92_yacht_rock_no_yacht.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:yacht_rock"
+   ]
+  }
+ },
+ {
+  "id": 93,
+  "name": "Christmas in October",
+  "cat": "music",
+  "img": "static/deck/93_christmas_in_october.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:christmas"
+   ]
+  }
+ },
+ {
+  "id": 94,
+  "name": "Bass in the trunk",
+  "cat": "music",
+  "img": "static/deck/94_bass_in_the_trunk.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:trap_rap"
+   ]
+  }
  }
 ]
