@@ -20,7 +20,9 @@ body.tablemode>.top{display:none}
 .pill.credits{color:var(--gold)}
 .coin{width:1em;height:1em;flex:none;vertical-align:-.12em}
 /* every button is a pill in the house colors: gold for the one action, purple for the rest. Nothing spans the screen. */
-button{font:inherit;font-weight:700;background:rgba(255,199,0,.12);color:var(--gold);border:2px solid var(--gold);border-radius:999px;padding:0 26px;height:46px;cursor:pointer;width:auto;min-width:220px;margin:12px auto 0;font-size:1rem;letter-spacing:.03em;transition:transform .08s,opacity .2s;display:flex;justify-content:center;align-items:center;gap:8px;box-shadow:0 0 18px rgba(255,199,0,.18)}
+button{font:inherit;font-weight:700;background:rgba(255,199,0,.12);color:var(--gold);border:2px solid var(--gold);border-radius:999px;padding:0 22px;height:42px;cursor:pointer;width:auto;min-width:0;margin:10px auto 0;font-size:.95rem;letter-spacing:.03em;transition:transform .08s,opacity .2s;display:flex;justify-content:center;align-items:center;gap:8px;box-shadow:0 0 18px rgba(255,199,0,.18);white-space:nowrap}
+.brow{display:flex;justify-content:center;gap:10px;margin-top:10px}
+.brow button{margin:0;flex:0 1 auto;height:38px;padding:0 16px;font-size:.88rem}
 button:active{transform:scale(.97);background:rgba(255,199,0,.28)}
 button.ghost{background:rgba(189,53,252,.1);color:var(--text2);border-color:rgba(189,53,252,.55);box-shadow:none}
 button.ghost:active{background:rgba(189,53,252,.25)}
@@ -69,7 +71,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hud a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(255,199,0,.4)}
 .hud .dim{color:var(--text3)}
 #yesBtn.chosen{background:rgba(255,199,0,.28)}
-#noBtn{margin-top:10px}
+#voteRow button{height:42px;padding:0 18px;font-size:.95rem}
 #noBtn.chosen{border-color:var(--coral);color:var(--coral)}
 
 /* ---- the table: one screen, never scrolls. Below the room bar the field (both sides, Q-Lou's line between) takes
@@ -258,6 +260,17 @@ details[open] summary::after{content:"–"}
   #screens{position:absolute;inset:0;overflow-y:auto;padding:14px 16px 40px;scrollbar-width:none}
   #screens::-webkit-scrollbar{display:none}
   body.tablemode #screens{overflow:hidden;padding:0}
+  #screens{display:flex;flex-direction:column}
+  .top{flex:none}
+  #s-lobby.on,#s-join.on,#s-lobbywait.on,#s-jukebox.on{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
+  #s-lobby .qlou-big,#s-lobbywait .qlou-big{flex:1 1 0;min-height:90px;width:auto;max-width:none;margin:4px auto;display:flex;justify-content:center}
+  #s-lobby .qlou-big .scene,#s-lobbywait .qlou-big .scene{height:100%;aspect-ratio:2/3;max-width:230px}
+  #s-lobby .qlou-big .card,#s-lobbywait .qlou-big .card{height:100%;width:100%}
+  #s-lobby .sub{font-size:.95rem;margin:4px 0}
+  #s-lobbywait .sub,#s-lobbywait .wait{margin:4px 0}
+  #s-lobbywait .code{font-size:2.8rem;margin:4px 0}
+  #s-jukebox .art{flex:none;width:min(160px,22vh);height:min(160px,22vh)}
+  #s-jukebox #moreBox{flex:1 1 auto;min-height:0;overflow:auto}
   #s-table{position:absolute;max-width:none}
   .hud{display:block;position:static;height:min(844px,calc(100vh - 40px));width:auto}
   #hudR{grid-column:1;grid-row:1}#phone{grid-column:2;grid-row:1}#hudL{grid-column:3;grid-row:1}
@@ -288,8 +301,7 @@ details[open] summary::after{content:"–"}
   <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
-  <button class="ghost" onclick="show('join')">Join with a code</button>
-  <button class="ghost" onclick="newGame(true)">Play demo</button>
+  <div class="brow"><button class="ghost" onclick="show('join')">Join with a code</button><button class="ghost" onclick="newGame(true)">Play demo</button></div>
 </section>
 
 <section class="screen" id="s-join">
@@ -297,7 +309,7 @@ details[open] summary::after{content:"–"}
   <input id="joinName" placeholder="Your nickname" maxlength="24">
   <input id="joinCode" placeholder="Room code" maxlength="4" style="text-transform:uppercase;letter-spacing:.2em">
   <button onclick="joinGame()">Let's go</button>
-  <button class="ghost" onclick="show('lobby')">Back</button>
+  <div class="brow"><button class="ghost" onclick="show('lobby')">Back</button></div>
 </section>
 
 <section class="screen" id="s-lobbywait">
@@ -337,8 +349,7 @@ details[open] summary::after{content:"–"}
   <div class="qlou"><img src="static/deck/qlou.jpg" alt=""><p id="why"></p></div>
   <h1 class="center" style="margin-top:14px" id="askPlay">Play it?</h1>
   <p class="center" id="askLine" style="margin:0 0 4px;font-size:.95rem;color:var(--text2)"></p>
-  <button class="big" id="yesBtn" onclick="vote(true)">Yes, 2 tokens <svg class="coin"><use href="#coin"/></svg></button>
-  <button class="ghost" id="noBtn" onclick="vote(false)">Not for me</button>
+  <div class="brow" id="voteRow"><button id="yesBtn" onclick="vote(true)">Yes, 2 tokens <svg class="coin"><use href="#coin"/></svg></button><button class="ghost" id="noBtn" onclick="vote(false)">Not for me</button></div>
   <p class="wait" id="voteMsg"></p>
   <details id="moreBox" style="margin-top:14px"><summary id="moreTitle">More by this artist</summary><div id="tracks"></div></details>
   <audio id="preview" preload="none"></audio>
@@ -358,8 +369,7 @@ details[open] summary::after{content:"–"}
     <p class="center" id="doneShared" style="margin:6px 0 0;font-size:.95rem;color:var(--text2)"></p>
     <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
-  <button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button>
-  <button id="againBtn" class="ghost" onclick="forget();location.reload()">Play again</button>
+  <div class="brow"><button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button><button id="againBtn" class="ghost" onclick="forget();location.reload()">Play again</button></div>
   <div style="margin-top:18px">
     <details><summary id="hoodTitle">Under the hood</summary>
       <h2>What you both played</h2><div id="both"></div>
