@@ -3,6 +3,8 @@ import random
 import time
 
 import pytest
+
+from common_ground import deck
 from fastapi.testclient import TestClient
 
 
@@ -48,12 +50,15 @@ def test_two_phones_full_game(client):
     st = _st(client, code)
     assert st["phase"] == "toss" and st["sides"]["host"]["tokens"] == 10
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
-    assert len(hand) == 5 and "hand" not in st["sides"]["guest"]
-    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:4]}).status_code == 400   # three at most
+    assert len(hand) in (4, 5) and "hand" not in st["sides"]["guest"]
+    assert st["toss_max"] == 2 and st["suits"] == ["stage", "bar", "road", "porch"]
+    hand = [c for c in hand if deck.card(c)["suit"] != deck.JOKER]
+    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:3]}).status_code == 400   # two at most
     assert client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]}).status_code == 400   # not yet
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2]}).json()
     new = [c["id"] for c in out["hand"]]
-    assert out["phase"] == "toss" and new[2:] == hand[2:] and not set(new[:2]) & set(hand)
+    assert out["phase"] == "toss" and not set(new) & set(hand[:2]) and set(hand[2:]) <= set(new)
+    assert [deck.card(c)["suit"] for c in new if deck.card(c)["suit"] != deck.JOKER] == [deck.card(c)["suit"] for c in hand]
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": []}).status_code == 400     # once
     st = _st(client, code, "guest")
     assert st["sides"]["host"]["locked"] and st["sides"]["host"]["tossed_n"] == 2 and not st["sides"]["guest"]["locked"]

@@ -8,7 +8,8 @@
    "tags": [
     "urn:tag:genre:music:acoustic"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 2,
@@ -19,7 +20,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:dance"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 3,
@@ -31,7 +33,8 @@
     "urn:audience:hobbies_and_interests:travel",
     "urn:audience:hobbies_and_interests:automotive"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 4,
@@ -42,7 +45,8 @@
    "audiences": [
     "urn:audience:leisure:music_festivals"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 5,
@@ -53,7 +57,8 @@
    "audiences": [
     "urn:audience:global_issues:animal_issues"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 6,
@@ -65,7 +70,8 @@
     "urn:audience:global_issues:animal_issues",
     "urn:audience:leisure:avid_reader"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 7,
@@ -76,7 +82,8 @@
    "audiences": [
     "urn:audience:leisure:cooking"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 8,
@@ -87,7 +94,8 @@
    "audiences": [
     "urn:audience:leisure:foodie"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 9,
@@ -99,7 +107,8 @@
     "urn:audience:leisure:exercising",
     "urn:audience:hobbies_and_interests:running"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 10,
@@ -111,7 +120,8 @@
     "urn:audience:hobbies_and_interests:hiking",
     "urn:audience:hobbies_and_interests:outdoors"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 11,
@@ -122,7 +132,8 @@
    "audiences": [
     "urn:audience:leisure:avid_reader"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 12,
@@ -133,7 +144,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:video_gamer"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 13,
@@ -145,7 +157,8 @@
     "urn:audience:hobbies_and_interests:home_organization",
     "urn:audience:hobbies_and_interests:automotive"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 14,
@@ -157,7 +170,8 @@
     "urn:audience:spending_habits:vintage_apparel",
     "urn:audience:spending_habits:discount_shoppers"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 15,
@@ -169,7 +183,8 @@
     "urn:audience:spending_habits:gourmand_fine_dining",
     "urn:audience:spending_habits:boutique_hotels"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 16,
@@ -180,7 +195,8 @@
    "audiences": [
     "urn:audience:spending_habits:discount_shoppers"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 17,
@@ -192,7 +208,8 @@
     "urn:audience:lifestyle_preferences_beliefs:spirituality",
     "urn:audience:hobbies_and_interests:meditation"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 18,
@@ -204,7 +221,8 @@
     "urn:audience:spending_habits:technology_enthusiast",
     "urn:audience:leisure:museums"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 19,
@@ -215,7 +233,8 @@
    "tags": [
     "urn:tag:genre:music:country"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 20,
@@ -226,7 +245,8 @@
    "tags": [
     "urn:tag:genre:music:hip_hop"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 21,
@@ -237,7 +257,8 @@
    "tags": [
     "urn:tag:genre:music:rock"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 22,
@@ -248,7 +269,8 @@
    "tags": [
     "urn:tag:genre:music:pop"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 23,
@@ -259,7 +281,8 @@
    "tags": [
     "urn:tag:genre:music:jazz"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 24,
@@ -270,7 +293,8 @@
    "tags": [
     "urn:tag:genre:music:metal"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 25,
@@ -281,7 +305,8 @@
    "tags": [
     "urn:tag:genre:music:indie_rock"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 26,
@@ -292,7 +317,8 @@
    "tags": [
     "urn:tag:genre:music:electronic"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 27,
@@ -304,7 +330,8 @@
     "urn:tag:genre:music:classic_rock",
     "urn:tag:genre:music:oldies"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 28,
@@ -315,7 +342,8 @@
    "tags": [
     "urn:tag:genre:music:musica_latina"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 29,
@@ -326,7 +354,8 @@
    "tags": [
     "urn:tag:genre:music:gospel"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 30,
@@ -338,7 +367,8 @@
     "urn:tag:genre:music:singer_songwriter",
     "urn:tag:genre:music:folk"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 37,
@@ -350,7 +380,8 @@
     "urn:audience:hobbies_and_interests:american_football",
     "urn:audience:hobbies_and_interests:basketball"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 41,
@@ -361,7 +392,8 @@
    "tags": [
     "urn:tag:genre:music:blues"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 42,
@@ -372,7 +404,8 @@
    "tags": [
     "urn:tag:genre:music:jam_band"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 43,
@@ -383,7 +416,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:wine_enthusiast"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 44,
@@ -395,7 +429,8 @@
     "urn:audience:leisure:coffee",
     "urn:audience:leisure:avid_reader"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 45,
@@ -407,7 +442,8 @@
     "urn:tag:genre:music:latin_rock",
     "urn:tag:genre:music:reggaeton"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 46,
@@ -418,7 +454,8 @@
    "tags": [
     "urn:tag:genre:music:pop_punk"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 47,
@@ -429,7 +466,8 @@
    "tags": [
     "urn:tag:genre:music:americana"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 48,
@@ -441,7 +479,8 @@
     "urn:tag:genre:music:soul",
     "urn:tag:genre:music:house"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 49,
@@ -452,7 +491,8 @@
    "audiences": [
     "urn:audience:life_stage:parents_with_young_children"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 50,
@@ -463,7 +503,8 @@
    "audiences": [
     "urn:audience:life_stage:single"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 51,
@@ -474,7 +515,8 @@
    "audiences": [
     "urn:audience:life_stage:retirement"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 52,
@@ -486,7 +528,8 @@
     "urn:audience:hobbies_and_interests:travel",
     "urn:audience:hobbies_and_interests:adventuring"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 53,
@@ -497,7 +540,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:home_decor"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 54,
@@ -509,7 +553,8 @@
     "urn:audience:global_issues:education_issues",
     "urn:audience:global_issues:sustainability"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 55,
@@ -520,7 +565,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:casual_escapists"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 56,
@@ -531,7 +577,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:secret_unravelers"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 57,
@@ -542,7 +589,8 @@
    "audiences": [
     "urn:audience:lifestyle_preferences_beliefs:astrology"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 58,
@@ -553,7 +601,8 @@
    "audiences": [
     "urn:audience:leisure:cinephile"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 59,
@@ -564,7 +613,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:arts_crafts"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 60,
@@ -575,7 +625,8 @@
    "audiences": [
     "urn:audience:professional_area:hospitality_professional"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 61,
@@ -586,7 +637,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:tattoos"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 62,
@@ -597,7 +649,8 @@
    "audiences": [
     "urn:audience:professional_area:medical_professional"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 63,
@@ -608,7 +661,8 @@
    "audiences": [
     "urn:audience:global_issues:mental_health"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 64,
@@ -619,7 +673,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:musician"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 65,
@@ -630,7 +685,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:fishing"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 66,
@@ -642,7 +698,8 @@
     "urn:audience:hobbies_and_interests:motorcycles",
     "urn:audience:hobbies_and_interests:racing"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 67,
@@ -653,7 +710,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:golf"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 68,
@@ -664,7 +722,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:photography"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 69,
@@ -675,7 +734,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:swimming"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 70,
@@ -686,7 +746,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:soccer"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 71,
@@ -697,7 +758,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:baseball"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 72,
@@ -708,7 +770,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:adrenaline_rushers"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 73,
@@ -719,7 +782,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:wrestling"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 74,
@@ -730,7 +794,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:tennis"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 75,
@@ -741,7 +806,8 @@
    "tags": [
     "urn:tag:genre:music:honky_tonk"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 76,
@@ -752,7 +818,8 @@
    "tags": [
     "urn:tag:cuisine:qloo:tex_mex"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 77,
@@ -763,7 +830,8 @@
    "tags": [
     "urn:tag:cuisine:qloo:soul_food"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 78,
@@ -775,7 +843,8 @@
     "urn:tag:cuisine:qloo:barbecue",
     "urn:tag:cuisine:qloo:southern"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 79,
@@ -786,7 +855,8 @@
    "tags": [
     "urn:tag:genre:place:restaurant:brunch"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 80,
@@ -797,7 +867,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:spy_enthusiast"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 81,
@@ -808,7 +879,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:health_and_beauty"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 82,
@@ -819,7 +891,8 @@
    "tags": [
     "urn:tag:cuisine:qloo:seafood"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 83,
@@ -830,7 +903,8 @@
    "tags": [
     "urn:tag:cuisine:qloo:mexican"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 84,
@@ -841,7 +915,8 @@
    "tags": [
     "urn:tag:genre:brand:wine_and_spirits:beer"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 85,
@@ -852,7 +927,8 @@
    "tags": [
     "urn:tag:genre:music:outlaw_country"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 86,
@@ -863,7 +939,8 @@
    "tags": [
     "urn:tag:genre:music:red_dirt"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 87,
@@ -874,7 +951,8 @@
    "tags": [
     "urn:tag:genre:music:cumbia"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 88,
@@ -885,7 +963,8 @@
    "tags": [
     "urn:tag:genre:music:new_wave"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 89,
@@ -896,7 +975,8 @@
    "tags": [
     "urn:tag:genre:music:grunge"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 90,
@@ -907,7 +987,8 @@
    "tags": [
     "urn:tag:genre:music:disco"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 91,
@@ -918,7 +999,8 @@
    "tags": [
     "urn:tag:genre:music:hair_metal"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 92,
@@ -929,7 +1011,8 @@
    "tags": [
     "urn:tag:genre:music:yacht_rock"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 93,
@@ -940,7 +1023,8 @@
    "tags": [
     "urn:tag:genre:music:christmas"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 94,
@@ -951,7 +1035,8 @@
    "tags": [
     "urn:tag:genre:music:trap_rap"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 95,
@@ -962,7 +1047,8 @@
    "tags": [
     "urn:tag:genre:music:reggae"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 96,
@@ -973,7 +1059,8 @@
    "tags": [
     "urn:tag:genre:music:bluegrass"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 97,
@@ -984,7 +1071,8 @@
    "tags": [
     "urn:tag:genre:music:punk"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 98,
@@ -995,7 +1083,8 @@
    "tags": [
     "urn:tag:genre:music:banda"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 99,
@@ -1006,7 +1095,8 @@
    "tags": [
     "urn:tag:genre:music:tejano"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 100,
@@ -1017,7 +1107,8 @@
    "tags": [
     "urn:tag:cuisine:qloo:vegan"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 101,
@@ -1028,7 +1119,8 @@
    "audiences": [
     "urn:audience:investing_interests:stocks_bonds"
    ]
-  }
+  },
+  "suit": "bar"
  },
  {
   "id": 102,
@@ -1039,7 +1131,8 @@
    "audiences": [
     "urn:audience:investing_interests:real_estate"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 103,
@@ -1050,7 +1143,8 @@
    "audiences": [
     "urn:audience:leisure:news_junkie"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 104,
@@ -1061,7 +1155,8 @@
    "audiences": [
     "urn:audience:hobbies_and_interests:hockey"
    ]
-  }
+  },
+  "suit": "road"
  },
  {
   "id": 105,
@@ -1072,7 +1167,8 @@
    "audiences": [
     "urn:audience:professional_area:finance_professional"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 106,
@@ -1083,7 +1179,8 @@
    "audiences": [
     "urn:audience:professional_area:technology_professional"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 107,
@@ -1094,7 +1191,8 @@
    "audiences": [
     "urn:audience:global_issues:climate_activism"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 108,
@@ -1105,7 +1203,8 @@
    "audiences": [
     "urn:audience:investing_interests:nft_collectors"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 109,
@@ -1116,7 +1215,8 @@
    "audiences": [
     "urn:audience:life_stage:engaged"
    ]
-  }
+  },
+  "suit": "porch"
  },
  {
   "id": 110,
@@ -1127,13 +1227,15 @@
    "tags": [
     "urn:tag:genre:music:mariachi"
    ]
-  }
+  },
+  "suit": "stage"
  },
  {
   "id": 111,
   "name": "On the house",
   "cat": "joker",
   "img": "static/deck/111_on_the_house.jpg",
-  "signal": {}
+  "signal": {},
+  "suit": "joker"
  }
 ]

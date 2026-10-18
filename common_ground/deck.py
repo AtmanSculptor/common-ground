@@ -1,11 +1,13 @@
-"""The deck: 45 taste cards, each tied to a verified Qloo signal.
+"""The deck: 101 taste cards in four suits, each tied to a verified Qloo signal, plus the joker.
 
 A card is a thing you can be ("Night owl", "Country roads", "Whiskey"). Playing it is a
 statement. Behind each card is a Qloo tag or audience that returns real artists, checked
-one by one against the live API (see probes/). Cards whose signals returned noise were
-parked, not faked.
+one by one against the live API (see probes/ and docs/art/). Cards whose signals returned
+noise were parked, not faked.
 
-Dealing: six cards, three music and three life, nothing this person has seen in this room.
+Suits: Stage (what you turn up), Bar (what you order and where you sit), Road (what you do
+with a Saturday), Porch (who you are at home). Dealing: one card of each suit, nothing this
+person has seen in this room, and now and then the joker rides along as a fifth card.
 """
 from __future__ import annotations
 
@@ -15,10 +17,12 @@ import random
 from functools import lru_cache
 
 STATIC = pathlib.Path(__file__).resolve().parents[1] / "static"
-HAND = 5
-MUSIC_IN_HAND = 3    # of five: the song is the point; the rest is flavor
+SUITS = ("stage", "bar", "road", "porch")
+HAND = len(SUITS)        # one card of each suit
 PLAYS = 3                # on the table, ranked: Most me, Also me, A bit me
-MUSIC_CATS = {"music"}
+JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
+JOKER_CHANCE = 0.12      # a hand gets the joker as a fifth card this often
+MUSIC_CATS = {"music"}   # kept for older callers; suits do the dealing now
 
 
 @lru_cache(maxsize=1)
@@ -39,30 +43,35 @@ def public(c: dict) -> dict:
     return {k: v for k, v in c.items() if k != "signal"}
 
 
-JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
-
-
-def deal(seen: set[int], rng: random.Random | None = None) -> list[int]:
+def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float = JOKER_CHANCE) -> list[int]:
+    """One card from each suit, in suit order, never one this side has seen; now and then the joker
+    rides along as a fifth card."""
     rng = rng or random
-    music = [c["id"] for c in cards() if c["cat"] in MUSIC_CATS and c["id"] not in seen]
-    other = [c["id"] for c in cards() if c["cat"] not in MUSIC_CATS and c["cat"] != JOKER and c["id"] not in seen]
-    hand = rng.sample(music, min(MUSIC_IN_HAND, len(music))) + rng.sample(other, min(HAND - MUSIC_IN_HAND, len(other)))
-    rng.shuffle(hand)
+    hand = []
+    for suit in SUITS:
+        pool = [c["id"] for c in cards() if c["suit"] == suit and c["id"] not in seen]
+        if pool:
+            hand.append(rng.choice(pool))
+    joker = next((c["id"] for c in cards() if c["suit"] == JOKER), None)
+    if joker is not None and joker not in seen and rng.random() < joker_chance:
+        hand.insert(rng.randrange(len(hand) + 1), joker)
     return hand
 
 
 def draw_one(seen: set[int], like: int, rng: random.Random | None = None) -> int | None:
-    """One fresh card to swap in for 'like': from the same half of the deck (music for music,
-    life for life) so the hand keeps its mix, never one this side has already seen."""
+    """One fresh card to swap in for 'like', from the same suit, so the hand keeps one of each;
+    never one this side has already seen. The joker is not replaced."""
     rng = rng or random
-    music = card(like)["cat"] in MUSIC_CATS
-    pool = [c["id"] for c in cards() if (c["cat"] in MUSIC_CATS) == music and c["cat"] != JOKER and c["id"] not in seen]
+    suit = card(like)["suit"]
+    if suit == JOKER:
+        return None
+    pool = [c["id"] for c in cards() if c["suit"] == suit and c["id"] not in seen]
     return rng.choice(pool) if pool else None
 
 
 def meter_words(pairs: list[dict], both: list[str] | None = None) -> str:
     """What the meter means, in words a stranger gets at a glance: which cards you both played,
-    which pairs were close (same kind of card), which were different. 'both' lists the cards
+    which pairs were close (same suit), which were different. 'both' lists the cards
     played by both sides whatever their rank; a rank pair that is the same card is skipped here."""
     same = list(both) if both is not None else [p["a"]["name"] for p in pairs if p["match"] == "exact"]
     close = [f'{p["a"]["name"]} and {p["b"]["name"]}' for p in pairs if p["match"] == "kin"]
@@ -78,7 +87,8 @@ def meter_words(pairs: list[dict], both: list[str] | None = None) -> str:
 
 
 def signal(card_ids: list[int], audiences: list[str] = ()) -> dict[str, list[str]]:
-    """Merge the Qloo signals behind a set of cards (plus a quiz profile) into one query signal."""
+    """Merge the Qloo signals behind a set of cards (plus a house profile) into one query signal.
+    The joker carries none."""
     tags: list[str] = []
     auds: list[str] = list(audiences)
     for cid in card_ids:
@@ -94,9 +104,9 @@ def signal(card_ids: list[int], audiences: list[str] = ()) -> dict[str, list[str
 
 
 def match_kind(ca: dict, cb: dict) -> str:
+    """The same card; the same suit ('close'); or not. The joker is close to nothing."""
     if ca["id"] == cb["id"]:
         return "exact"
-    if ca["cat"] == cb["cat"]:
+    if ca["suit"] == cb["suit"] and ca["suit"] != JOKER:
         return "kin"
     return "none"
-

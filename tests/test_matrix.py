@@ -158,12 +158,31 @@ def test_a_failing_batch_is_retried_then_counted_as_a_hole(fake_qloo, tmp_path, 
 
 
 def test_partial_coverage_does_not_outrank_full_coverage():
-    m = {"entities": {"full": {"name": "Full"}, "half": {"name": "Half"}},
-         "scores": {"1": {"full": 0.9, "half": 0.99}, "2": {"full": 0.9, "half": 0.99}, "3": {"full": 0.9}, "4": {"full": 0.9}}}
+    m = {"entities": {"full": {"name": "Full"}, "half": {"name": "Half"}, "other": {"name": "Other"}},
+         "scores": {"1": {"full": 0.9, "half": 0.99}, "2": {"full": 0.9, "half": 0.99},
+                    "3": {"full": 0.9, "other": 0.8}, "4": {"full": 0.9, "other": 0.8}}}
     ps = matrix.partner_scores(m, [1, 2, 3, 4])
-    assert abs(ps["half"] - (0.99 + 0.99 + 0.9 + 0.9) / 4) < 1e-9   # the two silent cards count as their floor, not as nothing
-    assert ps["full"] == 0.9 and ps["half"] < 0.99
-    assert matrix.partner_scores(m, [3, 4]) == {"full": 0.9}            # below half coverage: not ranked
+    # standardized, each column is +1 for its top artist and -1 for its bottom one. Half is +1 on the two
+    # cards that know it and silent on the other two, so it takes those columns' floor (-1), not nothing
+    assert abs(ps["half"] - 0.0) < 1e-9 and ps["half"] < 1.0
+    assert abs(ps["full"] - 0.0) < 1e-9 and abs(ps["other"] - (-1.0)) < 1e-9
+    two = matrix.partner_scores(m, [3, 4])                                      # half is below half coverage: not ranked
+    assert set(two) == {"full", "other"} and abs(two["full"] - 1.0) < 1e-9 and abs(two["other"] + 1.0) < 1e-9
+
+
+def test_columns_are_put_on_one_scale_before_the_rank_weights():
+    """A life card spreads its artists over a wide band and a genre card over a narrow one. Raw, the wide
+    card decides everything; standardized, rank decides."""
+    m = {"entities": {"a": {"name": "A"}, "b": {"name": "B"}},
+         "scores": {"1": {"a": 0.09, "b": 0.07},       # a life card: wide
+                    "2": {"a": 0.010, "b": 0.012}}}    # a genre card: narrow, and it prefers b
+    flat = matrix.partner_scores(m, [1, 2])
+    assert abs(flat["a"] - flat["b"]) < 1e-9                       # equal weight: the two cards cancel
+    ranked = matrix.partner_scores(m, [2, 1], weights=[3.0, 1.0])  # the genre card on top
+    assert ranked["b"] > ranked["a"]
+    ranked = matrix.partner_scores(m, [1, 2], weights=[3.0, 1.0])  # the life card on top
+    assert ranked["a"] > ranked["b"]
+    assert matrix._standard({"a": 0.5}) == {"a": 0.0} and matrix._standard({"a": 0.5, "b": 0.5}) == {"a": 0.0, "b": 0.0}
 
 
 def test_within_a_few_points_the_better_known_artist_wins():

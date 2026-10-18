@@ -32,15 +32,37 @@ def test_dead_tags_are_not_in_the_deck():
         assert not dead & set(c["signal"].get("tags", [])), c["name"]
 
 
-def test_deal_is_three_music_two_other_and_never_repeats():
+def test_deal_is_one_of_each_suit_and_never_repeats():
     rng = random.Random(1)
     seen: set[int] = set()
     for _ in range(3):
-        hand = deck.deal(seen, rng)
+        hand = deck.deal(seen, rng, joker_chance=0)
         assert len(hand) == deck.HAND and len(set(hand)) == deck.HAND
-        assert sum(1 for c in hand if deck.card(c)["cat"] == "music") == 3
+        assert [deck.card(c)["suit"] for c in hand] == list(deck.SUITS)
         assert not seen & set(hand)
         seen |= set(hand)
+
+
+def test_every_card_has_a_suit_and_the_joker_stands_alone():
+    counts = {}
+    for c in deck.cards():
+        counts[c["suit"]] = counts.get(c["suit"], 0) + 1
+    assert set(counts) == set(deck.SUITS) | {deck.JOKER}
+    assert counts[deck.JOKER] == 1
+    assert min(counts[s] for s in deck.SUITS) >= 20
+    joker = next(c for c in deck.cards() if c["suit"] == deck.JOKER)
+    assert joker["signal"] == {} and joker["name"] == "On the house"
+
+
+def test_joker_rides_along_as_a_fifth_card_sometimes():
+    rng = random.Random(2)
+    hand = deck.deal(set(), rng, joker_chance=1.0)
+    assert len(hand) == deck.HAND + 1
+    assert sum(1 for c in hand if deck.card(c)["suit"] == deck.JOKER) == 1
+    assert sorted(deck.card(c)["suit"] for c in hand if deck.card(c)["suit"] != deck.JOKER) == sorted(deck.SUITS)
+    joker = next(c for c in hand if deck.card(c)["suit"] == deck.JOKER)
+    assert deck.deal({joker}, rng, joker_chance=1.0) and len(deck.deal({joker}, rng, joker_chance=1.0)) == deck.HAND
+    assert deck.draw_one(set(), joker, rng) is None
 
 
 def test_signal_merges_cards_and_profile_without_duplicates():
@@ -57,6 +79,8 @@ def test_match_kinds():
     b = next(c for c in deck.cards() if c["name"] == "Jazz hands")
     c = next(c for c in deck.cards() if c["name"] == "Whiskey")
     assert deck.match_kind(a, a) == "exact" and deck.match_kind(a, b) == "kin" and deck.match_kind(a, c) == "none"
+    joker = next(c for c in deck.cards() if c["suit"] == deck.JOKER)
+    assert deck.match_kind(joker, joker) == "exact" and deck.match_kind(joker, a) == "none"
 
 
 def test_meter_words_say_what_the_number_means():
@@ -70,13 +94,13 @@ def test_meter_words_say_what_the_number_means():
     assert deck.meter_words(pairs, [a["name"]]).startswith(f'Same card: {a["name"]}. Close:')
 
 
-def test_draw_one_keeps_the_hand_mix_and_never_repeats():
+def test_draw_one_keeps_the_suit_and_never_repeats():
     import random
     from common_ground import deck
     rng = random.Random(5)
-    hand = deck.deal(set(), rng)
-    music = [c for c in hand if deck.card(c)["cat"] in deck.MUSIC_CATS][0]
-    new = deck.draw_one(set(hand), music, rng)
-    assert new not in hand and deck.card(new)["cat"] in deck.MUSIC_CATS
+    hand = deck.deal(set(), rng, joker_chance=0)
+    for old in hand:
+        new = deck.draw_one(set(hand), old, rng)
+        assert new not in hand and deck.card(new)["suit"] == deck.card(old)["suit"]
     everything = {c["id"] for c in deck.cards()}
-    assert deck.draw_one(everything, music, rng) is None
+    assert deck.draw_one(everything, hand[0], rng) is None

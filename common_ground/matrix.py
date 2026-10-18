@@ -79,6 +79,23 @@ def _curve(d: dict[str, float]) -> dict[str, float]:
     return {k: round((v - lo) / (hi - lo), 3) for k, v in d.items()}
 
 
+def _standard(col: dict[str, float]) -> dict[str, float]:
+    """One card's column on a common scale: how far each artist sits from that card's own mean, in
+    that card's own standard deviations. Raw affinities are not comparable across cards: a life card
+    (Dog person) spreads its artists over 0.07 to 0.09 while a genre card (Jazz hands) spreads over
+    0.01 to 0.02, so without this a rank-3 life card outweighs a rank-1 genre card. A column that
+    does not vary says nothing and scores everyone zero."""
+    n = len(col)
+    if n < 2:
+        return {k: 0.0 for k in col}
+    mean = sum(col.values()) / n
+    var = sum((v - mean) ** 2 for v in col.values()) / n
+    if var < 1e-12:
+        return {k: 0.0 for k in col}
+    sd = var ** 0.5
+    return {k: (v - mean) / sd for k, v in col.items()}
+
+
 RANK_WEIGHTS = (3.0, 2.0, 1.0)   # "Most me", "Also me", "A bit me"
 TOSS_WEIGHT = 0.5                # a tossed card is "not me": it pulls against, at half the pull of a played card
 
@@ -88,15 +105,16 @@ def partner_scores(m: dict, cards: list[int], weights: list[float] | None = None
     """Weighted mean affinity per artist over the cards played, minus a share of the cards tossed,
     for artists covered by enough of the played cards.
 
-    A card Qloo had no signal on for this artist counts as that card's weakest real score: silence
-    is a penalty, not a free pass. An artist still needs real scores on half the played cards to be
+    Every card's column is standardized first (see _standard), so each card pulls by its rank, not
+    by how wide Qloo's numbers happen to run for it. A card Qloo had no signal on for this artist
+    counts as that card's weakest real score: silence is a penalty, not a free pass. An artist still needs real scores on half the played cards to be
     ranked. Tossed cards never help coverage; they only pull an artist down when a tossed card
     liked them."""
     weights = list(weights) if weights else [1.0] * len(cards)
-    cols = [(col, w) for col, w in ((m["scores"].get(str(c), {}), w) for c, w in zip(cards, weights)) if col and w > 0]
+    cols = [(_standard(col), w) for col, w in ((m["scores"].get(str(c), {}), w) for c, w in zip(cards, weights)) if col and w > 0]
     if not cols:
         return {}
-    neg = [col for col in (m["scores"].get(str(c), {}) for c in tossed) if col]
+    neg = [_standard(col) for col in (m["scores"].get(str(c), {}) for c in tossed) if col]
     floors = [min(col.values()) for col, _ in cols]
     nfloors = [min(col.values()) for col in neg]
     need = max(1, int(len(cols) * MIN_COVERAGE + 0.999))

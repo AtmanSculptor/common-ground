@@ -27,7 +27,7 @@ from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
 PLAYS = 3                # cards each partner puts on the table, ranked
-TOSS_MAX = 3             # cards each may toss in round one
+TOSS_MAX = 2             # cards each may toss in round one (of four, plus the joker when it shows)
 MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
 ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
 START_TOKENS = 10        # the demo balance; a jukebox app sets the real one
@@ -81,6 +81,10 @@ class Side:
     def play_locked(self) -> bool:
         return len(self.plays) == PLAYS
 
+    @property
+    def joker_played(self) -> bool:
+        return any(deck.card(c)["suit"] == deck.JOKER for c in self.plays)
+
     def partner(self, key: str) -> Partner:
         return Partner(key=key, name=self.name or key, cards=list(self.plays), profile=self.profile,
                        weights=list(matrix.RANK_WEIGHTS[:len(self.plays)]), tossed=list(self.tossed))
@@ -126,8 +130,8 @@ class Room:
         self.log.append("dealt")
 
     def toss(self, who: str, cards: list[int], rng: random.Random | None = None) -> bool:
-        """Toss up to three cards; fresh ones from the same half of the deck take their places.
-        Tossing none is a choice too. Locks the toss round for this side."""
+        """Toss up to TOSS_MAX cards; a fresh one of the same suit takes each place, so the hand
+        keeps one of each. Tossing none is a choice too. Locks the toss round for this side."""
         s = self.sides[who]
         if self.phase != "toss" or s.toss_locked:
             return False
@@ -282,10 +286,11 @@ class Room:
         return sum(1 for a in sig.get("audiences", []) if quiz.family(a) in fams) + rng.random() * 0.5
 
     def _house_toss(self, s: Side, rng: random.Random | None = None) -> list[int]:
-        """The house tosses the cards furthest from its profile, up to three, sometimes none."""
+        """The house tosses the cards furthest from its profile, up to TOSS_MAX, sometimes none.
+        It never tosses the joker: nobody turns down a free song."""
         rng = rng or random
-        scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand))
-        n = rng.choice((0, 1, 2, 3, 3))
+        scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand if deck.card(c)["suit"] != deck.JOKER))
+        n = rng.choice((0, 1, 2, 2))
         return [c for _, c in scored[:n]]
 
     def _house_plays(self, s: Side, rng: random.Random | None = None) -> list[int]:
@@ -343,11 +348,13 @@ class Room:
         o = self.pick
         if not o or o["status"] != "open" or len(o["votes"]) < 2:
             return None
-        can_pay = {k: s.tokens >= HALF for k, s in self.sides.items()}
+        on_the_house = any(s.joker_played for s in self.sides.values())
+        can_pay = {k: on_the_house or s.tokens >= HALF for k, s in self.sides.items()}
         if all(o["votes"].values()) and all(can_pay.values()):
-            for s in self.sides.values():
-                s.tokens -= HALF
-            o.update({"status": "played", "played": True, "paid_by": "both"})
+            if not on_the_house:
+                for s in self.sides.values():
+                    s.tokens -= HALF
+            o.update({"status": "played", "played": True, "paid_by": "house" if on_the_house else "both"})
             return "play"
         o.update({"status": "declined", "played": False})
         self.excluded.append(o["artist"]["id"])
@@ -375,6 +382,7 @@ class Room:
             "tossed": {names[k]: [deck.card(c)["name"] for c in s.tossed] for k, s in self.sides.items()},
             "both_played": sorted({deck.card(c)["name"] for c in set(self.sides["host"].plays) & set(self.sides["guest"].plays)}),
             "tokens": {k: s.tokens for k, s in self.sides.items()},
+            "on_the_house": any(s.joker_played for s in self.sides.values()),
             "paid_by": played["paid_by"] if played else None,
             "offers": [{"artist": o.get("artist"), "status": o["status"], "attempt": o["attempt"]} for o in self.offers],
             "pick": self._result_pick(),
@@ -413,6 +421,7 @@ class Room:
             offers.append(pub)
         return {"code": self.code, "phase": self.phase, "sides": sides, "rounds": list(ROUNDS),
                 "cost": SONG_COST, "half": HALF, "toss_max": TOSS_MAX, "plays": PLAYS, "tries": MAX_PICK_ATTEMPTS,
+                "on_the_house": any(s.joker_played for s in self.sides.values()), "suits": list(deck.SUITS),
                 "toss_summary": self.toss_summary if self.phase != "toss" else None,
                 "pick_ready": bool(self.pick) and self.pick["status"] == "open" and self.phase == "reveal",
                 "reveal": self.reveal if self.phase in ("reveal", "thinking", "jukebox", "done") else None,
