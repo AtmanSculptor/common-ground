@@ -65,7 +65,7 @@ def resources() -> dict:
 REFRESH_EVERY = int(os.environ.get("CG_REFRESH_CHECK_MINUTES", "60"))   # 0 turns the keeper off
 # The venue's own line on the playing field. In a jukebox app the bar sets this (TouchTunes already
 # sells venues promotion space); here it comes from the environment. Empty name turns it off.
-VENUE = {"name": os.environ.get("CG_VENUE", "Flapjack's"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7"),
+VENUE = {"name": os.environ.get("CG_VENUE", "The Rusty Nail"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7"),
          # a second slot: one line a night from the bar or a sponsor, shown while Q-Lou thinks. "|" separates lines;
          # each room gets one, the same on both phones.
          "quips": [q.strip() for q in os.environ.get("CG_VENUE_QUIPS", "Tip your bartender. She knows your song.|Kitchen's open till 10.|Trivia Thursdays. Bring the whole table.").split("|") if q.strip()]}

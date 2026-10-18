@@ -6,21 +6,20 @@
     "Lines under 'cards' and 'pairs' are kept for later; the table says one thing per round now."
   ],
   "deal": [
-    "Six each. Don't get attached.",
-    "Six cards. Two of them are lying to you.",
-    "Fresh deck, two strangers, one jukebox. Six each.",
-    "Here's six. I've seen your type, but I haven't seen your hand."
+    "Six cards. The ones that aren't you come back to me.",
+    "Six cards, one of each suit and two more. Keep what's true.",
+    "Fresh deck, two people, one jukebox. Six each."
   ],
   "round": {
     "toss": [
-      "Six each, one of each suit and two more. Toss what isn't you, up to three.",
-      "The deal. Six cards. Anything that isn't you goes back, three at most.",
-      "Keep what's true, toss the rest. Fresh ones come from me."
+      "Six cards. The ones that aren't you come back to me. Up to three.",
+      "Six cards, one of each suit and two more. Keep what's true, toss the rest.",
+      "Fresh deck, two people, one jukebox. What isn't you goes back to me."
     ],
     "r1": [
-      "Round one. One card: the one that is most you. Then I'll show you what {b} put down.",
-      "Round one. Put down the card you'd defend. One. {b} is doing the same.",
-      "One card each, most you first. I'll flip them together."
+      "First card. I flip them together.",
+      "One card each. I'll show you both at once.",
+      "Most you first. {b} is choosing too."
     ],
     "r2": [
       "Round two. Also you.",
@@ -47,12 +46,12 @@
       "Six and six, untouched."
     ],
     "both_tossed": [
-      "{a} tossed {na}, {b} tossed {nb}.",
-      "{na} from {a}, {nb} from {b}."
+      "{a} sent {na} back, {b} sent {nb}.",
+      "{na} back from {a}, {nb} from {b}."
     ],
     "one_kept": [
-      "{a} tossed {na}. {b} kept all six.",
-      "{b} kept everything, {a} sent {na} back."
+      "{a} sent {na} back. {b} kept all six.",
+      "{b} kept everything. {a} sent {na} back."
     ],
     "both_same": [
       "Both of you dumped {card}. Noted.",
@@ -377,24 +376,24 @@
     ]
   },
   "pull": [
-    "{ca} and {cb} are pulling the same way. Give me five seconds and {pool} artists.",
-    "I see it. {ca} on one side, {cb} on the other, same direction. Five seconds.",
+    "{ca} and {cb} are pulling the same way. {pool} artists, give me a moment.",
+    "I see it. {ca} on one side, {cb} on the other, same direction.",
     "{ca} and {cb}. That's the thread. Let me pull it."
   ],
   "pull_same": [
-    "{ca} from both of you is doing the heavy lifting. Five seconds.",
-    "You both played {ca}. That's the thread. Five seconds and {pool} artists."
+    "{ca} from both of you is doing the heavy lifting.",
+    "You both played {ca}. That's the thread. {pool} artists, give me a moment."
   ],
   "pull_none": [
     "No obvious thread. That's fine, I've got {pool} artists and a calculator.",
-    "Nothing jumps out. Give me five seconds anyway."
+    "Nothing jumps out. Give me a moment anyway."
   ],
   "thinking": [
     "Reading your cards into numbers.",
     "Asking Qloo about {pool} artists. All of them. At once.",
     "Grading each of you on a curve.",
     "Checking the top three live.",
-    "The weaker score decides. That's the rule. Nobody gets dragged."
+    "Both of you have to score high. Nobody gets dragged along."
   ],
   "song": {
     "numbers": [
@@ -423,8 +422,8 @@
     ]
   },
   "backup": [
-    "Not that one. Looking for another.",
-    "Okay, not that one. I've got another.",
+    "Fair. I've got another.",
+    "Not that one. I've got another.",
     "Fine. Different song, same numbers behind it."
   ],
   "outcome": {
@@ -449,8 +448,8 @@
     ]
   },
   "solo": [
-    "I've seated you with {b}. Be nice. They're new.",
-    "{b} is sitting in tonight. They play fair.",
-    "Your partner is {b}. House regular. Don't let them pick."
+    "You're seated with {b} tonight. They play fair.",
+    "{b} is sitting in tonight. House regular.",
+    "I've seated you with {b}. Be nice."
   ]
 }

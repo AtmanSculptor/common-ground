@@ -232,7 +232,7 @@ details[open] summary::after{content:"–"}
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. Six cards each. Q-Lou finds the one song you'd both put on, and you split the tokens.</p>
+  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people. Six cards each. You don't have to know each other and you don't have to agree. I'll find the one song you'd both put on. Right now.</p>
   <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
@@ -477,7 +477,7 @@ function renderInterlude(s,me,other){const pairs=s.pairs||[];
   if(Date.now()-lastFlipAt<3400)return;                      // the third pair gets its moment first
   if(!interludeShown){interludeShown=true;setMode("interlude");$("roundLabel").textContent="The reveal";$("themStatus").textContent="";$("meStatus").textContent="";$("handHint").textContent="";
     const rv=s.reveal;renderSlots(s,me,other);$("meter").style.width="0%";$("words").textContent="";
-    setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=countsLine(rv.counts);
+    setTimeout(()=>{$("meter").style.width=rv.meter+"%";$("words").textContent=`Common ground score ${rv.meter}. `+countsLine(rv.counts);
       const pl=rv.pull;const pool=s.pick&&s.pick.pool?Number(s.pick.pool).toLocaleString():"2,003";
       if(!pl)qlouSay(q("pull_none","pn",{pool}),0);else if(pl.host===pl.guest)qlouSay(q("pull_same","ps",{ca:pl.host,pool}),0);else qlouSay(q("pull","pl",{ca:pl.host,cb:pl.guest,pool}),0);
       saidStep=-1;interludeAt=Date.now()},1400);return}
@@ -532,8 +532,8 @@ function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p
   $("doneWho").textContent=`${state.venue&&state.venue.name?state.venue.name+" · ":""}${new Date().toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})}`;
   $("doneQuip").textContent=state.venue&&state.venue.quip?state.venue.quip:"";
   $("doneShared").textContent=p&&p.shared&&p.shared.length?"You share: "+p.shared.map(x=>x.name).join(", ")+".":"";
-  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`${r.title}. ${countsLine(r.counts)}`;
-  $("doneFit").textContent=p&&p.scores&&played?`Qloo: you ${Math.round(p.scores[who]*100)}, ${state.sides[tk].name||"partner"} ${Math.round(p.scores[tk]*100)}`:"";
+  $("meterDone").style.width=r.meter+"%";$("meterDoneText").textContent=`Common ground score ${r.meter}. ${r.title}. ${countsLine(r.counts)}`;
+  $("doneFit").textContent=p&&p.scores&&played?`Match ${Math.min(Math.round(p.scores[who]*100),Math.round(p.scores[tk]*100))}. Qloo: you ${Math.round(p.scores[who]*100)}, ${state.sides[tk].name||"partner"} ${Math.round(p.scores[tk]*100)}.`:"";
   $("saveBtn").style.display=navigator.share&&p&&p.artist&&played?"":"none";
   $("both").innerHTML=(r.both_played&&r.both_played.length?r.both_played:["No card in common, and still a song."]).map(x=>`<span class="tag">${esc(x)}</span>`).join("")+(r.tossed?`<p class="rank">Tossed: ${esc(Object.entries(r.tossed).map(([k,v])=>k+" "+(v.length?v.join(", "):"nothing")).join("; "))}</p>`:"");
   const them=(state.sides[tk]||{}).name||"partner";$("ranked").innerHTML=(p&&p.ranked||[]).map(x=>`<p class="rank">${esc(x.name)} <span class="sub">you ${Math.round(x[who]*100)} · ${esc(them)} ${Math.round(x[tk]*100)}</span></p>`).join("")||"<p class='sub'>No shortlist this time.</p>";
