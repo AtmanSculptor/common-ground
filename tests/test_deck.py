@@ -5,8 +5,9 @@ from common_ground import deck
 
 
 def test_every_card_has_a_verified_signal_and_art():
+    import pathlib
     cards = deck.cards()
-    assert len(cards) == 45
+    assert len(cards) >= 55                       # 45 at launch, batches of ten as the art lands
     ids = [c["id"] for c in cards]
     assert len(ids) == len(set(ids))
     for c in cards:
@@ -16,7 +17,7 @@ def test_every_card_has_a_verified_signal_and_art():
             assert t.startswith("urn:tag:"), t
         for a in sig.get("audiences", []):
             assert a.startswith("urn:audience:"), a
-        assert c["img"].startswith("static/deck/") and c["img"].endswith(".jpg")
+        assert c["img"].startswith("static/deck/") and c["img"].endswith(".jpg") and pathlib.Path(c["img"]).exists(), c["name"]
         assert c["cat"] in {"music", "life", "table", "place", "heart", "book", "game"}
 
 
