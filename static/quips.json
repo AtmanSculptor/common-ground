@@ -261,9 +261,9 @@
       "Homebody on top for {a}. And yet, here you are. Proud of you.",
       "{a} leads with Homebody. You came out. The song should be worth it."
     ],
-    "Volunteer": [
-      "Volunteer for {a}. The good kind of person. Rare at this hour.",
-      "{a} leads with Volunteer. Somebody has to tip the band. Figuratively."
+    "Community garden": [
+      "Community garden on top for {a}. Somebody here owns a good trowel.",
+      "{a} leads with Community garden. Tomatoes and gossip, the oldest pairing."
     ]
   },
   "pairs": {
