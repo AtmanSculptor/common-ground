@@ -17,9 +17,10 @@ Builder and BT work from. Nothing here is built yet; the current `main` is v1.
 
 Three rounds, fixed, numbered on screen with one line of instruction each. No optional rounds.
 
-1. **Toss.** Q-Lou deals five cards to each partner. Toss up to three; fresh cards come from Q-Lou
-   for each one tossed. A tossed card counts as "not me" in the engine (a small negative weight).
-   You may keep all five. Lock in.
+1. **Toss.** Q-Lou deals four cards to each partner, one of each suit (see Suits). Toss up to two;
+   a fresh card of the same suit comes from Q-Lou for each one tossed, so the hand keeps one of
+   each. A tossed card counts as "not me" in the engine (a small negative weight). You may keep
+   them all. Lock in.
 2. **Play.** Put three cards on your side of the table in order: top slot "Most me", then "Also me",
    then "A bit me". Weights 3, 2, 1. Drag to place, drag to reorder. Lock in. Your partner sees your
    cards face-down as you place them. While one waits, the nudges and Q-Lou's waiting lines.
@@ -68,6 +69,10 @@ Gemini 3.5 Flash Lite through OpenRouter, Brent's key. Switching to another mode
 
 ## The engine (what changes in qlou.py and matrix.py)
 
+- Every card's column is standardized first (z-score over the artists it covers), so a card pulls by
+  its rank and not by how wide Qloo's numbers run for it. Found Oct 17: life cards spread their
+  artists over 0.07 to 0.09 and genre cards over 0.01 to 0.02, so before this a rank-3 life card
+  outweighed a rank-1 genre card.
 - Draft score per artist per partner = weighted mean over the three played cards (3, 2, 1) minus a
   small share of the tossed cards' affinity (not me). Silence still counts as the column floor.
 - Everything else stays: curve per partner, the weaker score decides, near ties go to the better
@@ -75,9 +80,24 @@ Gemini 3.5 Flash Lite through OpenRouter, Brent's key. Switching to another mode
 - Three weighted cards each instead of four flat across an optional round: at least as much signal,
   and the ranks are information v1 never had.
 
+## Suits and the joker (Oct 17 evening, with the 101-card deck)
+
+The deck is 101 cards in four suits, each suit a different way of saying who you are:
+
+- **Stage** (magenta frame, a note): what you turn up. Genres and scenes, 28 cards.
+- **Bar** (amber, a glass): what you order and where you sit. 25 cards.
+- **Road** (blue, a road): what you do with a Saturday. 25 cards.
+- **Porch** (pink, a house): who you are at home. 23 cards.
+
+A hand is one card of each, side by side, nothing overlapping (the fan is gone: on a phone it hid
+the names). "Close" at the reveal means the same suit. The 101st card is the joker, **On the house**
+(gold frame, a coin): no Qloo signal, dealt as a fifth card about one hand in eight, never tossed.
+Play it among your three and, if you both say yes to a song, the house pays: no tokens from either
+side. Nobody wants Q-Lou picking for them, so the joker does not pick; it only pays.
+
 ## The screen
 
-- The table fits one screen, no scrolling: the fan hand along the bottom (cards overlap, slide one
+- The table fits one screen, no scrolling: the hand four across along the bottom (five with the joker; cards overlap, slide one
   out), fields sized to the cards, the whole thing sized from the viewport height. Tested at 430 by
   739 (iPhone 15 Pro Max with browser bars), 393 by 852, 360 by 800.
 - Round label and one instruction line at the top, always.
