@@ -731,5 +731,116 @@
     "urn:audience:hobbies_and_interests:tennis"
    ]
   }
+ },
+ {
+  "id": 75,
+  "name": "Honky tonk Saturday",
+  "cat": "table",
+  "img": "static/deck/75_honky_tonk_saturday.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:music:honky_tonk"
+   ]
+  }
+ },
+ {
+  "id": 76,
+  "name": "Queso on everything",
+  "cat": "table",
+  "img": "static/deck/76_queso_on_everything.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:tex_mex"
+   ]
+  }
+ },
+ {
+  "id": 77,
+  "name": "Soul food Sunday",
+  "cat": "table",
+  "img": "static/deck/77_soul_food_sunday.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:soul_food"
+   ]
+  }
+ },
+ {
+  "id": 78,
+  "name": "Low and slow",
+  "cat": "table",
+  "img": "static/deck/78_low_and_slow.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:barbecue",
+    "urn:tag:cuisine:qloo:southern"
+   ]
+  }
+ },
+ {
+  "id": 79,
+  "name": "Bottomless brunch",
+  "cat": "table",
+  "img": "static/deck/79_bottomless_brunch.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:place:restaurant:brunch"
+   ]
+  }
+ },
+ {
+  "id": 80,
+  "name": "Sits facing the door",
+  "cat": "table",
+  "img": "static/deck/80_sits_facing_the_door.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:spy_enthusiast"
+   ]
+  }
+ },
+ {
+  "id": 81,
+  "name": "Fresh haircut",
+  "cat": "table",
+  "img": "static/deck/81_fresh_haircut.jpg",
+  "signal": {
+   "audiences": [
+    "urn:audience:hobbies_and_interests:health_and_beauty"
+   ]
+  }
+ },
+ {
+  "id": 82,
+  "name": "Crab legs night",
+  "cat": "table",
+  "img": "static/deck/82_crab_legs_night.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:seafood"
+   ]
+  }
+ },
+ {
+  "id": 83,
+  "name": "Carne asada Sunday",
+  "cat": "table",
+  "img": "static/deck/83_carne_asada_sunday.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:cuisine:qloo:mexican"
+   ]
+  }
+ },
+ {
+  "id": 84,
+  "name": "Tallboy in a koozie",
+  "cat": "table",
+  "img": "static/deck/84_tallboy_in_a_koozie.jpg",
+  "signal": {
+   "tags": [
+    "urn:tag:genre:brand:wine_and_spirits:beer"
+   ]
+  }
  }
 ]
