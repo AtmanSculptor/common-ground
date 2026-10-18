@@ -27,7 +27,7 @@ from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
 PLAYS = 3                # cards each partner puts on the table, one per round, ranked
-TOSS_MAX = deck.HAND     # at the deal you may toss any of your cards, all four if you like
+TOSS_MAX = 3             # at the deal you may toss up to three of your six
 INTERLUDE_MIN = 12.0     # seconds the table holds after the third flip before the song can arrive: the meter, the words, the call
 MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
 ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
@@ -135,14 +135,16 @@ class Room:
         self.log.append("dealt")
 
     def toss(self, who: str, cards: list[int], rng: random.Random | None = None) -> bool:
-        """Toss any of your cards, all four if you like; a fresh one of the same suit takes each
-        place, so the hand keeps one of each. Tossing none is a choice too. Locks the deal for this side."""
+        """Toss up to three of your six; a fresh one of the same suit takes each place, so the hand
+        keeps one of each. Tossing none is a choice too. Locks the deal for this side."""
         s = self.sides[who]
         if self.phase != "toss" or s.toss_locked:
             return False
         if any(c not in s.hand for c in cards):
             return False
-        picks = [c for c in dict.fromkeys(cards) if deck.card(c)["suit"] != deck.JOKER][:TOSS_MAX]   # the joker stays: nobody tosses a free song
+        picks = [c for c in dict.fromkeys(cards) if deck.card(c)["suit"] != deck.JOKER]   # the joker stays: nobody tosses a free song
+        if len(picks) > TOSS_MAX:
+            return False
         for c in picks:
             new = deck.draw_one(set(s.seen), c, rng)
             if new is None:
@@ -310,11 +312,11 @@ class Room:
         return sum(1 for a in sig.get("audiences", []) if quiz.family(a) in fams) + rng.random() * 0.5
 
     def _house_toss(self, s: Side, rng: random.Random | None = None) -> list[int]:
-        """The house tosses the cards furthest from its profile, up to TOSS_MAX, sometimes none.
+        """The house tosses the cards furthest from its profile, up to three, sometimes none.
         It never tosses the joker: nobody turns down a free song."""
         rng = rng or random
         scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand if deck.card(c)["suit"] != deck.JOKER))
-        n = rng.choice((0, 1, 2, 2))
+        n = rng.choice((0, 1, 2, 3, 3))
         return [c for _, c in scored[:n]]
 
     def _house_plays(self, s: Side, rng: random.Random | None = None) -> list[int]:

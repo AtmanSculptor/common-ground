@@ -55,15 +55,16 @@ def test_two_phones_full_game(client):
     st = _st(client, code)
     assert st["phase"] == "toss" and st["sides"]["host"]["tokens"] == 10
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
-    assert len(hand) in (4, 5) and "hand" not in st["sides"]["guest"]
-    assert st["toss_max"] == 4 and st["suits"] == ["stage", "bar", "road", "porch"]
+    assert len(hand) == 6 and "hand" not in st["sides"]["guest"]
+    assert st["toss_max"] == 3 and st["suits"] == ["stage", "bar", "road", "porch"]
     hand = [c for c in hand if deck.card(c)["suit"] != deck.JOKER]
-    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand + [999]}).status_code == 400   # not in the hand
+    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2] + [999]}).status_code == 400   # not in the hand
+    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:4]}).status_code == 400          # three at most
     assert _play(client, code, "host", hand[0]).status_code == 400                                              # not yet
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2]}).json()
     new = [c["id"] for c in out["hand"]]
     assert out["phase"] == "toss" and not set(new) & set(hand[:2]) and set(hand[2:]) <= set(new)
-    assert [deck.card(c)["suit"] for c in new if deck.card(c)["suit"] != deck.JOKER] == [deck.card(c)["suit"] for c in hand]
+    assert sorted(deck.card(c)["suit"] for c in new if deck.card(c)["suit"] != deck.JOKER) == sorted(deck.card(c)["suit"] for c in hand)
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": []}).status_code == 400     # once
     st = _st(client, code, "guest")
     assert st["sides"]["host"]["locked"] and st["sides"]["host"]["tossed_n"] == 2 and not st["sides"]["guest"]["locked"]
@@ -252,14 +253,15 @@ def test_old_pickled_rooms_get_new_fields_and_v1_rooms_are_dropped(tmp_path):
     assert g.pending is None and g.due == 0.0
 
 
-def test_tossing_all_four_deals_a_whole_new_hand(client):
+def test_tossing_three_keeps_the_suits(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
-    hand = [c for c in _hand(client, code, "host") if deck.card(c)["suit"] != deck.JOKER]
+    hand = [c for c in _hand(client, code, "host") if deck.card(c)["suit"] != deck.JOKER][:3]
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand}).json()
-    new = [c["id"] for c in out["hand"] if deck.card(c["id"])["suit"] != deck.JOKER]
-    assert not set(new) & set(hand) and sorted(deck.card(c)["suit"] for c in new) == sorted(deck.SUITS)
-    assert _st(client, code, "guest")["sides"]["host"]["tossed_n"] == 4
+    new = [c["id"] for c in out["hand"]]
+    assert len(new) == 6 and not set(new) & set(hand)
+    assert set(deck.card(c)["suit"] for c in new if deck.card(c)["suit"] != deck.JOKER) == set(deck.SUITS)
+    assert _st(client, code, "guest")["sides"]["host"]["tossed_n"] == 3
 
 
 def test_a_nudge_crosses_the_table_for_a_few_seconds(client, monkeypatch):

@@ -18,10 +18,10 @@ Words that matter: it is a challenge you do together, and the other person is yo
 
 1. You tap "Start a challenge" and type a nickname. Your room code shows big and gold.
 2. They open the same link, tap "Join with a code", type the code. Or tap "Share the code" and send them the link; it joins them straight in.
-3. Round 1, Toss: Q-Lou deals four each, one of each suit (Stage, Bar, Road, Porch; the frame color and the little glyph say which). Tap the cards that aren't you (up to two), then "Toss two" or "Keep them all". A fresh card of the same suit comes in. What you tossed counts against, so toss honestly. Now and then a fifth card shows up, the joker "On the house": play it and if you both say yes to a song, nobody pays.
-4. Round 2, Play: drag or tap three cards onto your side. The top slot is "Most me", then "Also me", then "A bit me". Order matters. Lock it in. If they are slow, send a nudge.
-5. Round 3, Reveal: the pairs flip rank by rank, the meter says what matched, and Q-Lou says one line. It stays until you tap on.
-6. "Hear Q-Lou's pick": four names come up, call it. Then the song, the preview (tap the art), Q-Lou's numbers, and "Play it?". Both yes: two tokens each and it plays. A no: the next pick, three in all; the screen says who passed. After the third, no match tonight, nobody pays.
+3. The deal: six cards each, 2 x 3, one of each suit (Stage, Bar, Road, Porch; the frame color and the little glyph say which) plus two. Tap the ones that aren't you (up to three), then the gold pill: "Toss two" or "Keep them all". Fresh cards of the same suit come in. What you tossed counts against, so toss honestly. Now and then the joker "On the house" is in the hand: play it and if you both say yes to a song, nobody pays.
+4. Round 1 of 3, Most me: tap the card that is most you, it lands in the gold slot, tap "Play it". When your partner's card is down too, theirs flips and Q-Lou says one thing. Round 2, Also me. Round 3, A bit me. If they are slow, send a nudge.
+5. After the third flip, nothing to press: the meter fills, the line says what matched, Q-Lou names the two cards pulling the same way, four names come up (call it), and the song arrives.
+6. The song, the preview (tap the art), Q-Lou's numbers, and "Play it?". Both yes: two tokens each and it plays. A no: the next pick, three in all; the screen says who passed. After the third, no match tonight, nobody pays.
 7. The done screen is the keepsake: both names, all six played cards, the song, the bar, the date, "You share: Soul, Indie rock" from Qloo. "Save it" shares it. "Play again" for the next pair (fresh tokens).
 
 ## What to watch for (write it down, this is the evidence)

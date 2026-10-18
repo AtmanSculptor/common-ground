@@ -6,8 +6,9 @@ one by one against the live API (see probes/ and docs/art/). Cards whose signals
 noise were parked, not faked.
 
 Suits: Stage (what you turn up), Bar (what you order and where you sit), Road (what you do
-with a Saturday), Porch (who you are at home). Dealing: one card of each suit, nothing this
-person has seen in this room, and now and then the joker rides along as a fifth card.
+with a Saturday), Porch (who you are at home). Dealing: six cards, one of each suit and two
+more from anywhere, nothing this person has seen in this room; now and then the joker takes
+one of the two extra seats.
 """
 from __future__ import annotations
 
@@ -18,7 +19,8 @@ from functools import lru_cache
 
 STATIC = pathlib.Path(__file__).resolve().parents[1] / "static"
 SUITS = ("stage", "bar", "road", "porch")
-HAND = len(SUITS)        # one card of each suit
+EXTRA = 2                # beyond one of each suit
+HAND = len(SUITS) + EXTRA
 PLAYS = 3                # on the table, ranked: Most me, Also me, A bit me
 JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
 JOKER_CHANCE = 0.12      # a hand gets the joker as a fifth card this often
@@ -44,8 +46,8 @@ def public(c: dict) -> dict:
 
 
 def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float | None = None) -> list[int]:
-    """One card from each suit, in suit order, never one this side has seen; now and then the joker
-    rides along as a fifth card."""
+    """One card from each suit, then two more from any suit, never one this side has seen, shuffled;
+    now and then the joker takes one of the two extra seats."""
     rng = rng or random
     if joker_chance is None:
         joker_chance = JOKER_CHANCE
@@ -54,9 +56,14 @@ def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float |
         pool = [c["id"] for c in cards() if c["suit"] == suit and c["id"] not in seen]
         if pool:
             hand.append(rng.choice(pool))
+    extra = EXTRA
     joker = next((c["id"] for c in cards() if c["suit"] == JOKER), None)
     if joker is not None and joker not in seen and rng.random() < joker_chance:
-        hand.insert(rng.randrange(len(hand) + 1), joker)
+        hand.append(joker)
+        extra -= 1
+    pool = [c["id"] for c in cards() if c["suit"] != JOKER and c["id"] not in seen and c["id"] not in hand]
+    hand += rng.sample(pool, min(extra, len(pool)))
+    rng.shuffle(hand)
     return hand
 
 

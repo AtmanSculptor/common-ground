@@ -6,15 +6,15 @@
     "Lines under 'cards' and 'pairs' are kept for later; the table says one thing per round now."
   ],
   "deal": [
-    "Four each, one of every suit. Don't get attached.",
-    "Four cards. One of them is lying to you.",
-    "Fresh deck, two strangers, one jukebox. Four each.",
-    "Here's four. One of each. I've seen your type, but I haven't seen your hand."
+    "Six each. Don't get attached.",
+    "Six cards. Two of them are lying to you.",
+    "Fresh deck, two strangers, one jukebox. Six each.",
+    "Here's six. I've seen your type, but I haven't seen your hand."
   ],
   "round": {
     "toss": [
-      "Four each, one of each suit. Toss what isn't you, all four if you like.",
-      "The deal. Four cards, one of each suit. Anything that isn't you goes back.",
+      "Six each, one of each suit and two more. Toss what isn't you, up to three.",
+      "The deal. Six cards. Anything that isn't you goes back, three at most.",
       "Keep what's true, toss the rest. Fresh ones come from me."
     ],
     "r1": [
@@ -44,14 +44,14 @@
   "toss_result": {
     "both_kept": [
       "Nobody tossed. Confident table.",
-      "Four and four, untouched."
+      "Six and six, untouched."
     ],
     "both_tossed": [
       "{a} tossed {na}, {b} tossed {nb}.",
       "{na} from {a}, {nb} from {b}."
     ],
     "one_kept": [
-      "{a} tossed {na}. {b} kept all four.",
+      "{a} tossed {na}. {b} kept all six.",
       "{b} kept everything, {a} sent {na} back."
     ],
     "both_same": [

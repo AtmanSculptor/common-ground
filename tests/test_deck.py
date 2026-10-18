@@ -32,13 +32,14 @@ def test_dead_tags_are_not_in_the_deck():
         assert not dead & set(c["signal"].get("tags", [])), c["name"]
 
 
-def test_deal_is_one_of_each_suit_and_never_repeats():
+def test_deal_is_six_with_one_of_each_suit_and_never_repeats():
     rng = random.Random(1)
     seen: set[int] = set()
     for _ in range(3):
         hand = deck.deal(seen, rng, joker_chance=0)
-        assert len(hand) == deck.HAND and len(set(hand)) == deck.HAND
-        assert [deck.card(c)["suit"] for c in hand] == list(deck.SUITS)
+        assert len(hand) == deck.HAND == 6 and len(set(hand)) == deck.HAND
+        suits = [deck.card(c)["suit"] for c in hand]
+        assert set(suits) == set(deck.SUITS) and deck.JOKER not in suits
         assert not seen & set(hand)
         seen |= set(hand)
 
@@ -54,14 +55,15 @@ def test_every_card_has_a_suit_and_the_joker_stands_alone():
     assert joker["signal"] == {} and joker["name"] == "On the house"
 
 
-def test_joker_rides_along_as_a_fifth_card_sometimes():
+def test_joker_takes_one_of_the_extra_seats_sometimes():
     rng = random.Random(2)
     hand = deck.deal(set(), rng, joker_chance=1.0)
-    assert len(hand) == deck.HAND + 1
+    assert len(hand) == deck.HAND                                   # still six: the joker sits in an extra seat
     assert sum(1 for c in hand if deck.card(c)["suit"] == deck.JOKER) == 1
-    assert sorted(deck.card(c)["suit"] for c in hand if deck.card(c)["suit"] != deck.JOKER) == sorted(deck.SUITS)
+    assert set(deck.card(c)["suit"] for c in hand if deck.card(c)["suit"] != deck.JOKER) == set(deck.SUITS)
     joker = next(c for c in hand if deck.card(c)["suit"] == deck.JOKER)
-    assert deck.deal({joker}, rng, joker_chance=1.0) and len(deck.deal({joker}, rng, joker_chance=1.0)) == deck.HAND
+    again = deck.deal({joker}, rng, joker_chance=1.0)
+    assert len(again) == deck.HAND and joker not in again           # seen once, never again in this room
     assert deck.draw_one(set(), joker, rng) is None
 
 

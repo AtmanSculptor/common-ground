@@ -68,7 +68,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .slot.down{border-style:solid;border-color:rgba(255,199,0,.55);animation:none}
 .slot.done{border-style:solid;border-color:rgba(189,53,252,.25);animation:none}
 .slot .card{position:absolute;inset:-2px;width:auto;height:auto}
-.slot .card .name{font-size:.76rem;padding:6px 4px 7px;overflow-wrap:anywhere}
+.slot .card .name{font-size:.76rem;padding:6px 4px 7px;overflow-wrap:normal;hyphens:auto}
+#s-table.tight .slot .card .name{font-size:.62rem;padding:4px 3px 5px}
+#s-table.tight .slot i{font-size:.62rem}
 .card .name.long{font-size:.64rem;letter-spacing:-.01em}
 .side.them .slot .card{pointer-events:none}
 .slot .card .frame{border-width:2px}
@@ -95,7 +97,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .words{text-align:center;color:var(--text2);font-size:.82rem;line-height:1.25;margin:0;padding:0 4px}
 /* the hand block: the action pill, the hint, the cards */
 .handblock{flex:382 0 0;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px}
-#s-table.toss .handblock,#s-table.tosswait .handblock{flex:1 1 0}
+#s-table.toss .handblock,#s-table.tosswait .handblock{flex:1 1 0;justify-content:center}
 #s-table.interlude .handblock{flex:none;padding:8px 0 2px;gap:8px}
 .actrow{flex:none;min-height:40px;display:flex;align-items:center;justify-content:center;gap:10px}
 .act{flex:none;height:40px;padding:0 22px;border-radius:999px;border:2px solid var(--gold);background:rgba(255,199,0,.1);color:var(--gold);font:inherit;font-weight:700;font-size:.95rem;letter-spacing:.04em;display:inline-flex;align-items:center;gap:8px;box-shadow:0 0 18px rgba(255,199,0,.18);margin:0;width:auto;transition:opacity .2s,transform .08s}
@@ -104,8 +106,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .act.quiet{border-color:rgba(189,53,252,.55);color:var(--text2);background:rgba(189,53,252,.1);box-shadow:none}
 .act.quiet.chosen{border-color:var(--gold);color:var(--gold);background:rgba(255,199,0,.12)}
 .hint{text-align:center;color:var(--text2);font-size:.86rem;height:20px;line-height:20px;margin:0}
-.fan{display:flex;flex-wrap:wrap;justify-content:center;align-content:flex-end;gap:var(--gap,6px);width:100%;padding:0 2px;--cw:90px}
-#s-table.toss .fan,#s-table.tosswait .fan{--gap:8px;display:grid;grid-template-columns:repeat(var(--cols,2),var(--cw));justify-content:center;align-content:end}
+.fan{display:grid;grid-template-columns:repeat(var(--cols,4),var(--cw));justify-content:center;align-content:end;gap:var(--gap,6px);width:100%;padding:0 2px;--cw:90px}
+#s-table.toss .fan,#s-table.tosswait .fan{--gap:8px}
 #s-table.interlude .fan,#s-table.interlude .hint{display:none}
 .fcard{position:relative;flex:none;width:var(--cw);aspect-ratio:2/3;transition:transform .25s cubic-bezier(.2,.8,.2,1),opacity .25s,filter .25s;touch-action:none}
 .fcard .card{width:100%;height:100%}
@@ -211,7 +213,7 @@ details[open] summary::after{content:"–"}
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
-  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. Four cards each, one of each suit. Q-Lou finds the one song you'd both put on, and you split the tokens.</p>
+  <p class="sub center" style="font-size:1rem;color:var(--text2)">Two people at a bar. Six cards each. Q-Lou finds the one song you'd both put on, and you split the tokens.</p>
   <p class="sub center venueLine" id="lobbyVenue"></p>
   <input id="name" placeholder="Your nickname" maxlength="24">
   <button onclick="newGame(false)">Start a challenge</button>
@@ -351,12 +353,13 @@ function qlouActed(){if(sticky&&!sayQueue.length)qlouClear()}
 // Sizes come from the real screen, every time it changes: the slots from the room each side has, the hand
 // cards from the room under the pill and the hint. Nothing is guessed from the viewport height.
 function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;
-  const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-16-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px")}
-  const h=$("handArea"),hd=$("fan");if(hd&&getComputedStyle(hd).display!=="none"){const n=Math.max(4,hd.children.length),grid=tableMode==="toss"||tableMode==="tosswait";const cols=grid?(n<=4?2:3):n,rows=Math.ceil(n/cols),gap=grid?8:6;
+  const h=$("handArea"),hd=$("fan"),F=$("field");if(hd&&getComputedStyle(hd).display!=="none"){const n=Math.max(1,hd.children.length),grid=tableMode==="toss"||tableMode==="tosswait";const cols=grid?(n<=4?2:3):(n<=4?n:3),rows=Math.ceil(n/cols),gap=grid?8:6;
+    if(tableMode==="play"||tableMode==="playwait"){const hs=rows>1?470:382;F.style.flex=`${1000-hs} 0 0`;h.style.flex=`${hs} 0 0`}else{F.style.flex="";h.style.flex=""}
     const used=[...h.children].filter(e=>e!==hd&&getComputedStyle(e).display!=="none").reduce((a,e)=>a+e.offsetHeight+6,0);const H=h.clientHeight-used-4,W=hd.clientWidth-4;
-    const cw=Math.floor(Math.max(40,Math.min((W-(cols-1)*gap)/cols,((H-(rows-1)*gap)/rows)*2/3)));hd.style.setProperty("--cw",cw+"px");hd.style.setProperty("--cols",cols)}}
+    const cw=Math.floor(Math.max(40,Math.min((W-(cols-1)*gap)/cols,((H-(rows-1)*gap)/rows)*2/3)));hd.style.setProperty("--cw",cw+"px");hd.style.setProperty("--cols",cols)}else{F.style.flex="";h.style.flex=""}
+  const side=T.querySelector(".side.me");if(side&&getComputedStyle(side).display!=="none"){const room=side.clientHeight-16-7;const sw=Math.floor(Math.max(44,Math.min(room*2/3,(T.clientWidth-24-16)/3)));T.style.setProperty("--sw",sw+"px");T.classList.toggle("tight",sw<84)}}
 window.addEventListener("resize",fitTable);if(window.visualViewport)visualViewport.addEventListener("resize",fitTable);
-let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=4,interludeShown=false,tossSaid=false;
+let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false;
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
   $("tossBtn").style.display=mode==="toss"?"":"none";$("playBtn").style.display=mode==="play"?"":"none";
   const waiting=mode==="tosswait"||mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
@@ -370,7 +373,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
       qlouClear();qlouSay((other.house?q("solo","seat")+" ":"")+q("round.toss","r1"),0)}
     const mode=me.locked?"tosswait":"toss";if(tableMode!==mode)setMode(mode);
     const hn=other.hand_n||4;$("themMinis").innerHTML=[...Array(hn)].map((_,i)=>`<i class="${other.locked&&i<other.tossed_n?"gone":""}"></i>`).join("");
-    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):`is looking at ${hn===5?"five":"four"} cards`;
+    $("stripStatus").textContent=other.locked?(other.tossed_n?`tossed ${other.tossed_n}`:"kept them all"):"is looking at six cards";
     if(mode==="tosswait"){$("handHint").textContent="Waiting for "+pn+" to toss…"}
     showBubble(other.emote,"stripBubble");return}
   if(s.phase==="play"||s.phase==="thinking"){
@@ -382,7 +385,8 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
     const pairs=s.pairs||[];
     if(pairs.length>shownPairs){flipPair(s,pairs[shownPairs],shownPairs);shownPairs++;return}   // the flip owns the screen for a moment
     const r=s.rank;const mode=me.down?"playwait":"play";if(tableMode!==mode)setMode(mode);
-    if(shownRank!==r){shownRank=r;$("roundLabel").textContent=`Round ${r+1} of 3: ${rankName(r)}`;renderFan()}
+    if(shownRank!==r){shownRank=r;$("roundLabel").textContent=`Round ${r+1} of 3: ${rankName(r)}`}
+    const fk=(me.plays||[]).join(",")+"|"+chosen+"|"+r;if(fanKey!==fk){fanKey=fk;renderFan()}
     renderSlots(s,me,other);
     $("themStatus").textContent=other.down?"has a card down":"is choosing";$("meStatus").textContent=me.down?"· your card is down":"";
     if(mode==="play"){$("playBtn").disabled=chosen==null;$("handHint").textContent=chosen?"Tap it again to take it back.":`Tap the card that is ${r===0?"most you":r===1?"also you":"a bit you"}.`}
@@ -420,9 +424,9 @@ function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.sp
   if(key)return pickLine(sp[key],"sp"+p.rank);const vars={ca:a,cb:b};return q("pairs."+(p.match==="exact"?"exact":p.match==="kin"?"kin":"none"),"pr"+p.rank,vars)}
 // the hand along the bottom: one card of each suit (the joker makes five); 2 x 2 at the deal, a row in the rounds
 function fanLayout(){fitTable()}
-function renderFan(){const played=state&&state.sides[who].plays||[];$("fan").innerHTML=hand.map(c=>`<div class="fcard ${played.includes(c.id)||chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
+function renderFan(){const played=state&&state.sides[who].plays||[];$("fan").innerHTML=hand.filter(c=>!played.includes(c.id)).map(c=>`<div class="fcard ${chosen===c.id?"played":""} ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"")}</div>`).join("");
   $("fan").querySelectorAll(".fcard").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")choose(id,el)}});fitTable();
-  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${["one","two","three","all four","all five"][k-1]||k}`:"Keep them all";$("handHint").textContent=k?"Tap a card to keep it.":"Tap what isn't you. Toss any, or all."}}
+  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Toss ${["one","two","three","all four","all five"][k-1]||k}`:"Keep them all";$("handHint").textContent=k>=TOSS_MAX?"Three is the limit. Tap a card to keep it.":k?"Tap a card to keep it. Up to three go.":"Tap what isn't you. Up to three."}}
 function toggleToss(id){const c=hand.find(x=>x.id===id);if(c&&c.suit==="joker"){$("handHint").textContent="Nobody tosses a free song.";return}const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();renderFan();if(navigator.vibrate)navigator.vibrate(8)}
 async function lockToss(){try{$("tossBtn").disabled=true;await api(code+"/toss",{who,cards:tosses});poll()}catch(e){alert(e.message);$("tossBtn").disabled=false}}
 // cards fly in from Q-Lou's spot: all four at the deal, the replacements after the toss
@@ -459,7 +463,7 @@ function renderInterlude(s,me,other){const pairs=s.pairs||[];
   if(Date.now()-interludeAt>3000)renderThinking(s.thinking||[])}
 function renderBet(steps){if($("bet").innerHTML)return;const st=steps.find(x=>x.bet&&x.bet.length);if(!st)return;
   $("bet").innerHTML=`<p class="betcap">Four are in the running. Call it.</p><div class="betrow">${st.bet.map(n=>`<button class="act quiet" onclick="placeBet(this,'${esc(n).replace(/'/g,"\\'")}')">${esc(n)}</button>`).join("")}</div>`;setTimeout(fitTable,0)}
-let interludeAt=0;
+let interludeAt=0,fanKey="";
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}

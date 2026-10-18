@@ -15,20 +15,25 @@ Builder and BT work from. Nothing here is built yet; the current `main` is v1.
 
 ## The rules
 
-Three rounds, fixed, numbered on screen with one line of instruction each. No optional rounds.
+The deal, then three rounds, one card each (Oct 18, after Brent's phone tests). No optional rounds,
+and after the deal only one button: "Play it".
 
-1. **Toss.** Q-Lou deals four cards to each partner, one of each suit (see Suits). Toss up to two;
-   a fresh card of the same suit comes from Q-Lou for each one tossed, so the hand keeps one of
-   each. A tossed card counts as "not me" in the engine (a small negative weight). You may keep
-   them all. Lock in.
-2. **Play.** Put three cards on your side of the table in order: top slot "Most me", then "Also me",
-   then "A bit me". Weights 3, 2, 1. Drag to place, drag to reorder. Lock in. Your partner sees your
-   cards face-down as you place them. While one waits, the nudges and Q-Lou's waiting lines.
-3. **Reveal.** The pairs flip rank by rank. The meter fills and says in plain words what matched
-   ("Cards in common: 1 card the same, 2 close"). Then Q-Lou names the two cards pulling the same
-   way and leaves to think. One line, and it stays until "Hear Q-Lou's pick".
+0. **The deal.** Q-Lou deals six cards to each partner: one of each suit (see Suits) and two more
+   from anywhere; the joker takes one of the two extra seats when it shows. Shown 2 x 3, big. Toss up
+   to three; a fresh card of the same suit comes from Q-Lou for each one tossed, so the hand keeps
+   one of each. A tossed card counts as "not me" in the engine (a small negative weight). "Keep them
+   all" or "Toss two" is a gold pill above the cards, never at the bottom edge.
+1. **Round 1 of 3: Most me.** One slot on your side is live (gold). Tap the card that is most you,
+   it lands in the slot, tap "Play it" (or tap it in the slot to take it back). The line under your
+   partner's name says "is choosing" or "has a card down". When both are down, their card flips,
+   Q-Lou says one line about the pair, and it stays until you act. Played cards leave your row.
+2. **Round 2 of 3: Also me.** The same. Weights 3, 2, 1 across the rounds.
+3. **Round 3 of 3: A bit me.** The same. After the third flip nobody presses anything: the meter
+   fills, "Cards in common: 1 card the same, 2 close", Q-Lou names the two cards pulling the same
+   way, the four names to call, his steps while he thinks, and the song arrives by itself (the
+   table holds at least 12 seconds first).
 
-Then the bet (four names, call it), then the song.
+Then the song.
 
 ## Tokens and the song (changed Oct 17 evening after Brent's phone test)
 
@@ -89,15 +94,19 @@ The deck is 101 cards in four suits, each suit a different way of saying who you
 - **Road** (blue, a road): what you do with a Saturday. 25 cards.
 - **Porch** (pink, a house): who you are at home. 23 cards.
 
-A hand is one card of each, side by side, nothing overlapping (the fan is gone: on a phone it hid
-the names). "Close" at the reveal means the same suit. The 101st card is the joker, **On the house**
-(gold frame, a coin): no Qloo signal, dealt as a fifth card about one hand in eight, never tossed.
+A hand is six: one of each suit and two more, dealt 2 x 3, nothing overlapping (the fan is gone: on
+a phone it hid the names). "Close" at a flip means the same suit. The 101st card is the joker, **On
+the house** (gold frame, a coin): no Qloo signal, dealt into one of the two extra seats about one
+hand in eight, never tossed.
 Play it among your three and, if you both say yes to a song, the house pays: no tokens from either
 side. Nobody wants Q-Lou picking for them, so the joker does not pick; it only pays.
 
 ## The screen
 
-- The table fits one screen, no scrolling: the hand four across along the bottom (five with the joker; cards overlap, slide one
+- The table fits one screen, no scrolling. Below the room bar the field (both sides' slots, the same
+  size, with Q-Lou's line between) and the hand split the height 1.618 to 1; when the hand needs two
+  rows (six or five cards) the split moves to about 53 to 47, and when it is down to four the golden
+  split returns. The deal has no slots, so the 2 x 3 hand takes the whole table. (Older notes: the hand along the bottom; cards overlap, slide one
   out), fields sized to the cards, the whole thing sized from the viewport height. Tested at 430 by
   739 (iPhone 15 Pro Max with browser bars), 393 by 852, 360 by 800.
 - Round label and one instruction line at the top, always.
