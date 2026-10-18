@@ -368,9 +368,9 @@ class Cards(BaseModel):
     cards: list[int]
 
 
-class Placed(BaseModel):
+class Card(BaseModel):
     who: str
-    n: int = Field(ge=0, le=3)
+    card: int
 
 
 class Emote(BaseModel):
@@ -391,19 +391,22 @@ def _room(code: str, who: str | None = None) -> Room:
 
 
 def _think(room: Room) -> None:
-    """Q-Lou works in a background thread so the phones keep polling and see the steps.
-    It may start while the phones are still on the reveal; the phase only moves to the
-    jukebox once they press on (see game_next), or at once if they are already waiting."""
+    """Q-Lou works in a background thread so the phones keep polling and see the steps. The
+    phase moves to the jukebox by itself when the pick is ready, but not before the table has
+    had its moment after the third flip (INTERLUDE_MIN)."""
     def work():
         try:
             p = room.think(Qloo(timeout=25), recent=stats.recent_ids(rooms_mod.ROTATION))
+            hold = room.revealed_at + rooms_mod.INTERLUDE_MIN - time.time()
+            if hold > 0 and len(room.offers) <= 1:
+                time.sleep(hold)
             with room.lock:
                 if p is None:
                     if room.phase == "thinking":
                         room.finish()
                         stats.record(room.code, room.result, room.sides["guest"].house)
                 elif room.phase == "thinking":
-                    room.phase = "jukebox"  # the phones were waiting; if still on the reveal, Next takes them there
+                    room.phase = "jukebox"
         except Exception as e:
             with room.lock:
                 room.log.append(f"error: {e}")
@@ -458,43 +461,30 @@ def game_state(code: str, who: str = "host"):
 
 @app.post("/api/game/{code}/toss")
 def game_toss(code: str, body: Cards):
-    """Round one: toss up to three cards (or none) and lock. Fresh cards come back in the state."""
+    """The deal: toss any of your cards (or none) and lock. Fresh cards come back in the state."""
     r = _room(code, body.who)
     with r.lock:
         ok = r.toss(body.who, body.cards, ROOMS.rng)
     ROOMS.save()
     if not ok:
-        raise HTTPException(400, "toss up to three cards from your hand, once")
+        raise HTTPException(400, "toss cards from your hand, once")
     return {"ok": True, "phase": r.phase, "hand": r.public(body.who)["sides"][body.who]["hand"]}
 
 
-@app.post("/api/game/{code}/placed")
-def game_placed(code: str, body: Placed):
-    """A card set down (or picked back up) before locking: the partner's field shows it face-down."""
-    r = _room(code, body.who)
-    with r.lock:
-        if r.phase == "play" and not r.sides[body.who].play_locked:
-            r.sides[body.who].placed = body.n
-    return {"ok": True}
-
-
 @app.post("/api/game/{code}/play")
-def game_play(code: str, body: Cards):
-    """Round two: lock in three cards in rank order. When both lock, the reveal is built and
-    Q-Lou starts at once, so the reveal hides most of the thinking time."""
+def game_play(code: str, body: Card):
+    """One card for the round being played. When both are down the pair flips; after the third
+    flip Q-Lou starts at once, so the interlude hides most of the thinking time."""
     r = _room(code, body.who)
-    think = False
     with r.lock:
-        ok = r.play(body.who, body.cards)
-        if ok and r.both_locked():
-            r.do_reveal(ROOMS.rng)
-            think = True
+        ok = r.play(body.who, body.card, ROOMS.rng)
+        think = ok and r.phase == "thinking"
     ROOMS.save()
     if not ok:
-        raise HTTPException(400, "play exactly three cards from your hand, most you first")
+        raise HTTPException(400, "one card from your hand, once per round")
     if think:
         _think(r)
-    return {"ok": True}
+    return {"ok": True, "rank": r.rank, "phase": r.phase, "pairs": r.pairs}
 
 
 @app.post("/api/game/{code}/emote")
@@ -504,17 +494,6 @@ def game_emote(code: str, body: Emote):
     with r.lock:
         ok = r.emote(body.who, body.emote)
     return {"ok": ok}
-
-
-@app.post("/api/game/{code}/next")
-def game_next(code: str):
-    """After the reveal: on to Q-Lou (already thinking, or done)."""
-    r = _room(code)
-    with r.lock:
-        if r.phase == "reveal":
-            r.phase = "jukebox" if r.pick and r.pick["status"] == "open" else "thinking"
-    ROOMS.save()
-    return {"ok": True, "phase": r.phase}
 
 
 @app.post("/api/game/{code}/vote")

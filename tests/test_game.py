@@ -25,36 +25,41 @@ def _wait_pick(client, code):
     raise AssertionError("Q-Lou never finished")
 
 
+def _play(client, code, who, card):
+    return client.post(f"/api/game/{code}/play", json={"who": who, "card": card})
+
+
 def _to_jukebox(client, code, toss_host=1, toss_guest=0):
-    """Both toss, both play three, press on. Returns the jukebox state."""
+    """Both toss, both play three rounds. Returns the jukebox state."""
     h = _hand(client, code, "host")
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": h[:toss_host]}).json()["ok"]
     g = _hand(client, code, "guest")
     assert client.post(f"/api/game/{code}/toss", json={"who": "guest", "cards": g[:toss_guest]}).json()["ok"]
     assert _st(client, code)["phase"] == "play"
     h, g = _hand(client, code, "host"), _hand(client, code, "guest")
-    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": h[:3]})
-    client.post(f"/api/game/{code}/play", json={"who": "guest", "cards": [g[1], g[0], g[2]]})
-    assert _st(client, code)["phase"] == "reveal"
-    client.post(f"/api/game/{code}/next")
+    for hc, gc in zip(h[:3], [g[1], g[0], g[2]]):
+        assert _play(client, code, "host", hc).json()["ok"]
+        assert _play(client, code, "guest", gc).json()["ok"]
+    assert _st(client, code)["phase"] in ("thinking", "jukebox")
     return _wait_pick(client, code)
 
 
 def test_two_phones_full_game(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     st = _st(client, code)
-    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["toss", "play", "reveal"] and st["tries"] == 3
+    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["deal", "r1", "r2", "r3"] and st["tries"] == 3
+    assert st["rank_names"] == ["Most me", "Also me", "A bit me"] and st["rank"] == 0 and st["pairs"] == []
     assert client.post(f"/api/game/{code}/join", json={"name": "Josie"}).json()["who"] == "guest"
     assert client.post(f"/api/game/{code}/join", json={"name": "Third"}).status_code == 404
-    # round one: toss
+    # the deal: toss
     st = _st(client, code)
     assert st["phase"] == "toss" and st["sides"]["host"]["tokens"] == 10
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
     assert len(hand) in (4, 5) and "hand" not in st["sides"]["guest"]
-    assert st["toss_max"] == 2 and st["suits"] == ["stage", "bar", "road", "porch"]
+    assert st["toss_max"] == 4 and st["suits"] == ["stage", "bar", "road", "porch"]
     hand = [c for c in hand if deck.card(c)["suit"] != deck.JOKER]
-    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:3]}).status_code == 400   # two at most
-    assert client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]}).status_code == 400   # not yet
+    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand + [999]}).status_code == 400   # not in the hand
+    assert _play(client, code, "host", hand[0]).status_code == 400                                              # not yet
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2]}).json()
     new = [c["id"] for c in out["hand"]]
     assert out["phase"] == "toss" and not set(new) & set(hand[:2]) and set(hand[2:]) <= set(new)
@@ -67,23 +72,31 @@ def test_two_phones_full_game(client):
     st = _st(client, code)
     assert st["phase"] == "play" and st["toss_summary"]["host"] and st["toss_summary"]["guest"] == []
     assert st["sides"]["host"]["tossed"] == hand[:2] and not st["sides"]["host"]["locked"]
-    # round two: play three, ranked
+    # three rounds: one card each, the pair flips when both are down
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
-    assert client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:2]}).status_code == 400
-    client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 2})
-    assert _st(client, code, "guest")["sides"]["host"]["placed"] == 2
-    assert client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]}).json()["ok"]
+    assert _play(client, code, "host", 999).status_code == 400                      # not in the hand
+    out = _play(client, code, "host", hand[0]).json()
+    assert out["ok"] and out["rank"] == 0 and out["pairs"] == []                     # down, waiting on Josie
+    assert _play(client, code, "host", hand[1]).status_code == 400                  # one card per round
     st = _st(client, code, "guest")
-    assert st["phase"] == "play" and st["sides"]["host"]["locked"] and st["sides"]["host"]["placed"] == 3
-    client.post(f"/api/game/{code}/play", json={"who": "guest", "cards": [ghand[1], ghand[0], ghand[2]]})
-    # round three: reveal, rank one facing rank one
+    assert st["phase"] == "play" and st["sides"]["host"]["down"] and st["sides"]["host"]["placed"] == 1 and not st["sides"]["guest"]["down"]
+    assert "plays" not in st["sides"]["host"]                                       # face-down to the partner until the flip
+    out = _play(client, code, "guest", ghand[1]).json()
+    assert out["rank"] == 1 and len(out["pairs"]) == 1 and out["phase"] == "play"   # the first pair flipped
+    st = _st(client, code)
+    p1 = st["pairs"][0]
+    assert p1["rank"] == 1 and p1["a"]["id"] == hand[0] and p1["b"]["id"] == ghand[1] and p1["match"] in {"exact", "kin", "none"}
+    assert not st["sides"]["host"]["down"] and not st["sides"]["guest"]["down"]     # round two is open
+    assert _play(client, code, "host", hand[0]).status_code == 400                  # already played
+    assert _play(client, code, "guest", ghand[0]).json()["ok"]
+    assert _play(client, code, "host", hand[1]).json()["rank"] == 2
+    assert _play(client, code, "guest", ghand[2]).json()["ok"]
+    out = _play(client, code, "host", hand[2]).json()
+    assert out["rank"] == 3 and out["phase"] == "thinking"                          # the third flip: nobody presses anything
     st = _st(client, code)
     rv = st["reveal"]
-    assert st["phase"] == "reveal" and [p["rank"] for p in rv["pairs"]] == [1, 2, 3] and st["meter"] > 0
-    assert rv["pairs"][0]["a"]["id"] == hand[0] and rv["pairs"][0]["b"]["id"] == ghand[1]
+    assert [p["rank"] for p in rv["pairs"]] == [1, 2, 3] and st["meter"] > 0 and len(st["pairs"]) == 3
     assert rv["words"] and all(p["match"] in {"exact", "kin", "none"} for p in rv["pairs"])
-    r = client.post(f"/api/game/{code}/next").json()
-    assert r["phase"] in ("thinking", "jukebox")  # the fake Qloo is instant; the thread may already be done
     st = _wait_pick(client, code)
     assert st["phase"] == "jukebox"
     pick = st["pick"]
@@ -170,11 +183,13 @@ def test_solo_against_the_house(client, monkeypatch):
     hand = _hand(client, code, "host")
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:1]}).json()["phase"] == "play"
     st = _st(client, code)
-    assert st["sides"]["guest"]["locked"]                                     # and played at once
+    assert st["sides"]["guest"]["down"]                                       # and its first card is down at once
     hand = _hand(client, code, "host")
-    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]})
-    assert _st(client, code)["phase"] == "reveal"
-    client.post(f"/api/game/{code}/next")
+    for i in range(3):
+        _play(client, code, "host", hand[i])
+        st = _st(client, code)
+        assert len(st["pairs"]) == i + 1                                      # the house's card was down; the pair flipped
+    assert st["phase"] in ("thinking", "jukebox")
     st = _wait_pick(client, code)
     assert st["phase"] == "jukebox"
     out = client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}).json()
@@ -206,11 +221,13 @@ def test_the_house_moves_on_a_human_clock(client, monkeypatch):
     time.sleep(0.4)
     assert _st(client, code)["phase"] == "play"                             # the poll let the house toss
     hand = _hand(client, code, "host")
-    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]})
-    assert _st(client, code)["phase"] == "play"
-    time.sleep(0.4)
-    assert _st(client, code)["phase"] == "reveal"
-    client.post(f"/api/game/{code}/next")
+    for i in range(3):
+        _play(client, code, "host", hand[i])
+        st = _st(client, code)
+        assert len(st["pairs"]) == i                                          # the house is still thinking
+        time.sleep(0.4)
+        assert len(_st(client, code)["pairs"]) == i + 1                       # the poll let it put its card down
+    assert _st(client, code)["phase"] in ("thinking", "jukebox")
     st = _wait_pick(client, code)
     out = client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}).json()
     assert out["outcome"] is None and _st(client, code)["phase"] == "jukebox"
@@ -235,17 +252,14 @@ def test_old_pickled_rooms_get_new_fields_and_v1_rooms_are_dropped(tmp_path):
     assert g.pending is None and g.due == 0.0
 
 
-def test_placed_cards_show_face_down_to_the_partner(client):
+def test_tossing_all_four_deals_a_whole_new_hand(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
-    client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": []})
-    client.post(f"/api/game/{code}/toss", json={"who": "guest", "cards": []})
-    client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 1})
-    assert _st(client, code, "guest")["sides"]["host"]["placed"] == 1
-    hand = _hand(client, code, "host")
-    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]})
-    assert _st(client, code, "guest")["sides"]["host"]["placed"] == 3
-    assert client.post(f"/api/game/{code}/placed", json={"who": "host", "n": 4}).status_code == 422
+    hand = [c for c in _hand(client, code, "host") if deck.card(c)["suit"] != deck.JOKER]
+    out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand}).json()
+    new = [c["id"] for c in out["hand"] if deck.card(c["id"])["suit"] != deck.JOKER]
+    assert not set(new) & set(hand) and sorted(deck.card(c)["suit"] for c in new) == sorted(deck.SUITS)
+    assert _st(client, code, "guest")["sides"]["host"]["tossed_n"] == 4
 
 
 def test_a_nudge_crosses_the_table_for_a_few_seconds(client, monkeypatch):
@@ -268,7 +282,8 @@ def test_the_reveal_comes_with_words_and_the_pull(client, monkeypatch):
     code = client.post("/api/game/new", json={"name": "Brent", "house": True}).json()["code"]
     client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": []})
     hand = _hand(client, code, "host")
-    client.post(f"/api/game/{code}/play", json={"who": "host", "cards": hand[:3]})
+    for i in range(3):
+        _play(client, code, "host", hand[i]); _st(client, code)
     rv = _st(client, code)["reveal"]
     words = rv["words"]
     assert words and words.endswith(".")

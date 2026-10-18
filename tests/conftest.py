@@ -90,6 +90,7 @@ def client(fake_qloo, monkeypatch, tmp_path):
     monkeypatch.setattr(appmod, "Qloo", lambda **kw: fake_qloo)
     appmod.ROOMS = rooms_mod.Rooms(tmp_path / "rooms.pkl", random.Random(7))
     monkeypatch.setattr(stats, "FILE", tmp_path / "games.jsonl")
+    monkeypatch.setattr(rooms_mod, "INTERLUDE_MIN", 0.0)     # tests do not wait out the table's moment
     return TestClient(appmod.app)
 
 
