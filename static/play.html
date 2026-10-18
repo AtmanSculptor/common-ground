@@ -41,6 +41,37 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .venueLine:empty{display:none}
 .fit{text-align:center;color:var(--text3);font-size:.95rem;margin:2px 0 8px}
 
+/* ---- the laptop frame: on a wide screen the phone column stays as it is and two panels sit beside it,
+   fed by the same state. Left: what Q-Lou is doing, live, with the Qloo ids behind it. Right: how it works. ---- */
+.hud{display:none;position:fixed;top:18px;bottom:18px;width:300px;overflow-y:auto;padding:16px 18px;border-radius:18px;background:rgba(13,7,20,.72);border:1px solid rgba(189,53,252,.25);color:var(--text2);font-size:.86rem;line-height:1.35;z-index:3;scrollbar-width:thin}
+#hudL{right:calc(50% + 300px)}
+#hudR{left:calc(50% + 300px)}
+@media (min-width:1240px){.hud{display:block}}
+@media (min-width:1520px){.hud{width:360px}#hudL{right:calc(50% + 320px)}#hudR{left:calc(50% + 320px)}}
+.hud h3{margin:0 0 10px;font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.hud h4{margin:14px 0 4px;font-size:.92rem;color:#fff;font-weight:700}
+.hud p{margin:0 0 8px}
+.hud .ln{padding:7px 0;border-top:1px solid rgba(255,255,255,.06)}
+.hud .ln:first-of-type{border-top:0}
+.hud .ln b{color:#fff;font-weight:700}
+.hud .ln.now{color:#fff}
+.hud code{display:block;width:max-content;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.7rem;color:#d9a4ff;background:rgba(189,53,252,.12);border-radius:6px;padding:1px 6px;margin:3px 0 0}
+.hud code.au{color:#ffd978;background:rgba(255,199,0,.1)}
+.hud .num{color:var(--gold);font-weight:700}
+.hud .pills{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px}
+.hud .pills button{margin:0;width:auto;padding:7px 12px;font-size:.8rem;border-radius:999px;background:rgba(189,53,252,.12);color:var(--text2);border:1px solid rgba(189,53,252,.45)}
+.hud .pills button.open{background:rgba(255,199,0,.12);color:var(--gold);border-color:var(--gold)}
+.hud .box{display:none;margin:6px 0 10px;padding:10px 12px;border-radius:12px;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.06)}
+.hud .box.open{display:block}
+.hud a{color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(255,199,0,.4)}
+.hud .dim{color:var(--text3)}
+#yesBtn,#noBtn{width:auto;min-width:200px;margin:12px auto 0;height:46px;padding:0 26px;border-radius:999px;font-size:1rem;letter-spacing:.03em;display:flex}
+#yesBtn{border:2px solid var(--gold);background:rgba(255,199,0,.12);color:var(--gold);box-shadow:0 0 18px rgba(255,199,0,.2)}
+#yesBtn:active,#yesBtn.chosen{background:rgba(255,199,0,.28);color:var(--gold)}
+#noBtn{border:2px solid rgba(189,53,252,.55);background:rgba(189,53,252,.1);color:var(--text2);margin-top:10px}
+#noBtn.chosen{border-color:var(--coral);color:var(--coral)}
+#yesBtn:disabled,#noBtn:disabled{opacity:.4}
+
 /* ---- the table: one screen, never scrolls. Below the room bar the field (both sides, Q-Lou's line between) takes
    1.618 parts and the hand takes 1. At the deal there are no slots yet, so the hand takes the whole table. ---- */
 #s-table{position:fixed;inset:0;max-width:560px;margin:0 auto;padding:8px 12px calc(18px + env(safe-area-inset-bottom));display:none;flex-direction:column;gap:0;overflow-y:auto;
@@ -229,6 +260,15 @@ details[open] summary::after{content:"–"}
 <symbol id="su-joker" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v6M6 8h4"/></symbol>
 <symbol id="bust" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/></symbol></defs></svg>
 <div class="top"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
+<aside class="hud" id="hudL"><h3>What Q-Lou is doing</h3><div id="hudLog"><div class="ln dim">Start a game and this fills in as he works: the cards, the Qloo signals behind them, every call, every number.</div></div></aside>
+<aside class="hud" id="hudR"><h3>How it works</h3>
+  <p><b style="color:#fff">Our Song</b> is a game for the jukebox. Two people, six cards each, one song they would both play, chosen on Qloo's numbers, not a guess.</p>
+  <div class="pills"><button onclick="hudBox(this,'bxDeck')">The deck</button><button onclick="hudBox(this,'bxEngine')">The engine</button><button onclick="hudBox(this,'bxBar')">The bar</button><button onclick="hudBox(this,'bxTrust')">Why trust it</button></div>
+  <div class="box" id="bxDeck"><h4>101 cards, four suits</h4><p>Stage (what you turn up), Bar (what you order), Road (what you do with a Saturday), Porch (who you are at home). Every card stands for one Qloo signal, an audience or a tag, checked against the live API before it was allowed in. Cards whose signal returned noise were left out. The joker, On the house, has no signal: play it and a song you both say yes to is free.</p><p><a href="deck" target="_blank">See the deck</a></p></div>
+  <div class="box" id="bxEngine"><h4>The engine</h4><p>Before any game, Qloo scored every card against 2,003 artists bars actually play: a matrix of 101 columns. Each column is standardized, so a life card and a genre card pull by rank, not by how wide Qloo's numbers run. Your three cards weigh 3, 2, 1; the cards you tossed pull against. Each of you gets a curved score for every artist, and <b>the weaker score decides</b>, so nobody gets dragged. The top three are checked live, Qloo's compare says what you share, and the song's top tracks come from the catalog.</p></div>
+  <div class="box" id="bxBar"><h4>The bar</h4><p>Tonight: <span id="hudVenue">the venue</span>. The venue owns a line on the table and one while Q-Lou thinks. A song costs four tokens: both say yes and it is two each; a no brings the next pick, three in all; after the third, nobody pays. The last 25 picks at the venue sit out of the draft, so regulars do not hear the same song twice.</p><p id="hudScreen" class="dim">The venue screen shows the table on the bar's TV.</p></div>
+  <div class="box" id="bxTrust"><h4>Why trust it</h4><p>Every number on screen is Qloo's. Beside each pick, a plain language model makes its own guess from the same cards, with no data, and Qloo scores that guess too. You see both. Q-Lou's lines come from a file, not a model.</p><p class="dim">Open this page on two phones and join with the room code to play for real. The demo seats you with a house partner who plays on a human clock.</p></div>
+</aside>
 
 <section class="screen on" id="s-lobby">
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
@@ -358,11 +398,41 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   $("roomPill").textContent="Room "+s.code;$("tRoom").textContent="Room "+s.code;$("tokN").textContent=me.tokens;$("tTok").textContent=me.tokens;
   $("lobbyVenue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}`:"";
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
+  try{renderHud(s,me,other)}catch(e){}
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"){show("table");renderTable(s,me,other);return}
   if(s.phase==="jukebox"){renderJukebox(s,me,other);show("jukebox");return}
   if(s.phase==="done"&&s.result){renderDone(s.result);show("done");if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;renderDone(st.result)}).catch(()=>{}),4000)}}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
+// ---- the laptop frame's left panel: the game as Q-Lou sees it, rebuilt from the state on every poll ----
+let hudKey="";
+function hudBox(btn,id){const box=$(id);const open=!box.classList.contains("open");document.querySelectorAll("#hudR .box").forEach(b=>b.classList.remove("open"));document.querySelectorAll("#hudR .pills button").forEach(b=>b.classList.remove("open"));if(open){box.classList.add("open");btn.classList.add("open")}}
+function sigHTML(c){return (c.sig||[]).map(u=>`<code class="${u.includes(":audience:")?"au":""}">${esc(u.replace("urn:tag:genre:","").replace("urn:tag:","").replace("urn:audience:","audience:"))}</code>`).join("")}
+function pct(x){return x==null?"":Math.round(x*100)}
+function renderHud(s,me,other){if(!$("hudL")||getComputedStyle($("hudL")).display==="none")return;
+  const n=names();const v=s.venue&&s.venue.name?s.venue.name:"the venue";$("hudVenue").textContent=v;
+  if(s.code)$("hudScreen").innerHTML=`The venue screen for this room: <a href="screen/${esc(s.code)}" target="_blank">screen/${esc(s.code)}</a>`;
+  const L=[];const ln=(h,now)=>L.push(`<div class="ln${now?" now":""}">${h}</div>`);
+  ln(`Room <b>${esc(s.code)}</b> at ${esc(v)}.`);
+  if(s.phase==="lobby"){ln(`Waiting for a partner. Share the code, or play the demo and Q-Lou seats a house partner.`,true)}
+  if(s.phase!=="lobby"){ln(`Six cards each from a deck of 101, one of each suit and two more. Every card stands for one Qloo signal.`);
+    const sideLine=(k,sd)=>{const nm=esc(sd.name||k);if(s.phase==="toss")return sd.locked?`<b>${nm}</b> ${sd.tossed_n?`sent ${sd.tossed_n} back (they count as not ${nm})`:"kept all six"}.`:`<b>${nm}</b> is looking at six cards.`;
+      const ts=s.toss_summary&&s.toss_summary[k];return ts&&ts.length?`<b>${nm}</b> sent back ${ts.map(esc).join(", ")}: they pull against.`:`<b>${nm}</b> kept all six.`};
+    ln(sideLine("host",s.sides.host)+" "+sideLine("guest",s.sides.guest),s.phase==="toss")}
+  (s.pairs||[]).forEach((p,i)=>{const kind=p.match==="exact"?"the same card":p.match==="kin"?"the same suit, close":"different";
+    ln(`<b>Round ${p.rank}, ${esc((s.rank_names||[])[i]||"")}.</b> ${esc(n.a)}: ${esc(p.a.name)} ${sigHTML(p.a)}<br>${esc(n.b)}: ${esc(p.b.name)} ${sigHTML(p.b)}<br><span class="dim">${kind}.</span>`,s.phase==="play"&&i===s.pairs.length-1)});
+  if(s.phase==="play"&&(s.pairs||[]).length<3){const r=s.rank;ln(`Round ${r+1}, ${esc((s.rank_names||[])[r]||"")}: ${esc(n.a)} ${s.sides.host.down?"has a card down":"is choosing"}, ${esc(n.b)} ${s.sides.guest.down?"has a card down":"is choosing"}.`,true)}
+  if(s.reveal&&s.phase!=="play"){const c=s.reveal.counts||{};ln(`<b>Common ground score <span class="num">${s.reveal.meter}</span>.</b> ${c.same||0} the same, ${c.close||0} close, ${c.apart||0} apart. ${s.reveal.pull?`The thread: ${esc(s.reveal.pull.host)} and ${esc(s.reveal.pull.guest)} agree across the pool (${s.reveal.pull.agreement}).`:""}`)}
+  const steps=s.thinking||[];steps.forEach((st,i)=>{let h=esc(st.text||st.step);
+    if(st.step==="read"&&st.signals){const g=st.signals;h+=`<br>${esc(n.a)}: ${(g.host.tags||[]).concat(g.host.audiences||[]).map(u=>`<code class="${u.includes(":audience:")?"au":""}">${esc(u.replace("urn:tag:genre:","").replace("urn:tag:","").replace("urn:audience:","audience:"))}</code>`).join("")}<br>${esc(n.b)}: ${(g.guest.tags||[]).concat(g.guest.audiences||[]).map(u=>`<code class="${u.includes(":audience:")?"au":""}">${esc(u.replace("urn:tag:genre:","").replace("urn:tag:","").replace("urn:audience:","audience:"))}</code>`).join("")}`}
+    if(st.step==="draft"&&st.bet)h+=`<br><span class="dim">Four in the running: ${st.bet.map(esc).join(", ")}.</span>`;
+    if(st.calls)h+=` <span class="dim">(${st.calls} Qloo call${st.calls===1?"":"s"})</span>`;
+    ln(h,s.phase==="thinking"&&i===steps.length-1)});
+  const p=s.pick;if(p&&p.artist&&(s.phase==="jukebox"||s.phase==="done")){const sc=p.scores||{};ln(`<b>Pick ${p.attempt||1}: ${esc(p.artist.name)}.</b> Qloo ${esc(n.a)} <span class="num">${pct(sc.host)}</span>, ${esc(n.b)} <span class="num">${pct(sc.guest)}</span>. Match <span class="num">${Math.min(pct(sc.host),pct(sc.guest))}</span>.${p.live?` Live check ${pct(p.live.host)} and ${pct(p.live.guest)}.`:""}${p.shared&&p.shared.length?` You share: ${p.shared.map(x=>esc(x.name)).join(", ")}.`:""}`,s.phase==="jukebox");
+    const b=p.baseline;if(b&&b.guess)ln(`<span class="dim">The control: a plain model guessed ${esc(b.guess)}${b.scores?`; Qloo scores that ${pct(b.scores.host)} and ${pct(b.scores.guest)}`:""}. ${b.verdict==="holds"?"It holds up.":b.verdict==="splits"?"It splits the two of you.":b.verdict==="misses"?"It misses you both.":""}</span>`)}
+  (s.offers||[]).forEach(o=>{if(o.status==="declined"&&o.said_no&&o.said_no.length)ln(`${o.said_no.map(k=>esc(s.sides[k].name||k)).join(" and ")} said no to ${esc(o.artist.name)}. Next pick.`)});
+  if(s.phase==="done"&&s.result){const r=s.result;ln(r.pick&&r.pick.played?`<b>Both yes.</b> ${r.paid_by==="house"?"On the house: the joker paid.":"Two tokens each."} Logged for the venue: the last 25 picks sit out of the draft.`:`<b>No match tonight.</b> Three picks, nobody charged.`,true)}
+  const html=L.join("");if(html!==hudKey){hudKey=html;$("hudLog").innerHTML=html;$("hudL").scrollTop=$("hudL").scrollHeight}}
 function faceHTML(c,cls){const su=c.suit||"";return `<div class="card ${cls||""}${su?" s-"+su:""}" data-id="${c.id}"><img src="${esc(c.img)}" alt="" draggable="false"><div class="frame"></div>${su?`<div class="suit" title="${su}"><svg><use href="#su-${su}"/></svg></div>`:""}<div class="badge"></div><div class="name${longName(c.name)}">${esc(c.name)}</div></div>`}
 function backHTML(){return `<div class="card flip"><div class="back"></div></div>`}
 function flipHTML(c,cls,star){return `<div class="card flip ${cls||""}"><div class="back"></div><div class="face"><img src="${esc(c.img)}" alt=""><div class="frame"></div>${star?'<div class="badge" style="display:grid;background:var(--gold);border-color:var(--gold);color:#000">★</div>':''}<div class="name${longName(c.name)}">${esc(c.name)}</div></div></div>`}

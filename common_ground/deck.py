@@ -41,8 +41,13 @@ def card(cid: int) -> dict:
 
 
 def public(c: dict) -> dict:
-    """What the phone needs: everything but the Qloo signal."""
-    return {k: v for k, v in c.items() if k != "signal"}
+    """What the phone needs: everything but the raw signal, plus the signal's ids as a flat list
+    so a screen that wants to show its work (the laptop frame) can name the Qloo tag or audience
+    behind a card."""
+    out = {k: v for k, v in c.items() if k != "signal"}
+    sig = c.get("signal") or {}
+    out["sig"] = list(sig.get("tags", [])) + list(sig.get("audiences", []))
+    return out
 
 
 def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float | None = None) -> list[int]:
