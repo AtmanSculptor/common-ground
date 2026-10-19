@@ -176,7 +176,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 @keyframes bubble{0%{opacity:0;transform:translate(-50%,24px) scale(.4)}15%{opacity:1;transform:translate(-50%,0) scale(1.15)}30%{transform:translate(-50%,0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-26px) scale(.9)}}
 /* after the third flip nothing moves: reveal keeps the six cards up for one line; thinking has them gone, the frame
    alight and Q-Lou's face breathing; the song rises inside the frame; the end stays there too. The hand's room stays. */
-#s-table.reveal .fan,#s-table.reveal .hint,#s-table.reveal .actrow,#s-table.thinking .fan,#s-table.thinking .hint,#s-table.thinking .actrow,#s-table.song .fan,#s-table.song .hint,#s-table.song .actrow,#s-table.done .fan,#s-table.done .hint,#s-table.done .actrow{visibility:hidden}
+#s-table.reveal .fan,#s-table.reveal .hint,#s-table.reveal .actrow,#s-table.thinking .fan,#s-table.thinking .hint,#s-table.thinking .actrow,#s-table.song .fan,#s-table.song .hint,#s-table.song .actrow,#s-table.done .fan,#s-table.done .hint{visibility:hidden}
 #s-table.thinking .slots,#s-table.song .slots,#s-table.done .slots{visibility:hidden}
 #s-table.thinking .divider,#s-table.song .divider,#s-table.done .divider{opacity:0}
 @property --sweep{syntax:"<angle>";inherits:false;initial-value:0deg}
@@ -516,7 +516,7 @@ function driftOff(done){const to=$("qface").getBoundingClientRect();const slots=
   setTimeout(done,slots.length*170+1200)}
 
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
-let Q=null;fetch("static/quips.json?v=6").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
+let Q=null;fetch("static/quips.json?v=7").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
 function hash(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 function pickLine(list,salt,vars){if(!list||!list.length)return "";const line=list[hash(code+"|"+salt)%list.length];return fill(line,vars)}
 function fill(line,vars){vars=vars||{};return line.replace(/\{(\w+)\}/g,(m,k)=>vars[k]!=null?vars[k]:m)}
@@ -602,7 +602,7 @@ function fitStage(){const k=Math.max(.35,Math.min(1.12,(innerHeight-36)/864));do
 fitStage();window.addEventListener("resize",()=>{fitStage();setTimeout(fitTable,50)});
 function setMode(mode){if(tableMode===mode)return;tableMode=mode;$("s-table").className="screen on "+mode;
   $("tossBtn").style.display=mode==="toss"?"":"none";
-  const waiting=mode==="playwait";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
+  const waiting=mode==="done";$("nudges").style.display=waiting?"":"none";if(waiting)renderNudges();
   setTimeout(fitTable,0);setTimeout(fitTable,380)}
 function enterSong(){if(tableMode==="song"||tableMode==="done"||songLeaving)return;if(Date.now()<songHoldUntil)return;   // the reveal has its moment first
   qlouClear();setMode("song");$("roundLabel").textContent="The song";const a=$("songArea");a.classList.remove("out");a.classList.add("in");setTimeout(()=>a.classList.remove("in"),1100)}
@@ -740,8 +740,9 @@ function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&
     const fav=sd=>{const c=sd.profile&&sd.profile.cards||[];return c.length?c.slice(0,3).join(", "):(r.plays&&r.plays[sd.name]||[]).slice(0,3).join(", ")};
     const tg=r.together||{nights:0,songs:0};const tn=tg.nights,ts=tg.songs;const pair=tn<=1?`<b>You and ${esc(ot.name)}</b> · first night together`:`<b>You and ${esc(ot.name)}</b> · ${tn} nights · ${ts} song${ts===1?"":"s"} together`;
     $("endLog").innerHTML=`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}
-  if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;render()}).catch(()=>{}),4000)}}
-const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
+  showBubble(s.sides[theirKey()].emote,"themBubble");
+  if(!doneSettled){doneSettled=true;forget();setTimeout(()=>{clearInterval(timer);timer=null},120000)}}
+const NUDGES={heart:"❤️",fire:"🔥",laugh:"😂",down:"👎"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
 async function nudge(name,btn){if(nudgeBusy)return;nudgeBusy=true;document.querySelectorAll("#nudges button").forEach(b=>b.disabled=true);btn.style.transform="scale(1.25)";
@@ -755,8 +756,7 @@ function renderThinking(steps){const last=state.offers&&state.offers[state.offer
   saidStep=steps.length-1}
 function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" alt=""><div class="t"><b>${esc(t.track)}</b><span>${esc(t.album||"")}${t.year?" · "+esc(t.year):""}</span></div><button class="ghost" onclick="playPreview('${esc(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
-function songLine(p,other){const n=names();const sa=Math.round((p.scores.host||0)*100),sb=Math.round((p.scores.guest||0)*100);let line=q("song.numbers","sn"+p.attempt,{sa,sb});
-  const g=p.baseline&&p.baseline.guess;line+=" "+(g?(g===p.artist.name?"The plain model guessed the same. Once.":q("song.control","sc"+p.attempt,{guess:g})):"");return line}
+function songLine(p,other){const t0=p.tracks&&p.tracks[0];const vars={artist:p.artist.name,title:t0?t0.track:p.artist.name};return p.attempt>1?q("song.again","sg"+p.attempt,vars):q("song.pick","sp",vars)}
 function renderJukebox(s,me,other){const p=s.pick;if(!p||!p.artist)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+(p.baseline?p.baseline.guess:"")+":"+me.tokens;const them=other.name||"your partner";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
     const prev=s.offers&&s.offers[p.attempt-2];const noer=prev?(prev.said_no||[]).map(k=>k===who?"you":(state.sides[k].name||k)).join(" and "):"";

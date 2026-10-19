@@ -2,295 +2,70 @@
   "_about": [
     "Everything Q-Lou says at the table. Plain text, edit by hand, no code. Each key holds a list; the game picks one line from the list (the same one on both phones).",
     "Placeholders: {a} and {b} are the two nicknames (host first). {card} {ca} {cb} are card names. {n} {na} {nb} are counts. {sa} {sb} are the Qloo scores. {guess} is the plain model's guess. {pool} is the artist count. {payer} and {other} are nicknames at the end.",
-    "Rules of the voice: he only talks about what he can see (the cards, the numbers, the clock). Never feelings. Funny about his own limits. Sometimes nice to both. Short. No em-dashes.",
-    "Lines under 'cards' and 'pairs' are kept for later; the table says one thing per round now."
+    "Rules of the voice: a dealer who has seen a thousand nights. He only talks about what he can see: the cards, the two people, the song. No scores, no engine, no model on the phone; the ledger on the laptop carries that. Short. Dry. Kind to both. Each line fits three lines of his box (about 110 characters). No em-dashes."
+  ],
+  "solo": [
+    "{b} is at the table tonight. Be nice.",
+    "I've seated you with {b}. Regular here.",
+    "Tonight you've got {b}. Good company."
   ],
   "deal": [
-    "Four cards, one of each suit. Tap any that aren't you and I'll swap them. Keep what's true.",
-    "Four cards. Tap the ones that aren't you and I swap them. Keep what's true.",
-    "One card per suit, four cards. Tap what isn't you. I'll swap it."
+    "Four cards, one of each suit. Tap any that aren't you and I'll swap them.",
+    "Four cards. If one isn't you, tap it and I'll deal you another.",
+    "Four cards. Keep what's true. Tap what isn't and I swap it."
   ],
   "round": {
     "toss": [
-      "Four cards, one of each suit. Tap any that aren't you and I'll swap them. Keep what's true.",
-      "Four cards. Tap the ones that aren't you and I swap them. Keep what's true.",
-      "One card per suit, four cards. Tap what isn't you. I'll swap it."
+      "Four cards, one of each suit. Tap any that aren't you and I'll swap them.",
+      "Four cards. If one isn't you, tap it and I'll deal you another.",
+      "Four cards. Keep what's true. Tap what isn't and I swap it."
     ],
     "r1": [
-      "Three rounds, one card each. First: drag the card that's most you into the gold slot. I turn both over together.",
-      "Round one. Drag the card that's most you into the gold slot. {b} is choosing too.",
-      "Most you first. Drag it into the gold slot. I'll show you both at once."
+      "Three rounds, one card each. Start with the one that's most you. Drag it into the gold slot.",
+      "Round one. The card that's most you. Drag it into the gold slot and I turn both over together.",
+      "Most you first. Into the gold slot. {b} is choosing too."
     ],
     "r2": [
       "Round two. The card that's also you.",
-      "Round two. Also you. Drag it in."
+      "Now the one that's also you."
     ],
     "r3": [
       "Last card. The one that's a bit you.",
-      "Round three. A bit you. Last one."
-    ],
-    "play": [
-      "Round two. Three cards, most you on top.",
-      "Round two. Three on the table. Top slot is the one you'd defend.",
-      "Round two. Put three down. Order matters, I'm counting."
-    ],
-    "reveal": [
-      "Round three. Let's see what we've got.",
-      "Round three. Cards up.",
-      "Round three. I flip, you answer for it."
+      "One more. A bit you."
     ]
   },
   "toss_result": {
     "both_kept": [
       "Nobody swapped. Confident table.",
-      "Four and four, untouched."
+      "Four and four, as dealt."
     ],
     "both_tossed": [
-      "{a} swapped {na}, {b} swapped {nb}.",
-      "{na} swapped by {a}, {nb} by {b}."
+      "{a} swapped {na}, {b} swapped {nb}. Fresh hands.",
+      "{na} new for {a}, {nb} for {b}."
     ],
     "one_kept": [
       "{a} swapped {na}. {b} kept all four.",
-      "{b} kept all four. {a} swapped {na}."
+      "{b} kept all four. {a} took {na} new."
     ],
     "both_same": [
-      "Both of you swapped out {card}. Noted.",
-      "{card}, swapped out by both. I'll remember that at pick time."
-    ],
-    "fresh": [
-      "Fresh ones coming.",
-      "Replacements. Try these on.",
-      "New cards. No refunds."
-    ]
-  },
-  "waiting": [
-    "{b} is still thinking.",
-    "{b} is taking their time. The good ones do.",
-    "Give {b} a second. Cards are personal."
-  ],
-  "waiting_long": [
-    "{b} has a tough hand too.",
-    "Still waiting on {b}. I've waited longer for worse.",
-    "{b} is deliberating. Jukebox hasn't moved either."
-  ],
-  "reveal_open": [
-    "Cards up. Rank one first.",
-    "Here we go. Top cards first.",
-    "Flipping. Nobody breathe."
-  ],
-  "rank": {
-    "1": [
-      "Rank one.",
-      "Top slot.",
-      "Most you."
-    ],
-    "2": [
-      "Rank two.",
-      "Also you.",
-      "Second."
-    ],
-    "3": [
-      "Rank three.",
-      "A bit you.",
-      "And third."
-    ]
-  },
-  "cards": {
-    "Early bird": [
-      "{a} leads with Early bird. The bar opens at eleven, just so you know.",
-      "Early bird on top for {a}. Sunrise person at a jukebox. Respect."
-    ],
-    "Night owl": [
-      "Night owl for {a}. This is your hour.",
-      "{a} put Night owl on top. The jukebox agrees with you."
-    ],
-    "Road trips": [
-      "Road trips, top of the stack for {a}. Windows down is a genre.",
-      "{a} leads with Road trips. I know that playlist."
-    ],
-    "Live music": [
-      "Live music on top for {a}. I'm a jukebox. I'll try not to take it personally.",
-      "{a} leads with Live music. Tonight you get me. Sorry."
-    ],
-    "Dog person": [
-      "Dog person for {a}. Loyal, loud, happy to see everyone. Checks out.",
-      "{a} on top with Dog person. The dog is in the truck, isn't it."
-    ],
-    "Cat person": [
-      "Cat person, top slot for {a}. Picky. I can work with picky.",
-      "{a} leads with Cat person. You'll judge my pick. Fine."
-    ],
-    "Home cook": [
-      "Home cook for {a}. Somebody here owns a good knife.",
-      "{a} leads with Home cook. The kitchen's closed, but go on."
-    ],
-    "Takeout night": [
-      "Takeout night on top for {a}. No shame at this table.",
-      "{a} leads with Takeout night. Efficient. I like efficient."
-    ],
-    "Gym rat": [
-      "Gym rat for {a}. The jukebox does not have a squat rack.",
-      "{a} leads with Gym rat. Somebody's got a playlist with a tempo."
-    ],
-    "Trail head": [
-      "Trail head on top for {a}. Boots in the car, I'd bet.",
-      "{a} leads with Trail head. Phone signal optional."
-    ],
-    "Fix it myself": [
-      "Fix it myself for {a}. Don't look at my wiring.",
-      "{a} leads with Fix it myself. I've got a loose knob if you're free later."
-    ],
-    "Thrift find": [
-      "Thrift find on top for {a}. Half my records came in that way.",
-      "{a} leads with Thrift find. Good eye, probably."
-    ],
-    "Big spender": [
-      "Big spender for {a}. My favorite kind of person, professionally.",
-      "{a} leads with Big spender. Tokens are over there."
-    ],
-    "Saver": [
-      "Saver on top for {a}. The song costs four. Just saying.",
-      "{a} leads with Saver. I'll make the pick count."
-    ],
-    "Spiritual": [
-      "Spiritual for {a}. I'm a genie in a jukebox, so, hello.",
-      "{a} leads with Spiritual. We're in the same line of work."
-    ],
-    "Science nerd": [
-      "Science nerd on top for {a}. Every number I say is real. Check me.",
-      "{a} leads with Science nerd. Good. I run on data."
-    ],
-    "Sports fan": [
-      "Sports fan for {a}. There's a game on somewhere. There always is.",
-      "{a} leads with Sports fan. No scoreboard here. Only a song."
-    ],
-    "Bookworm": [
-      "Bookworm on top for {a}. Quiet person at a loud table. I see you.",
-      "{a} leads with Bookworm. I read taste. Same thing, nearly."
-    ],
-    "Gamer": [
-      "Gamer for {a}. This is a two-player co-op. No boss fight.",
-      "{a} leads with Gamer. You'll like the next round."
-    ],
-    "Country roads": [
-      "Country roads on top for {a}. Trucks and heartbreak. A classic shape.",
-      "{a} leads with Country roads. I know exactly where this goes."
-    ],
-    "Hip hop head": [
-      "Hip hop head for {a}. The jukebox has more range than it looks.",
-      "{a} leads with Hip hop head. Bars, in a bar. Fine."
-    ],
-    "Rock and roll": [
-      "Rock and roll on top for {a}. Still the most popular answer in here.",
-      "{a} leads with Rock and roll. The amp in the picture is not plugged in. I checked."
-    ],
-    "Pop star": [
-      "Pop star for {a}. No shame. Pop is pop because people like it.",
-      "{a} leads with Pop star. Everybody at the bar knows the words. Including me."
-    ],
-    "Jazz hands": [
-      "Jazz hands on top for {a}. Somebody here claps on two and four.",
-      "{a} leads with Jazz hands. Musical theater or actual jazz. Either way, bold."
-    ],
-    "Metal": [
-      "Metal for {a}. Volume is a value.",
-      "{a} leads with Metal. I'll keep the lights low."
-    ],
-    "Indie kid": [
-      "Indie kid on top for {a}. You liked them before I did.",
-      "{a} leads with Indie kid. I have the deep cuts. Don't test me."
-    ],
-    "EDM": [
-      "EDM for {a}. The drop is coming. Not from me, from the pick.",
-      "{a} leads with EDM. Four on the floor. I can count that high."
-    ],
-    "Oldies": [
-      "Oldies on top for {a}. My back catalog thanks you.",
-      "{a} leads with Oldies. I was built for this."
-    ],
-    "Latin heat": [
-      "Latin heat for {a}. Somebody's going to dance tonight.",
-      "{a} leads with Latin heat. The jukebox sways. Slightly."
-    ],
-    "Gospel": [
-      "Gospel on top for {a}. Big voices, big rooms. This is a small bar, but still.",
-      "{a} leads with Gospel. Sunday showed up on a weeknight."
-    ],
-    "Singer songwriter": [
-      "Singer songwriter for {a}. One guitar, one feeling, done.",
-      "{a} leads with Singer songwriter. Lyrics person. Noted."
-    ],
-    "Whiskey": [
-      "Whiskey on top for {a}. Leading with it. I respect that.",
-      "{a} leads with Whiskey. Neat, I'm guessing."
-    ],
-    "Craft beer": [
-      "Craft beer for {a}. There will be a tasting note. There always is.",
-      "{a} leads with Craft beer. The tap list is longer than my memory."
-    ],
-    "Wine night": [
-      "Wine night on top for {a}. Glass in hand, song to match.",
-      "{a} leads with Wine night. Classy table."
-    ],
-    "Coffee snob": [
-      "Coffee snob for {a}. Particular. I'll pick particular.",
-      "{a} leads with Coffee snob. It's a bar. The coffee is bad. You knew."
-    ],
-    "Taco Tuesday": [
-      "Taco Tuesday on top for {a}. Any day is Tuesday if you commit.",
-      "{a} leads with Taco Tuesday. Napkins are by the register."
-    ],
-    "Pizza": [
-      "Pizza for {a}. The one card nobody argues with.",
-      "{a} leads with Pizza. Universal. I can build on universal."
-    ],
-    "Small town": [
-      "Small town on top for {a}. Everybody here knows your business anyway.",
-      "{a} leads with Small town. One stoplight, one jukebox. Here I am."
-    ],
-    "Big city": [
-      "Big city for {a}. You're slumming it with me tonight. Welcome.",
-      "{a} leads with Big city. The jukebox has seen a few."
-    ],
-    "Wanderlust": [
-      "Wanderlust on top for {a}. Passport in the glovebox.",
-      "{a} leads with Wanderlust. I only travel by song."
-    ],
-    "Family first": [
-      "Family first for {a}. Somebody here calls their mother. Good.",
-      "{a} leads with Family first. The song should be safe for the group chat."
-    ],
-    "Single and fine": [
-      "Single and fine on top for {a}. Fine is a strong word. I believe you.",
-      "{a} leads with Single and fine. The jukebox is also single. Also fine."
-    ],
-    "Old soul": [
-      "Old soul for {a}. We'd get along. I'm mostly transistors.",
-      "{a} leads with Old soul. I've got songs older than this bar."
-    ],
-    "Homebody": [
-      "Homebody on top for {a}. And yet, here you are. Proud of you.",
-      "{a} leads with Homebody. You came out. The song should be worth it."
-    ],
-    "Community garden": [
-      "Community garden on top for {a}. Somebody here owns a good trowel.",
-      "{a} leads with Community garden. Tomatoes and gossip, the oldest pairing."
+      "You both sent {card} back. Noted.",
+      "{card}, out on both sides. I'll remember that."
     ]
   },
   "pairs": {
     "exact": [
-      "Same card. {ca}, both of you. I barely had to work.",
-      "{ca} from both sides. That's not a coincidence, that's a lead.",
-      "Both of you: {ca}. Write that down somewhere."
+      "Same card. {ca}, both of you. That's a lead.",
+      "{ca} from both sides. I barely had to look.",
+      "Both of you: {ca}. Good start."
     ],
     "kin": [
-      "{ca} meets {cb}. Same street, different doors.",
-      "{ca} and {cb}. Close enough that I can hear a song in it.",
+      "{ca} and {cb}. Same street, different doors.",
+      "{ca} meets {cb}. Close enough to hear a song in it.",
       "{ca} here, {cb} there. Neighbors."
     ],
     "none": [
       "{ca} and {cb}. Two different evenings. I've bridged worse.",
-      "{ca} facing {cb}. Okay. I like a challenge.",
+      "{ca} facing {cb}. Fine. I like a challenge.",
       "{ca}, {cb}. Not a match. Not a problem."
     ],
     "specific": {
@@ -352,113 +127,47 @@
       ]
     }
   },
-  "meter": {
-    "90": [
-      "That's as close as two hands get. Did you two come in together?",
-      "Nearly the same hand. I could pick with my eyes closed. I won't."
-    ],
-    "70": [
-      "Same page, different chapters. Good table.",
-      "A lot in common. Enough to argue about the rest."
-    ],
-    "50": [
-      "Neighbors. Different mornings, same street.",
-      "Half in common. That's a friendship, on paper."
-    ],
-    "30": [
-      "Different roads, same town. I've made songs out of less.",
-      "Not much overlap. Overlap is my job, not yours."
-    ],
-    "0": [
-      "Opposites. Attracting, I'm told. Give me a minute.",
-      "Nothing matched. Good. Easy tables are boring."
-    ]
-  },
-  "pull": [
-    "{ca} and {cb} are pulling the same way. {pool} artists, give me a moment.",
-    "I see it. {ca} on one side, {cb} on the other, same direction.",
-    "{ca} and {cb}. That's the thread. Let me pull it."
+  "common": [
+    "{counts} I've got enough.",
+    "{counts} Plenty to work with.",
+    "{counts} There's a song in there."
   ],
-  "pull_same": [
-    "{ca} from both of you is doing the heavy lifting.",
-    "You both played {ca}. That's the thread. {pool} artists, give me a moment."
-  ],
-  "pull_none": [
-    "No obvious thread. That's fine, I've got {pool} artists and a calculator.",
-    "Nothing jumps out. Give me a moment anyway."
-  ],
-  "thinking": [
-    "Reading your cards into numbers.",
-    "Asking Qloo about {pool} artists. All of them. At once.",
-    "Grading each of you on a curve.",
-    "Checking the top three live.",
-    "Both of you have to score high. Nobody gets dragged along."
+  "thinking_hold": [
+    "Three cards each. One jukebox. Give me a moment.",
+    "Reading both hands. One song, for the two of you. Hang on.",
+    "Your cards are in. I'm looking for the one you'd both put on."
   ],
   "song": {
-    "numbers": [
-      "Qloo scored it {sa} for {a}, {sb} for {b}.",
-      "{a}: {sa}. {b}: {sb}. Good numbers, both.",
-      "Qloo says {sa} and {sb}. I don't do feelings. I do those."
+    "pick": [
+      "This one. Both of you, I think. Play it?",
+      "{title}. I'd put money on this for the two of you.",
+      "Here's my pick. {artist}. Say yes and it plays."
     ],
-    "control": [
-      "The plain model guessed {guess}. I don't guess.",
-      "A model with no data said {guess}. Cute.",
-      "Without Qloo: {guess}. Qloo said otherwise."
-    ],
-    "control_none": [
-      "The plain model guessed nothing useful. I did.",
-      "No guess from the plain model this time. I showed up anyway."
-    ],
-    "ask_house": [
-      "On the house tonight. Somebody played the joker. Play it?",
-      "The joker's on the table, so this one's free. Both say yes and it plays.",
-      "No tokens for this one. The house is buying, if you both say yes."
-    ],
-    "ask": [
-      "Both say yes and it's two tokens each.",
-      "Two and two if you both say yes. Otherwise I keep looking.",
-      "Two tokens each, if it's a yes from both."
+    "again": [
+      "Fair. Here's another.",
+      "Not that one. Try this.",
+      "Different song, same two people. Try this."
     ]
   },
   "backup": [
     "Fair. I've got another.",
     "Not that one. I've got another.",
-    "Fine. Different song, same numbers behind it."
+    "Fine. Different song, same table."
   ],
   "outcome": {
-    "house": [
-      "On the house. The joker paid.",
-      "Free song. Somebody played the joker and both of you said yes.",
-      "The house is buying. Don't get used to it."
-    ],
     "both": [
       "Two each. That's your song. I'll remember it.",
-      "Both yes. Half each. The cheapest good decision you'll make tonight.",
-      "Deal. Two and two. Jukebox, do your thing."
+      "Both yes. That's the one. Jukebox, do your thing.",
+      "Deal. Two and two. It's playing."
     ],
     "nothing": [
-      "Sorry, no match tonight. Three picks, no deal. The jukebox is still yours.",
       "No match tonight. Three tries is my limit. No hard feelings.",
-      "Three songs, no deal. You two are a tough room. Come back with different cards."
+      "Three songs, no deal. Tough room. Come back with different cards.",
+      "Nothing tonight. The jukebox is still yours."
     ],
     "short": [
-      "Not enough tokens for that. The bar sells more, I'm told.",
-      "You're short. Tokens are over by the register."
+      "Not enough tokens for that one. The bar sells more.",
+      "You're short. Tokens are by the register."
     ]
-  },
-  "solo": [
-    "I've seated you with {b}. Be nice.",
-    "{b} is sitting in tonight. A regular here.",
-    "Tonight you're with {b}. Be nice."
-  ],
-  "thinking_hold": [
-    "Three cards each, {pool} artists, one song. Asking Qloo. Hang on.",
-    "Reading your three into numbers. Qloo does the rest. Give me a moment.",
-    "Your cards are in. Qloo is scoring {pool} artists for the two of you. Nobody gets dragged along."
-  ],
-  "common": [
-    "{counts} I've got enough.",
-    "{counts} Plenty to work with.",
-    "{counts} That's a song in there."
-  ]
+  }
 }

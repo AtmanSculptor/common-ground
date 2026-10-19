@@ -53,7 +53,7 @@ def make_code(rng: random.Random | None = None) -> str:
 HOUSE_TOSS_PAUSE = (3.0, 7.0)    # seconds a house partner takes to toss, like a person would
 HOUSE_LOCK_PAUSE = (3.0, 7.0)    # seconds to put one card down, each round
 HOUSE_VOTE_PAUSE = (2.0, 5.0)    # seconds to say yes to the song
-EMOTES = ("cheers", "eyes", "fire", "laugh")   # the nudges a partner can send across the table
+EMOTES = ("cheers", "eyes", "fire", "laugh", "heart", "down")
 EMOTE_GAP = 1.5                  # seconds between two nudges from one phone
 EMOTE_TTL = 8.0                  # how long a nudge stays in the state for the partner's next polls
 
