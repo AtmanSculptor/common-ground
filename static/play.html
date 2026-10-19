@@ -18,6 +18,9 @@ p{line-height:1.35;margin:6px 0}
 body.tablemode>.top{display:none}
 .pill{background:var(--surface);border-radius:999px;padding:5px 11px;font-weight:700;font-size:.85rem;color:var(--text2);display:inline-flex;align-items:center;gap:6px}
 .pill.credits{color:var(--gold)}
+.tbar .r{display:flex;gap:8px;align-items:center}
+button.pill.leave{height:auto;margin:0;padding:5px 11px;font-size:.8rem;border:1px solid rgba(189,53,252,.35);background:var(--surface);color:var(--text3);box-shadow:none;letter-spacing:0;transition:color .3s,border-color .3s,background .3s}
+button.pill.leave.armed{color:var(--gold);border-color:var(--gold);background:rgba(255,199,0,.12)}
 .coin{width:1em;height:1em;flex:none;vertical-align:-.12em}
 /* every button is a pill in the house colors: gold for the one action, purple for the rest. Nothing spans the screen. */
 button{font:inherit;font-weight:700;background:rgba(255,199,0,.12);color:var(--gold);border:2px solid var(--gold);border-radius:999px;padding:0 22px;height:42px;cursor:pointer;width:auto;min-width:0;margin:10px auto 0;font-size:.95rem;letter-spacing:.03em;transition:transform .08s,opacity .2s;display:flex;justify-content:center;align-items:center;gap:8px;box-shadow:0 0 18px rgba(255,199,0,.18);white-space:nowrap}
@@ -357,11 +360,11 @@ details[open] summary::after{content:"–"}
   <button class="ghost" id="shareBtn" onclick="shareCode()">Share the code</button>
   <div class="qlou-big"><div class="scene"><div class="card"><img src="static/deck/qlou.jpg" alt=""><div class="frame"></div><div class="name">Q-Lou</div></div></div></div>
   <p class="wait pulse" id="lobbyWaitMsg" style="margin-top:14px">Waiting for your partner…</p>
-  <button class="ghost" onclick="forget();clearInterval(timer);location.reload()">Never mind, start over</button>
+  <button class="ghost" onclick="leaveNow()">Never mind, start over</button>
 </section>
 
 <section class="screen" id="s-table">
-  <div class="tbar"><div class="pill" id="tRoom">Room</div><div class="pill credits"><span id="tTok">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
+  <div class="tbar"><div class="pill" id="tRoom">Room</div><div class="r"><button class="pill leave" id="leaveBtn" onclick="leave()">Leave</button><div class="pill credits"><span id="tTok">10</span><svg class="coin"><use href="#coin"/></svg></div></div></div>
   <div class="thead"><b id="roundLabel">The deal</b></div>
   <div class="strip" id="strip"><div class="bubble" id="stripBubble"></div><span class="who"><span id="stripAva"></span><b id="stripName"></b> <span id="stripStatus"></span></span><span class="minis" id="themMinis"></span></div>
   <div class="field" id="field">
@@ -406,7 +409,7 @@ details[open] summary::after{content:"–"}
     <p class="center" id="doneShared" style="margin:6px 0 0;font-size:.95rem;color:var(--text2)"></p>
     <div class="meter"><i id="meterDone"></i></div><p class="sub center" id="meterDoneText"></p>
   </div>
-  <div class="brow"><button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button><button id="againBtn" class="ghost" onclick="forget();location.reload()">Play again</button></div>
+  <div class="brow"><button id="saveBtn" onclick="shareResult()" style="display:none">Save it</button><button id="againBtn" class="ghost" onclick="leaveNow()">Play again</button></div>
   <div style="margin-top:18px">
     <details><summary id="hoodTitle">Under the hood</summary>
       <h2>What you both played</h2><div id="both"></div>
@@ -443,6 +446,9 @@ function show(id){const was=document.querySelector(".screen.on");document.body.c
 function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
   return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)throw new Error("Easy there, slow down a second.");if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
 function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){try{location.hash=code+"/"+who}catch(e2){}}try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
+let leaveArmed=0;
+function leaveNow(){if(timer)clearInterval(timer);timer=null;forget();try{location.replace(location.pathname+location.search)}catch(e){location.reload()}}
+function leave(){const b=$("leaveBtn");if(Date.now()-leaveArmed<3500){leaveNow();return}leaveArmed=Date.now();b.textContent="Tap again to leave";b.classList.add("armed");setTimeout(()=>{if(Date.now()-leaveArmed>=3400){leaveArmed=0;b.textContent="Leave";b.classList.remove("armed")}},3600)}
 function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}try{localStorage.removeItem("oursong")}catch(e){}}
 async function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){alert(e.message)}}
 async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name});code=r.code;who="guest";remember();startPoll()}catch(e){alert(e.message)}}
@@ -452,7 +458,7 @@ function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
 function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";songEntering=false;$("bet").innerHTML="";qlouClear()}
-async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){forget();clearInterval(timer);show("lobby")}}}
+async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){leaveNow()}}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
 function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
