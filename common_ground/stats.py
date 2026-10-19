@@ -65,15 +65,18 @@ def profile(name: str) -> dict:
     if hit and now - hit[0] < 60:
         return hit[1]
     games = songs = 0
+    cards: Counter = Counter()
     if key:
         for r in rows(2000):
-            names = {k.strip().lower() for k in (r.get("plays") or {})}
-            if key in names:
+            plays = r.get("plays") or {}
+            mine = next((v for k, v in plays.items() if k.strip().lower() == key), None)
+            if mine is not None:
                 games += 1
+                cards.update(c for c in mine if c)
                 if r.get("played"):
                     songs += 1
     level = next((lv for n, lv in LEVELS if games >= n), 0)
-    out = {"games": games, "songs": songs, "level": level}
+    out = {"games": games, "songs": songs, "level": level, "cards": [c for c, _ in cards.most_common(3)]}
     _profiles[key] = (now, out)
     return out
 

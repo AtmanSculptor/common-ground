@@ -145,6 +145,11 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .bub q.fade{opacity:0}
 /* the playing area: their slots, a line, yours, inside one frame. The hand stays outside it. */
 .arena{position:relative;align-self:center;width:calc(3 * var(--sw,84px) + 20px + 24px);padding:12px 12px;border-radius:20px;border:1px solid rgba(189,53,252,.4);background:rgba(138,43,226,.06);display:flex;flex-direction:column;gap:12px}
+/* the tile: covers the playing area at the deal, lifts away when round one opens. Art: static/deck/tile.jpg (a square), else the house pattern. */
+.tile{position:absolute;inset:0;z-index:3;border-radius:20px;display:none;background:#0a0512 url(static/deck/tile.jpg) center/cover;box-shadow:inset 0 0 0 1px rgba(189,53,252,.35),0 10px 30px rgba(0,0,0,.6);transition:opacity 1.1s ease,transform 1.1s cubic-bezier(.3,.7,.3,1)}
+.tile::after{content:"";position:absolute;inset:0;border-radius:20px;background:radial-gradient(ellipse 60% 55% at 50% 50%,rgba(138,43,226,.18),transparent 70%)}
+#s-table.toss .tile,#s-table.tosswait .tile{display:block}
+.tile.lift{display:block;opacity:0;transform:translateY(-26px) scale(.97);pointer-events:none}
 .arena .divider{height:1px;margin:0 14px;background:linear-gradient(90deg,transparent,rgba(189,53,252,.6),rgba(255,199,0,.5),transparent);transition:opacity .6s}
 .slots{display:flex;gap:10px;justify-content:center;align-items:center}
 .slot{width:var(--sw,84px);aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.45);position:relative;display:grid;place-items:center;transition:border-color .5s,box-shadow .5s,visibility 0s}
@@ -192,6 +197,10 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .songarea .brow{margin-top:6px;gap:8px}
 .songarea .brow button{min-width:0;height:38px;padding:0 13px;font-size:.86rem}
 .songarea .wait{font-size:.74rem;height:14px;line-height:14px;margin:2px 0 0}
+.songarea .log{display:none;width:100%;margin-top:4px;font-size:.72rem;line-height:1.3;color:var(--text3);text-align:center}
+.songarea .log b{color:var(--text2);font-weight:600}
+#s-table.done .songarea .log{display:block}
+#s-table.done .songarea .wait{display:none}
 /* the hand: the cards in one row, a hint line, then the one action (the swap pill at the deal, the nudges while you wait) */
 .handblock{display:flex;flex-direction:column;align-items:center;gap:8px}
 .actrow{height:40px;display:flex;align-items:center;justify-content:center;gap:10px}
@@ -410,6 +419,7 @@ details[open] summary::after{content:"–"}
   </div>
   <div class="qrow" id="stage"><div class="qface" id="qface"></div><div class="bub"><b>Q-Lou</b><q id="qsay"></q></div></div>
   <div class="arena" id="field">
+    <div class="tile" id="tile"></div>
     <div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
     <div class="divider"></div>
     <div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div>
@@ -421,6 +431,7 @@ details[open] summary::after{content:"–"}
       <div class="brow" id="voteRow"><button id="yesBtn" onclick="vote(true)">Play it · 2 <svg class="coin"><use href="#coin"/></svg></button><button class="ghost" id="noBtn" onclick="vote(false)">Not this one</button></div>
       <div class="brow" id="doneRow" style="display:none"><button id="againBtn2" class="ghost" onclick="leaveNow()">Play again</button><button id="saveBtn2" onclick="shareResult()" style="display:none">Save it</button></div>
       <p class="wait" id="voteMsg"></p>
+      <div class="log" id="endLog"></div>
       <audio id="preview" preload="none"></audio>
     </div>
   </div>
@@ -469,7 +480,7 @@ let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRan
 const ALL_CARDS={};
 const MARKS=["bust","mk-hat","mk-phones","mk-star"];let myIcon=0,nameTimer=null;
 function levelName(pr){const g=pr&&pr.games||0,l=pr&&pr.level||0;return l>=3?`Legend · ${g} games`:l>=2?`Local · ${g} games`:l>=1?`Regular · ${g} game${g===1?"":"s"}`:"First time here"}
-function renderMyAva(pr){const l=pr&&pr.level||0;$("myAva").innerHTML=`<span class="ava l${l}"><svg><use href="#${MARKS[myIcon]}"/></svg></span>`;const lv=$("myLevel");lv.textContent=levelName(pr);lv.className="pill lv l"+l}
+function renderMyAva(pr){const l=pr&&pr.level||0;$("myAva").innerHTML=`<span class="ava l${l}"><svg><use href="#${MARKS[myIcon]}"/></svg></span>`;const lv=$("myLevel");lv.textContent=levelName(pr);lv.className="pill lv l"+l;lv.style.display=l?"":"none"}
 function cycleIcon(){myIcon=(myIcon+1)%MARKS.length;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6)}
 let lastProfile=null;
 function nameTyped(){clearTimeout(nameTimer);const n=$("name").value.trim();if(!n){lastProfile=null;renderMyAva(null);return}
@@ -501,7 +512,7 @@ function driftOff(done){const to=$("qface").getBoundingClientRect();const slots=
   setTimeout(done,slots.length*170+1200)}
 
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
-let Q=null;fetch("static/quips.json?v=5").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
+let Q=null;fetch("static/quips.json?v=6").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
 function hash(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 function pickLine(list,salt,vars){if(!list||!list.length)return "";const line=list[hash(code+"|"+salt)%list.length];return fill(line,vars)}
 function fill(line,vars){vars=vars||{};return line.replace(/\{(\w+)\}/g,(m,k)=>vars[k]!=null?vars[k]:m)}
@@ -612,7 +623,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
   if(s.phase==="play"&&Date.now()<tossSettleUntil)return;   // the fresh cards get their moment first
   if(s.phase==="play"||s.phase==="thinking"||s.phase==="jukebox"||s.phase==="done"){
     if(!["play","thinking","jukebox","done"].includes(lastPhase)){const fresh=lastPhase==="toss"||lastPhase===null;lastPhase="play";const old=hand;hand=me.hand||[];chosen=null;shownPairs=(s.pairs||[]).length;shownRank=-1;
-      if(s.phase==="play"){setMode("play");renderFan();renderSlots(s,me,other)}else{setMode("thinking");renderFan();renderSlots(s,me,other);shownPairs=0;lastFlipAt=0}   // a reload after the rounds: the flips replay quickly, then the reveal
+      if(s.phase==="play"){const t=$("tile");if(lastPhase!==null&&getComputedStyle(t).display!=="none"){t.classList.add("lift");setTimeout(()=>t.classList.remove("lift"),1300)}setMode("play");renderFan();renderSlots(s,me,other)}else{setMode("thinking");renderFan();renderSlots(s,me,other);shownPairs=0;lastFlipAt=0}   // a reload after the rounds: the flips replay quickly, then the reveal
       if(fresh&&!tossSaid&&s.phase==="play"){tossSaid=true;const ts=s.toss_summary;qlouClear();if(ts)qlouSay(tossLine(ts),3400);qlouSay(q("round.r1","r1"),0);
         const replaced=hand.filter(c=>!old.some(o=>o.id===c.id));if(replaced.length&&old.length)setTimeout(()=>dealIn(replaced.map(c=>c.id)),50)}}
     if(s.phase!=="play"){lastPhase=s.phase;renderReveal(s,me,other);return}
@@ -659,10 +670,10 @@ function pairLine(p){const a=p.a.name,b=p.b.name;const sp=Q&&Q.pairs&&Q.pairs.sp
 function fanLayout(){fitTable()}
 function renderFan(){const played=state&&state.sides[who].plays||[];const deal=tableMode==="toss"||tableMode==="tosswait";$("fan").innerHTML=hand.map(c=>played.includes(c.id)||chosen===c.id?`<div class="fcard played" data-id="${c.id}"></div>`:`<div class="fcard ${tosses.includes(c.id)?"tossing":""}" data-id="${c.id}">${faceHTML(c,"",deal)}</div>`).join("");
   $("fan").querySelectorAll(".fcard:not(.played)").forEach(el=>{const id=+el.dataset.id;el.onpointerdown=e=>{e.preventDefault();if(tableMode==="toss")toggleToss(id);else if(tableMode==="play")startDrag(e,el,id)}});fitTable();
-  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Swap ${["one","two","three","four"][k-1]||k}`:"Keep them all";$("handHint").textContent=k?"Tap a card to keep it.":""}}
+  if(tableMode==="toss"){const k=tosses.length;$("tossBtn").textContent=k?`Swap ${["one","two","three","four"][k-1]||k}`:"Keep them all";$("handHint").textContent=""}}
 function toggleToss(id){const i=tosses.indexOf(id);if(i>=0)tosses.splice(i,1);else{if(tosses.length>=TOSS_MAX)return;tosses.push(id)}qlouActed();
   const el=$("fan").querySelector(`.fcard[data-id="${id}"]`);if(el)el.classList.toggle("tossing",tosses.includes(id));   // the card turns over in place
-  const k=tosses.length;$("tossBtn").textContent=k?`Swap ${["one","two","three","four"][k-1]||k}`:"Keep them all";$("handHint").textContent=k?"Tap a card to keep it.":"";
+  const k=tosses.length;$("tossBtn").textContent=k?`Swap ${["one","two","three","four"][k-1]||k}`:"Keep them all";$("handHint").textContent="";
   if(navigator.vibrate)navigator.vibrate(8)}
 // the discards go back to Q-Lou, the fresh cards come from him face down and turn over; the deal stays on screen for the moment
 let tossSettleUntil=0;
@@ -698,9 +709,9 @@ function fly(from,to,img,done){const f=document.createElement("div");f.className
   setTimeout(()=>{f.remove();done&&done()},640)}
 // after the third flip: Q-Lou says one line with the cards still up; the six cards drift back to him; he holds the center
 // with one steady line while Qloo works; the song rises in the center; a no sinks it and he holds again; the end stays put.
-function countsLine(c){if(!c)return "";const parts=[];
-  parts.push(c.same?`${c.same===1?"1 card the same":c.same+" cards the same"}`:"no card the same");if(c.close)parts.push(`${c.close} close`);if(c.apart)parts.push(`${c.apart} apart`);
-  return "Cards in common: "+parts.join(", ")+"."}
+function countsLine(c){if(!c)return "";const w=["no","one","two","three"];const parts=[];
+  if(c.same)parts.push(`${w[c.same]||c.same} the same`);if(c.close)parts.push(`${w[c.close]||c.close} close`);if(c.apart)parts.push(`${w[c.apart]||c.apart} apart`);
+  const line=parts.join(", ");return line?line.charAt(0).toUpperCase()+line.slice(1)+".":""}
 function renderReveal(s,me,other){const pairs=s.pairs||[];
   if(pairs.length>shownPairs){flipPair(s,pairs[shownPairs],shownPairs);shownPairs++;return}
   if(revealStep===0){if(Date.now()-lastFlipAt<3400)return;              // the third pair gets its moment first
@@ -721,7 +732,10 @@ function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&
     $("betVerdict").textContent=played?"Both said yes":"Three picks, nobody charged";const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
     $("saveBtn2").style.display=played&&(navigator.share||navigator.clipboard)?"":"none";
     const o=(s.offers||[]).find(x=>x.status==="played")||(s.offers||[])[(s.offers||[]).length-1]||{};const sn=o.said_no||[];const lab=k=>sn.includes(k)?"said no":"said yes";
-    setStatus(lab(theirKey()),lab(who),sn.includes(theirKey())?"no":"yes",sn.includes(who)?"no":"yes")}
+    setStatus(lab(theirKey()),lab(who),sn.includes(theirKey())?"no":"yes",sn.includes(who)?"no":"yes");
+    const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return g===1?"first night here":`${g} nights here`};
+    const fav=sd=>{const c=sd.profile&&sd.profile.cards||[];return c.length?c.slice(0,3).join(", "):(r.plays&&r.plays[sd.name]||[]).slice(0,3).join(", ")};
+    $("endLog").innerHTML=`<b>You</b> · ${nights(me)} · ${esc(fav(me))}<br><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}`}
   if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;render()}).catch(()=>{}),4000)}}
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;

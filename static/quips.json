@@ -457,7 +457,8 @@
     "Your cards are in. Qloo is scoring {pool} artists for the two of you. Nobody gets dragged along."
   ],
   "common": [
-    "Common ground score {meter}. {counts}",
-    "{counts} Common ground score {meter}."
+    "{counts} I've got enough.",
+    "{counts} Plenty to work with.",
+    "{counts} That's a song in there."
   ]
 }
