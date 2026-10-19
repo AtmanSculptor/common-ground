@@ -197,7 +197,11 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .songarea .brow{margin-top:6px;gap:8px}
 .songarea .brow button{min-width:0;height:38px;padding:0 13px;font-size:.86rem}
 .songarea .wait{font-size:.74rem;height:14px;line-height:14px;margin:2px 0 0}
-.songarea .log{display:none;width:100%;margin-top:4px;font-size:.72rem;line-height:1.3;color:var(--text3);text-align:center}
+.songarea .log{display:none;width:100%;margin-top:4px;font-size:.68rem;line-height:1.35;color:var(--text3);text-align:center}
+.songarea .log div{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.songarea .log div.pair{white-space:nowrap;text-overflow:ellipsis;display:block}
+#s-table.done .songarea .art{width:calc(var(--sw,84px) * .8);height:calc(var(--sw,84px) * .8)}
+#s-table.done .songarea .art .play{font-size:1.6rem}
 .songarea .log b{color:var(--text2);font-weight:600}
 #s-table.done .songarea .log{display:block}
 #s-table.done .songarea .wait{display:none}
@@ -429,7 +433,7 @@ details[open] summary::after{content:"–"}
       <h1 class="song-title" id="songTitle"></h1>
       <p class="song-artist" id="artist"></p>
       <div class="brow" id="voteRow"><button id="yesBtn" onclick="vote(true)">Play it · 2 <svg class="coin"><use href="#coin"/></svg></button><button class="ghost" id="noBtn" onclick="vote(false)">Not this one</button></div>
-      <div class="brow" id="doneRow" style="display:none"><button id="againBtn2" class="ghost" onclick="leaveNow()">Play again</button><button id="saveBtn2" onclick="shareResult()" style="display:none">Save it</button></div>
+      <div class="brow" id="doneRow" style="display:none"><button id="againBtn2" onclick="leaveNow()">Play again</button></div>
       <p class="wait" id="voteMsg"></p>
       <div class="log" id="endLog"></div>
       <audio id="preview" preload="none"></audio>
@@ -730,12 +734,12 @@ function renderThinking(){const last=state.offers&&state.offers[state.offers.len
 function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&&p.played);
   if(tableMode!=="done"){setMode("done");$("roundLabel").textContent=played?"Tonight's song":"No match tonight";$("voteRow").style.display="none";$("doneRow").style.display="";$("voteMsg").textContent="";
     $("betVerdict").textContent=played?"Both said yes":"Three picks, nobody charged";const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
-    $("saveBtn2").style.display=played&&(navigator.share||navigator.clipboard)?"":"none";
     const o=(s.offers||[]).find(x=>x.status==="played")||(s.offers||[])[(s.offers||[]).length-1]||{};const sn=o.said_no||[];const lab=k=>sn.includes(k)?"said no":"said yes";
     setStatus(lab(theirKey()),lab(who),sn.includes(theirKey())?"no":"yes",sn.includes(who)?"no":"yes");
-    const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return g===1?"first night here":`${g} nights here`};
+    const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return g===1?"first night":`${g} nights`};
     const fav=sd=>{const c=sd.profile&&sd.profile.cards||[];return c.length?c.slice(0,3).join(", "):(r.plays&&r.plays[sd.name]||[]).slice(0,3).join(", ")};
-    $("endLog").innerHTML=`<b>You</b> · ${nights(me)} · ${esc(fav(me))}<br><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}`}
+    const tg=r.together||{nights:0,songs:0};const tn=tg.nights,ts=tg.songs;const pair=tn<=1?`<b>You and ${esc(ot.name)}</b> · first night together`:`<b>You and ${esc(ot.name)}</b> · ${tn} nights · ${ts} song${ts===1?"":"s"} together`;
+    $("endLog").innerHTML=`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}
   if(!doneSettled){doneSettled=true;clearInterval(timer);forget();setTimeout(()=>api(code).then(st=>{state=st;render()}).catch(()=>{}),4000)}}
 const NUDGES={cheers:"🍻",eyes:"👀",fire:"🔥",laugh:"😂"};
 let nudgeBusy=false,bubbleSeen=0;

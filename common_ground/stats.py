@@ -55,6 +55,20 @@ LEVELS = ((10, 3), (3, 2), (1, 1))   # games played at this venue -> the ring on
 _profiles: dict[str, tuple[float, dict]] = {}
 
 
+def together(a: str, b: str) -> dict:
+    """What this venue knows about two nicknames as a pair: nights at one table, songs that played."""
+    ka, kb = (a or "").strip().lower(), (b or "").strip().lower()
+    nights = songs = 0
+    if ka and kb and ka != kb:
+        for r in rows(2000):
+            names = {k.strip().lower() for k in (r.get("plays") or {})}
+            if ka in names and kb in names:
+                nights += 1
+                if r.get("played"):
+                    songs += 1
+    return {"nights": nights, "songs": songs}
+
+
 def profile(name: str) -> dict:
     """What this venue knows about a nickname: games, songs that played, the level. No account, no
     login: the nickname at this bar is the identity (in a jukebox app it would be the app's account).

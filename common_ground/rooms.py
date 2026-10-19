@@ -454,7 +454,7 @@ class Room:
                 "reveal": self.reveal if self.phase in ("thinking", "jukebox", "done") else None,
                 "meter": self.meter, "thinking": self.thinking[-8:], "pick": offers[-1] if offers else None, "offers": offers,
                 "log": self.log[-5:],
-                "result": {**self.result, "pick": self._result_pick()} if self.result else None, "t": now}
+                "result": {**self.result, "pick": self._result_pick(), "together": stats.together(self.sides["host"].name, self.sides["guest"].name)} if self.result else None, "t": now}
 
 
 class Rooms:
