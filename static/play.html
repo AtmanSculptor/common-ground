@@ -501,7 +501,7 @@ function driftOff(done){const to=$("qface").getBoundingClientRect();const slots=
   setTimeout(done,slots.length*170+1200)}
 
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
-let Q=null;fetch("static/quips.json?v=4").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
+let Q=null;fetch("static/quips.json?v=5").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
 function hash(s){let h=2166136261;for(const c of String(s)){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0}return h}
 function pickLine(list,salt,vars){if(!list||!list.length)return "";const line=list[hash(code+"|"+salt)%list.length];return fill(line,vars)}
 function fill(line,vars){vars=vars||{};return line.replace(/\{(\w+)\}/g,(m,k)=>vars[k]!=null?vars[k]:m)}
@@ -738,7 +738,7 @@ function renderThinking(steps){const last=state.offers&&state.offers[state.offer
 function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" alt=""><div class="t"><b>${esc(t.track)}</b><span>${esc(t.album||"")}${t.year?" · "+esc(t.year):""}</span></div><button class="ghost" onclick="playPreview('${esc(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
 function songLine(p,other){const n=names();const sa=Math.round((p.scores.host||0)*100),sb=Math.round((p.scores.guest||0)*100);let line=q("song.numbers","sn"+p.attempt,{sa,sb});
-  const g=p.baseline&&p.baseline.guess;line+=" "+(g?(g===p.artist.name?"The plain model guessed the same. Once.":q("song.control","sc"+p.attempt,{guess:g})):q("song.control_none","scn"));return line}
+  const g=p.baseline&&p.baseline.guess;line+=" "+(g?(g===p.artist.name?"The plain model guessed the same. Once.":q("song.control","sc"+p.attempt,{guess:g})):"");return line}
 function renderJukebox(s,me,other){const p=s.pick;if(!p||!p.artist)return;const key=p.artist.id+":"+p.attempt+":"+(p.tracks?p.tracks.length:0)+":"+(p.baseline?p.baseline.guess:"")+":"+me.tokens;const them=other.name||"your partner";
   if(lastPick!==key){const fresh=!lastPick||lastPick.split(":").slice(0,2).join(":")!==p.artist.id+":"+p.attempt;lastPick=key;const t0=p.tracks&&p.tracks[0];heroUrl=t0&&t0.preview||"";
     const prev=s.offers&&s.offers[p.attempt-2];const noer=prev?(prev.said_no||[]).map(k=>k===who?"you":(state.sides[k].name||k)).join(" and "):"";

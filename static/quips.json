@@ -397,13 +397,13 @@
   "song": {
     "numbers": [
       "Qloo scored it {sa} for {a}, {sb} for {b}.",
-      "{a}: {sa}. {b}: {sb}. Both of those are good numbers.",
+      "{a}: {sa}. {b}: {sb}. Good numbers, both.",
       "Qloo says {sa} and {sb}. I don't do feelings. I do those."
     ],
     "control": [
       "The plain model guessed {guess}. I don't guess.",
       "A model with no data said {guess}. Cute.",
-      "Without Qloo it would have been {guess}. Qloo said otherwise."
+      "Without Qloo: {guess}. Qloo said otherwise."
     ],
     "control_none": [
       "The plain model guessed nothing useful. I did.",
