@@ -37,7 +37,7 @@ def test_deal_is_six_with_one_of_each_suit_and_never_repeats():
     seen: set[int] = set()
     for _ in range(3):
         hand = deck.deal(seen, rng, joker_chance=0)
-        assert len(hand) == deck.HAND == 6 and len(set(hand)) == deck.HAND
+        assert len(hand) == deck.HAND == 4 and len(set(hand)) == deck.HAND
         suits = [deck.card(c)["suit"] for c in hand]
         assert set(suits) == set(deck.SUITS) and deck.JOKER not in suits
         assert not seen & set(hand)

@@ -113,7 +113,7 @@ function renderTable(s,A,B){
   $("nameA").textContent=A.name||"Host";$("nameB").textContent=B.name||"Partner";
   const names=s.rank_names||["Most me","Also me","A bit me"];const pairs=s.pairs||[];const r=s.rank||0;
   if(lastRound!==s.phase){lastRound=s.phase;shownReveal=false;themShown={};["slotsA","slotsB"].forEach(id=>$(id).innerHTML='<div class="slot"></div><div class="slot"></div><div class="slot"></div>');["ln0","ln1"].forEach(id=>$(id).textContent="");$("meterBox").style.display="none"}
-  if(s.phase==="toss"){$("meterText").textContent="The deal: toss what isn't you";for(const [side,status] of [[A,"statusA"],[B,"statusB"]]){$(status).textContent=side.locked?(side.tossed_n?`tossed ${side.tossed_n}`:"kept them all"):"is looking at four cards"}return}
+  if(s.phase==="toss"){$("meterText").textContent="The deal: swap what isn't you";for(const [side,status] of [[A,"statusA"],[B,"statusB"]]){$(status).textContent=side.locked?(side.tossed_n?`swapped ${side.tossed_n}`:"kept all four"):"is looking at four cards"}return}
   // the rounds: flipped pairs face up, the card down for this round face down, the rest empty
   const both=(s.reveal&&s.reveal.both)||[];const cls=(p,k)=>both.includes(p[k].name)?"match":p.match==="exact"?"match":p.match==="kin"?"kin":"";
   for(const [k,side,slots] of [["a",A,"slotsA"],["b",B,"slotsB"]]){const key=pairs.length+":"+(side.down?1:0)+":"+s.phase;

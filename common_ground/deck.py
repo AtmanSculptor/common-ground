@@ -6,8 +6,8 @@ one by one against the live API (see probes/ and docs/art/). Cards whose signals
 noise were parked, not faked.
 
 Suits: Stage (what you turn up), Bar (what you order and where you sit), Road (what you do
-with a Saturday), Porch (who you are at home). Dealing: six cards, one of each suit and two
-more from anywhere, nothing this person has seen in this room.
+with a Saturday), Porch (who you are at home). Dealing: four cards, one of each suit, nothing
+this person has seen in this room; swap any of them and the fresh card keeps the suit.
 
 The joker (On the house, id 111) is retired: it stays in cards.json for the art and the old
 rooms, but cards() leaves it out, so it is never dealt, scored or shown.
@@ -21,7 +21,7 @@ from functools import lru_cache
 
 STATIC = pathlib.Path(__file__).resolve().parents[1] / "static"
 SUITS = ("stage", "bar", "road", "porch")
-EXTRA = 2                # beyond one of each suit
+EXTRA = 0                # beyond one of each suit: none since Oct 19, a hand is one card per suit
 HAND = len(SUITS) + EXTRA
 PLAYS = 3                # on the table, ranked: Most me, Also me, A bit me
 JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
@@ -57,8 +57,7 @@ def public(c: dict) -> dict:
 
 
 def deal(seen: set[int], rng: random.Random | None = None, joker_chance: float | None = None) -> list[int]:
-    """One card from each suit, then two more from any suit, never one this side has seen, shuffled;
-    now and then the joker takes one of the two extra seats."""
+    """One card from each suit (plus EXTRA more from any suit, zero now), never one this side has seen, shuffled."""
     rng = rng or random
     if joker_chance is None:
         joker_chance = JOKER_CHANCE

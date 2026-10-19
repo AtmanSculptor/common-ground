@@ -357,10 +357,12 @@ def job_status(job_id: str):
 class NewGame(BaseModel):
     name: str = "host"
     house: bool = False
+    icon: int = 0
 
 
 class JoinGame(BaseModel):
     name: str = "guest"
+    icon: int = 0
 
 
 class Cards(BaseModel):
@@ -415,16 +417,23 @@ def _think(room: Room) -> None:
     threading.Thread(target=work, daemon=True).start()
 
 
+@app.get("/api/profile")
+def profile_lookup(name: str = ""):
+    """The venue log for a nickname: games, songs, level. The lobby shows it beside the name as you type."""
+    name = (name or "").strip()[:24]
+    return stats.profile(name) if name else {"games": 0, "songs": 0, "level": 0}
+
+
 @app.post("/api/game/new")
 def game_new(body: NewGame):
     ROOMS.sweep()
-    r = ROOMS.create(body.name.strip()[:24] or "You", house=body.house)
+    r = ROOMS.create(body.name.strip()[:24] or "You", house=body.house, icon=body.icon)
     return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
 
 
 @app.post("/api/game/{code}/join")
 def game_join(code: str, body: JoinGame):
-    r = ROOMS.join(code, body.name.strip()[:24] or "Partner")
+    r = ROOMS.join(code, body.name.strip()[:24] or "Partner", icon=body.icon)
     if not r:
         raise HTTPException(404, "no such room, or it is full")
     return {"code": r.code, "who": "guest"}

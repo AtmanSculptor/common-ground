@@ -27,7 +27,7 @@ from .qlou import Partner, Pick, QLou
 from .qloo import Qloo
 
 PLAYS = 3                # cards each partner puts on the table, one per round, ranked
-TOSS_MAX = 3             # at the deal you may toss up to three of your six
+TOSS_MAX = 4             # at the deal you may swap any of your four
 INTERLUDE_MIN = 12.0     # seconds the table holds after the third flip before the song can arrive: the meter, the words, the call
 MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
 ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
@@ -64,7 +64,8 @@ class Side:
     joined: bool = False
     house: bool = False
     quiz: quiz.Quiz = field(default_factory=quiz.Quiz)   # a house partner's taste profile
-    hand: list[int] = field(default_factory=list)        # six cards
+    hand: list[int] = field(default_factory=list)        # four cards, one per suit
+    icon: int = 0                                        # the profile mark this player picked (0..3)
     seen: list[int] = field(default_factory=list)
     tossed: list[int] = field(default_factory=list)      # round one: "not me"
     toss_locked: bool = False
@@ -312,11 +313,10 @@ class Room:
         return sum(1 for a in sig.get("audiences", []) if quiz.family(a) in fams) + rng.random() * 0.5
 
     def _house_toss(self, s: Side, rng: random.Random | None = None) -> list[int]:
-        """The house tosses the cards furthest from its profile, up to three, sometimes none.
-        It never tosses the joker: nobody turns down a free song."""
+        """The house swaps the cards furthest from its profile, up to three of four, sometimes none."""
         rng = rng or random
         scored = sorted(((self._house_score(s, c, rng), c) for c in s.hand if deck.card(c)["suit"] != deck.JOKER))
-        n = rng.choice((0, 1, 2, 3, 3))
+        n = rng.choice((0, 1, 1, 2, 2, 3))
         return [c for _, c in scored[:n]]
 
     def _house_plays(self, s: Side, rng: random.Random | None = None) -> list[int]:
@@ -431,7 +431,7 @@ class Room:
         sides = {}
         for k, s in self.sides.items():
             locked = s.toss_locked if self.phase == "toss" else s.play_locked
-            d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked,
+            d = {"name": s.name, "joined": s.joined, "house": s.house, "locked": locked, "icon": getattr(s, "icon", 0),
                  "placed": len(s.plays), "down": len(s.plays) > self.rank, "tokens": s.tokens, "tossed_n": len(s.tossed), "hand_n": len(s.hand),
                  "profile": stats.profile(s.name) if s.joined else None,
                  "emote": s.emote if s.emote and now - s.emote["at"] < EMOTE_TTL else None}
@@ -494,18 +494,20 @@ class Rooms:
         except Exception:
             pass
 
-    def create(self, host_name: str, house: bool = False) -> Room:
+    def create(self, host_name: str, house: bool = False, icon: int = 0) -> Room:
         with self.lock:
             code = make_code(self.rng)
             while code in self.rooms:
                 code = make_code(self.rng)
             r = Room(code)
             r.sides["host"].name, r.sides["host"].joined = host_name, True
+            r.sides["host"].icon = int(icon) % 4
             if house:
                 h = self.rng.choice(quiz.HOUSE)
                 g = r.sides["guest"]
                 g.name, g.joined, g.house = h["name"], True, True
                 g.quiz = quiz.Quiz.preset(h["profile"])      # the house keeps a taste profile; it drives which cards it plays
+                g.icon = (sum(map(ord, h["name"])) % 3) + 1   # a house regular has its own mark
                 r.log.append(f"Q-Lou seats you with {h['name']}")
                 r.deal(self.rng)
             self.rooms[code] = r
@@ -515,11 +517,12 @@ class Rooms:
     def get(self, code: str) -> Room | None:
         return self.rooms.get((code or "").upper())
 
-    def join(self, code: str, name: str) -> Room | None:
+    def join(self, code: str, name: str, icon: int = 0) -> Room | None:
         r = self.get(code)
         if not r or r.sides["guest"].joined:
             return None
         r.sides["guest"].name, r.sides["guest"].joined = name, True
+        r.sides["guest"].icon = int(icon) % 4
         with r.lock:
             if r.phase == "lobby":
                 r.deal(self.rng)

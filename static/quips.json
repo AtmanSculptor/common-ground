@@ -6,28 +6,28 @@
     "Lines under 'cards' and 'pairs' are kept for later; the table says one thing per round now."
   ],
   "deal": [
-    "Six cards. The ones that aren't you come back to me.",
-    "Six cards, one of each suit and two more. Keep what's true.",
-    "Fresh deck, two people, one jukebox. Six each."
+    "Four cards, one of each suit. Tap any that aren't you and I'll swap them. Keep what's true.",
+    "Four cards. Tap the ones that aren't you and I swap them. Keep what's true.",
+    "One card per suit, four cards. Tap what isn't you. I'll swap it."
   ],
   "round": {
     "toss": [
-      "Six cards. The ones that aren't you come back to me. Up to three.",
-      "Six cards, one of each suit and two more. Keep what's true, discard the rest.",
-      "Fresh deck, two people, one jukebox. What isn't you goes back to me."
+      "Four cards, one of each suit. Tap any that aren't you and I'll swap them. Keep what's true.",
+      "Four cards. Tap the ones that aren't you and I swap them. Keep what's true.",
+      "One card per suit, four cards. Tap what isn't you. I'll swap it."
     ],
     "r1": [
-      "First card. I flip them together.",
-      "One card each. I'll show you both at once.",
-      "Most you first. {b} is choosing too."
+      "Three rounds, one card each. First: drag the card that's most you into the gold slot. I turn both over together.",
+      "Round one. Drag the card that's most you into the gold slot. {b} is choosing too.",
+      "Most you first. Drag it into the gold slot. I'll show you both at once."
     ],
     "r2": [
-      "Round two. Also you.",
-      "Round two. The next one down."
+      "Round two. The card that's also you.",
+      "Round two. Also you. Drag it in."
     ],
     "r3": [
-      "Round three. A bit you. Last card.",
-      "Last card. A bit you."
+      "Last card. The one that's a bit you.",
+      "Round three. A bit you. Last one."
     ],
     "play": [
       "Round two. Three cards, most you on top.",
@@ -42,21 +42,20 @@
   },
   "toss_result": {
     "both_kept": [
-      "Nobody discarded. Confident table.",
-      "Six and six, untouched."
+      "Nobody swapped. Confident table.",
+      "Four and four, untouched."
     ],
     "both_tossed": [
-      "{a} sent {na} back, {b} sent {nb}.",
-      "{na} back from {a}, {nb} from {b}."
+      "{a} swapped {na}, {b} swapped {nb}.",
+      "{na} swapped by {a}, {nb} by {b}."
     ],
     "one_kept": [
-      "{a} sent {na} back. {b} kept all six.",
-      "{b} kept everything. {a} sent {na} back."
+      "{a} swapped {na}. {b} kept all four.",
+      "{b} kept all four. {a} swapped {na}."
     ],
     "both_same": [
-      "Both of you discarded {card}. Noted.",
-      "{card}, discarded by both. I'll remember that at pick time.",
-      "Two people, same reject: {card}. That's a kind of agreement."
+      "Both of you swapped out {card}. Noted.",
+      "{card}, swapped out by both. I'll remember that at pick time."
     ],
     "fresh": [
       "Fresh ones coming.",
@@ -448,13 +447,13 @@
     ]
   },
   "solo": [
-    "You're seated with {b} tonight. They play fair.",
-    "{b} is sitting in tonight. House regular.",
-    "I've seated you with {b}. Be nice."
+    "I've seated you with {b}. Be nice.",
+    "{b} is sitting in tonight. A regular here.",
+    "Tonight you're with {b}. Be nice."
   ],
   "thinking_hold": [
-    "Six cards, {pool} artists, one song. Asking Qloo. Hang on.",
-    "Reading your six into numbers. Qloo does the rest. Give me a moment.",
+    "Three cards each, {pool} artists, one song. Asking Qloo. Hang on.",
+    "Reading your three into numbers. Qloo does the rest. Give me a moment.",
     "Your cards are in. Qloo is scoring {pool} artists for the two of you. Nobody gets dragged along."
   ],
   "common": [

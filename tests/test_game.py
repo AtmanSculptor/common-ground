@@ -55,11 +55,10 @@ def test_two_phones_full_game(client):
     st = _st(client, code)
     assert st["phase"] == "toss" and st["sides"]["host"]["tokens"] == 10
     hand = [c["id"] for c in st["sides"]["host"]["hand"]]
-    assert len(hand) == 6 and "hand" not in st["sides"]["guest"]
-    assert st["toss_max"] == 3 and st["suits"] == ["stage", "bar", "road", "porch"]
+    assert len(hand) == 4 and "hand" not in st["sides"]["guest"]
+    assert st["toss_max"] == 4 and st["suits"] == ["stage", "bar", "road", "porch"]
     hand = [c for c in hand if deck.card(c)["suit"] != deck.JOKER]
     assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2] + [999]}).status_code == 400   # not in the hand
-    assert client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:4]}).status_code == 400          # three at most
     assert _play(client, code, "host", hand[0]).status_code == 400                                              # not yet
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand[:2]}).json()
     new = [c["id"] for c in out["hand"]]
@@ -259,9 +258,22 @@ def test_tossing_three_keeps_the_suits(client):
     hand = [c for c in _hand(client, code, "host") if deck.card(c)["suit"] != deck.JOKER][:3]
     out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand}).json()
     new = [c["id"] for c in out["hand"]]
-    assert len(new) == 6 and not set(new) & set(hand)
+    assert len(new) == 4 and not set(new) & set(hand)
     assert set(deck.card(c)["suit"] for c in new if deck.card(c)["suit"] != deck.JOKER) == set(deck.SUITS)
     assert _st(client, code, "guest")["sides"]["host"]["tossed_n"] == 3
+
+
+def test_swapping_all_four_keeps_one_of_each_suit_and_the_mark_rides_with_the_room(client):
+    code = client.post("/api/game/new", json={"name": "Brent", "icon": 2}).json()["code"]
+    client.post(f"/api/game/{code}/join", json={"name": "Josie", "icon": 7})
+    hand = _hand(client, code, "host")
+    out = client.post(f"/api/game/{code}/toss", json={"who": "host", "cards": hand}).json()
+    new = [c["id"] for c in out["hand"]]
+    assert len(new) == 4 and not set(new) & set(hand)
+    assert sorted(deck.card(c)["suit"] for c in new) == sorted(deck.SUITS)
+    st = _st(client, code, "guest")
+    assert st["sides"]["host"]["icon"] == 2 and st["sides"]["guest"]["icon"] == 3     # 7 wraps to 3
+    assert client.get("/api/profile?name=Nobody+Yet").json()["games"] == 0
 
 
 def test_a_nudge_crosses_the_table_for_a_few_seconds(client, monkeypatch):
