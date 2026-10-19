@@ -44,27 +44,18 @@ def test_deal_is_six_with_one_of_each_suit_and_never_repeats():
         seen |= set(hand)
 
 
-def test_every_card_has_a_suit_and_the_joker_stands_alone():
+def test_every_card_has_a_suit_and_the_joker_is_retired():
     counts = {}
     for c in deck.cards():
         counts[c["suit"]] = counts.get(c["suit"], 0) + 1
-    assert set(counts) == set(deck.SUITS) | {deck.JOKER}
-    assert counts[deck.JOKER] == 1
+    assert set(counts) == set(deck.SUITS)                           # the joker is not in the playable deck
+    assert sum(counts.values()) == 101
     assert min(counts[s] for s in deck.SUITS) >= 20
-    joker = next(c for c in deck.cards() if c["suit"] == deck.JOKER)
-    assert joker["signal"] == {} and joker["name"] == "On the house"
-
-
-def test_joker_takes_one_of_the_extra_seats_sometimes():
-    rng = random.Random(2)
-    hand = deck.deal(set(), rng, joker_chance=1.0)
-    assert len(hand) == deck.HAND                                   # still six: the joker sits in an extra seat
-    assert sum(1 for c in hand if deck.card(c)["suit"] == deck.JOKER) == 1
-    assert set(deck.card(c)["suit"] for c in hand if deck.card(c)["suit"] != deck.JOKER) == set(deck.SUITS)
-    joker = next(c for c in hand if deck.card(c)["suit"] == deck.JOKER)
-    again = deck.deal({joker}, rng, joker_chance=1.0)
-    assert len(again) == deck.HAND and joker not in again           # seen once, never again in this room
-    assert deck.draw_one(set(), joker, rng) is None
+    assert deck.JOKER_CHANCE == 0.0
+    for seed in range(20):                                          # never dealt, whatever the odds asked for
+        hand = deck.deal(set(), random.Random(seed), joker_chance=1.0)
+        assert len(hand) == deck.HAND and all(deck.card(c)["suit"] != deck.JOKER for c in hand)
+    assert deck.card(111)["name"] == "On the house"                 # an old room can still name it
 
 
 def test_signal_merges_cards_and_profile_without_duplicates():
@@ -81,8 +72,6 @@ def test_match_kinds():
     b = next(c for c in deck.cards() if c["name"] == "Jazz hands")
     c = next(c for c in deck.cards() if c["name"] == "Whiskey")
     assert deck.match_kind(a, a) == "exact" and deck.match_kind(a, b) == "kin" and deck.match_kind(a, c) == "none"
-    joker = next(c for c in deck.cards() if c["suit"] == deck.JOKER)
-    assert deck.match_kind(joker, joker) == "exact" and deck.match_kind(joker, a) == "none"
 
 
 def test_meter_words_say_what_the_number_means():

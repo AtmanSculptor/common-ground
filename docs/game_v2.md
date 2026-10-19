@@ -19,7 +19,7 @@ The deal, then three rounds, one card each (Oct 18, after Brent's phone tests). 
 and after the deal only one button: "Play it".
 
 0. **The deal.** Q-Lou deals six cards to each partner: one of each suit (see Suits) and two more
-   from anywhere; the joker takes one of the two extra seats when it shows. Shown 2 x 3, big. Toss up
+   from anywhere. Shown 2 x 3, big. Toss up
    to three; a fresh card of the same suit comes from Q-Lou for each one tossed, so the hand keeps
    one of each. A tossed card counts as "not me" in the engine (a small negative weight). "Keep them
    all" or "Discard two" is a gold pill above the cards, never at the bottom edge.
@@ -85,7 +85,7 @@ Gemini 3.5 Flash Lite through OpenRouter, Brent's key. Switching to another mode
 - Three weighted cards each instead of four flat across an optional round: at least as much signal,
   and the ranks are information v1 never had.
 
-## Suits and the joker (Oct 17 evening, with the 101-card deck)
+## Suits (Oct 17 evening, with the 101-card deck)
 
 The deck is 101 cards in four suits, each suit a different way of saying who you are:
 
@@ -95,11 +95,11 @@ The deck is 101 cards in four suits, each suit a different way of saying who you
 - **Porch** (pink, a house): who you are at home. 23 cards.
 
 A hand is six: one of each suit and two more, dealt 2 x 3, nothing overlapping (the fan is gone: on
-a phone it hid the names). "Close" at a flip means the same suit. The 101st card is the joker, **On
-the house** (gold frame, a coin): no Qloo signal, dealt into one of the two extra seats about one
-hand in eight, never tossed.
-Play it among your three and, if you both say yes to a song, the house pays: no tokens from either
-side. Nobody wants Q-Lou picking for them, so the joker does not pick; it only pays.
+a phone it hid the names). "Close" at a flip means the same suit.
+
+The joker (**On the house**, gold frame, a coin, no signal, a free song if both said yes) was retired
+on Oct 18: one more rule to explain at the deal, and it confused a new player more than it delighted
+one. The card stays in cards.json for the art and for old rooms; `deck.cards()` leaves it out.
 
 ## The screen
 

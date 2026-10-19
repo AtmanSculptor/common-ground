@@ -11,10 +11,9 @@ code) and `docs/touchtunes_style.md` (colors and type).
 - `#s-table` is the table; its mode is a class on the section: `toss`, `tosswait`, `play`, `playwait`,
   `reveal`. `body.tablemode` is set while the table is up.
 - `#themSlots` their three slots (face-down `.card.flip` backs as they place, `.flip.shown` at the
-  reveal); `#themMinis` the four tiny backs during the toss round (five with the joker); `#meSlots` your three slots with
-  labels Most me, Also me, A bit me; `#fan` the hand (`.fcard` wrappers in a flex row, four across, five with the joker; `fanLayout()`
-  only sets `--n`; `.fcard.tossing` marked for the toss, `.fcard.played` once placed). Every
-  `.card` carries `s-stage`, `s-bar`, `s-road`, `s-porch` or `s-joker`; the frame color and the
+  reveal); `#themMinis` the six tiny backs during the deal; `#meSlots` your three slots with
+  labels Most me, Also me, A bit me; `#fan` the hand (`.fcard` wrappers in a 2 x 3 grid at the deal, a row in the rounds; `fitTable()` sets `--cw` and `--cols`; `.fcard.tossing` marked for the toss, `.fcard.played` once placed). Every
+  `.card` carries `s-stage`, `s-bar`, `s-road` or `s-porch` (the joker is retired); the frame color and the
   `.suit` glyph come from that.
 - `#stage` is Q-Lou's spot on the line. `.qcoin` is the coin that sits there when he is away;
   `.qmini` is his card and `#qsay` his bubble. `qlouSay(text, hold)` queues a line; the stage gets
@@ -33,7 +32,7 @@ code) and `docs/touchtunes_style.md` (colors and type).
 1. **The deal.** Q-Lou rises (the stage goes `.talking`), the four backs leave from his hands (the
    `.qmini` center, not the stage center), slide to their places in the row with a 70 ms stagger and a
    small arc, and flip face-up on landing (a 300 ms rotateY using the existing `.flip` classes). The
-   four minis on their side deal out the same beat, upward. The joker, when it comes, lands last. A soft card slide sound per card. The
+   six minis on their side deal out the same beat, upward. A soft card slide sound per card. The
    replacements after a toss do the same thing from the same place.
 2. **Q-Lou's rise and sink.** Replace the CSS scale with a real entrance: he comes up out of the
    line (clip from the line upward, 320 ms, overshoot 4 percent), the bubble pops 120 ms after him,

@@ -451,5 +451,14 @@
     "You're seated with {b} tonight. They play fair.",
     "{b} is sitting in tonight. House regular.",
     "I've seated you with {b}. Be nice."
+  ],
+  "thinking_hold": [
+    "Six cards, {pool} artists, one song. Asking Qloo. Hang on.",
+    "Reading your six into numbers. Qloo does the rest. Give me a moment.",
+    "Your cards are in. Qloo is scoring {pool} artists for the two of you. Nobody gets dragged along."
+  ],
+  "common": [
+    "Common ground score {meter}. {counts}",
+    "{counts} Common ground score {meter}."
   ]
 }

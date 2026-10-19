@@ -1,4 +1,4 @@
-"""The deck: 101 taste cards in four suits, each tied to a verified Qloo signal, plus the joker.
+"""The deck: 101 taste cards in four suits, each tied to a verified Qloo signal.
 
 A card is a thing you can be ("Night owl", "Country roads", "Whiskey"). Playing it is a
 statement. Behind each card is a Qloo tag or audience that returns real artists, checked
@@ -7,8 +7,10 @@ noise were parked, not faked.
 
 Suits: Stage (what you turn up), Bar (what you order and where you sit), Road (what you do
 with a Saturday), Porch (who you are at home). Dealing: six cards, one of each suit and two
-more from anywhere, nothing this person has seen in this room; now and then the joker takes
-one of the two extra seats.
+more from anywhere, nothing this person has seen in this room.
+
+The joker (On the house, id 111) is retired: it stays in cards.json for the art and the old
+rooms, but cards() leaves it out, so it is never dealt, scored or shown.
 """
 from __future__ import annotations
 
@@ -23,18 +25,22 @@ EXTRA = 2                # beyond one of each suit
 HAND = len(SUITS) + EXTRA
 PLAYS = 3                # on the table, ranked: Most me, Also me, A bit me
 JOKER = "joker"          # On the house: no taste signal; played, the song is free if both say yes
-JOKER_CHANCE = 0.12      # a hand gets the joker as a fifth card this often
+JOKER_CHANCE = 0.0       # retired: the joker is never dealt (see the module note)
 MUSIC_CATS = {"music"}   # kept for older callers; suits do the dealing now
 
 
 @lru_cache(maxsize=1)
 def cards() -> tuple[dict, ...]:
-    return tuple(json.loads((STATIC / "cards.json").read_text(encoding="utf-8")))
+    """The playable deck: everything in cards.json but the joker."""
+    return tuple(c for c in json.loads((STATIC / "cards.json").read_text(encoding="utf-8")) if c.get("suit") != JOKER)
 
 
 @lru_cache(maxsize=None)
 def card(cid: int) -> dict:
     for c in cards():
+        if c["id"] == cid:
+            return c
+    for c in json.loads((STATIC / "cards.json").read_text(encoding="utf-8")):   # a retired card in an old room
         if c["id"] == cid:
             return c
     raise KeyError(f"no card {cid}")
