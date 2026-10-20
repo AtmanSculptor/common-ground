@@ -272,7 +272,7 @@ def test_swapping_all_four_keeps_one_of_each_suit_and_the_mark_rides_with_the_ro
     assert len(new) == 4 and not set(new) & set(hand)
     assert sorted(deck.card(c)["suit"] for c in new) == sorted(deck.SUITS)
     st = _st(client, code, "guest")
-    assert st["sides"]["host"]["icon"] == 2 and st["sides"]["guest"]["icon"] == 3     # 7 wraps to 3
+    assert st["sides"]["host"]["icon"] == 2 and st["sides"]["guest"]["icon"] == 7
     assert client.get("/api/profile?name=Nobody+Yet").json()["games"] == 0
 
 
@@ -308,3 +308,28 @@ def test_the_reveal_comes_with_words_and_the_pull(client, monkeypatch):
     assert ("Close:" in words) == (c["close"] > 0) and ("Different:" in words) == (c["apart"] > 0)
     assert c["same"] + c["close"] + c["apart"] == 3
     assert rv["pull"] is None or ({"host", "guest", "agreement"} <= set(rv["pull"]))
+
+
+def test_the_room_tonight_queue_and_invites(client, monkeypatch):
+    from common_ground import venue as venue_mod
+    snap = client.get("/api/venue?me=Brent").json()
+    assert snap["name"] and len(snap["people"]) >= 7 and all(p["house"] for p in snap["people"])
+    # a second human presses Play the next person: the two are paired, host first
+    assert client.post("/api/venue/next", json={"name": "Brent", "icon": 0}).json()["status"] == "waiting"
+    r = client.post("/api/venue/next", json={"name": "Josie", "icon": 1}).json()
+    assert r["status"] == "matched" and r["who"] == "guest"
+    me = client.post("/api/venue/here", json={"name": "Brent", "icon": 0}).json()
+    assert me["status"] == "matched" and me["who"] == "host" and me["code"] == r["code"]
+    # alone, the house sits in after the wait
+    monkeypatch.setattr(venue_mod, "QUEUE_WAIT", 0.0)
+    assert client.post("/api/venue/next", json={"name": "Lonely", "icon": 0}).json()["status"] == "waiting"
+    me = client.post("/api/venue/here", json={"name": "Lonely", "icon": 0}).json()
+    assert me["status"] == "matched" and me["who"] == "host" and me["house"]
+    # an invite to a house regular seats you at once; to a person it rings and they answer
+    assert client.post("/api/venue/invite", json={"name": "Brent", "icon": 0, "to": "Rosa"}).json()["house"] == "Rosa"
+    client.post("/api/venue/here", json={"name": "Kim", "icon": 2})
+    assert client.post("/api/venue/invite", json={"name": "Brent", "icon": 0, "to": "Kim"}).json()["status"] == "ringing"
+    assert client.post("/api/venue/here", json={"name": "Kim", "icon": 2}).json()["invite"]["from"] == "Brent"
+    a = client.post("/api/venue/answer", json={"name": "Kim", "icon": 2, "yes": True}).json()
+    assert a["status"] == "matched" and a["who"] == "guest"
+    assert client.post("/api/venue/here", json={"name": "Brent", "icon": 0}).json()["code"] == a["code"]

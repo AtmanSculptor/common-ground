@@ -48,7 +48,50 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .qfree{position:relative;display:flex;justify-content:center;align-items:flex-end;margin:0 auto;height:min(46vh,430px)}
 .qfree img{height:100%;aspect-ratio:.62;object-fit:cover;object-position:58% 50%;display:block;filter:drop-shadow(0 0 30px rgba(189,53,252,.45));-webkit-mask-image:radial-gradient(ellipse 72% 64% at 50% 46%,#000 52%,transparent 100%);mask-image:radial-gradient(ellipse 72% 64% at 50% 46%,#000 52%,transparent 100%);animation:breathe 5s ease-in-out infinite}
 .qfree .qname{position:absolute;bottom:-4px;left:0;right:0;text-align:center;font-weight:800;font-size:1rem;letter-spacing:.06em}
-.lobbyq{height:auto;margin:6px 0 2px}.lobbyq .bub{height:auto;padding-top:4px}.lobbyq .bub q{-webkit-line-clamp:4;font-size:1rem}
+/* the room tonight */
+#s-lobby.on{display:flex;flex-direction:column;gap:0;min-height:calc(100vh - 76px);min-height:calc(100dvh - 76px)}
+.rtop{display:flex;justify-content:space-between;align-items:center;height:34px;flex:none}
+.burger{width:34px;height:34px;min-width:0;padding:0;margin:0;border-radius:50%;background:var(--surface);border:0;box-shadow:none;color:var(--text2);font-size:1rem}
+.vname{text-align:center;margin:14px 0 2px;flex:none}
+.vname b{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
+.vname span{color:var(--text3);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase}
+.pulse{display:flex;justify-content:space-evenly;text-align:center;margin:8px 0 18px;flex:none}
+.pulse b{display:block;font-size:1.1rem;color:#fff;max-width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pulse span{font-size:.62rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.mecard{display:flex;align-items:center;gap:12px;padding:8px 12px 8px 8px;border-radius:18px;background:rgba(138,43,226,.08);border:1px solid rgba(189,53,252,.3);margin:0 0 18px;cursor:pointer;flex:none;position:relative}
+.mecard .mtext{flex:1 1 0;min-width:0}.mecard .mnm{font-weight:800;font-size:1.05rem}.mecard .mst{color:var(--text3);font-size:.74rem;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mecard .edit{width:22px;height:22px;border-radius:50%;background:var(--gold);color:#000;font-size:12px;font-weight:800;display:grid;place-items:center;flex:none}
+.pic{display:inline-block;width:48px;height:48px;border-radius:50%;flex:none;background:#000;border:2px solid rgba(189,53,252,.5);overflow:hidden;position:relative}
+.pic img{width:100%;height:100%;object-fit:cover;display:block}
+.pic.big{width:64px;height:64px}
+.pic.l1{border-color:var(--aura)}.pic.l2{border-color:var(--gold)}.pic.l3{border-color:var(--gold);box-shadow:0 0 12px rgba(255,199,0,.55)}
+#s-lobby .lobbyq{margin:0 0 18px;flex:none}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 6px;flex:none}
+.sec h4{margin:0;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}.sec span{color:var(--text3);font-size:.74rem}
+.roomlist{flex:1 1 0;min-height:120px;border-radius:18px;border:1px solid rgba(189,53,252,.3);background:rgba(0,0,0,.35);padding:6px 10px;display:flex;flex-direction:column;gap:0;overflow-y:auto;scrollbar-width:none}
+.pline{display:flex;align-items:center;gap:10px;padding:5px 2px;min-height:56px}
+.pline.dim{color:var(--text3);font-size:.85rem;justify-content:center}
+.pline .pt{flex:1 1 0;min-width:0}.pline .nm{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}.pline .st{display:block;color:var(--text3);font-size:.72rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:.56rem;color:var(--gold);border:1px solid rgba(255,199,0,.5);border-radius:999px;padding:1px 6px;font-weight:700;letter-spacing:.04em;flex:none}
+.dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;flex:none}.dot.busy{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.pline button{margin:0;height:32px;padding:0 14px;font-size:.8rem;flex:none;box-shadow:none}
+.pline button.ghost{opacity:.8}
+.morel{display:flex;justify-content:space-between;color:var(--text3);font-size:.78rem;padding:8px 2px 2px;margin-top:auto}.morel u{text-decoration:none;color:var(--text2);cursor:pointer}
+.bigbtn{height:54px;margin:16px 0 10px;flex:none;flex-direction:column;gap:3px;line-height:1.05;font-size:1.05rem;font-weight:800;width:100%;max-width:none}
+.bigbtn small{font-weight:600;font-size:.68rem;opacity:.75;letter-spacing:0}
+.bigbtn.waiting{animation:pulse 1.4s ease-in-out infinite}
+#s-lobby .duo{margin:0;flex:none}#s-lobby .duo button{height:38px;font-size:.84rem;flex-direction:row}
+.dimmer{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:20}
+.sheet{position:absolute;left:12px;right:12px;bottom:14px;z-index:21;border-radius:22px;background:rgba(13,7,20,.98);border:1px solid rgba(189,53,252,.5);box-shadow:0 -10px 40px rgba(0,0,0,.8);padding:14px}
+.sheet h4{margin:0 0 10px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+.sheet input{margin:12px 0 10px}.sheet>button{width:100%;margin:0}
+.picgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px 8px}
+.picgrid .pic{width:62px;height:62px;margin:0 auto;display:block;cursor:pointer;border-width:2px}
+.picgrid .pic.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(255,199,0,.5)}
+.picgrid .pic.lock img{filter:grayscale(1) brightness(.35)}
+.picgrid .pic.lock::after{content:attr(data-lock);position:absolute;left:0;right:0;bottom:4px;font-size:.5rem;text-align:center;color:var(--text2);font-weight:700}
+.menu{display:flex;flex-direction:column;gap:8px}.menu button{margin:0;width:100%}
+.howp{font-size:.92rem;line-height:1.35;color:var(--text2);margin:0 0 12px}
+.lobbyq{height:auto;margin:6px 0 2px}.lobbyq .bub{height:auto;padding-top:4px}.lobbyq .bub q{-webkit-line-clamp:4;font-size:.95rem}
 .qface.big{width:54px;height:54px}
 .you{display:flex;align-items:center;gap:10px;margin-top:8px}
 .you input{margin:0;flex:1 1 0;min-width:0;padding:11px 12px}
@@ -130,8 +173,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .ava.l2 svg{fill:#d9a4ff}
 .ava.l3{border-color:var(--gold);box-shadow:0 0 12px rgba(255,199,0,.6);background:radial-gradient(circle at 35% 30%,#5a3d00,#0d0515)}
 .ava.l3 svg{fill:var(--gold)}
-.pl.me .ava{border-color:var(--gold)}
-.pl.me .ava svg{fill:var(--gold)}
+.pl .pic{width:44px;height:44px}
 .ava.sm{width:26px;height:26px}.ava.sm svg{width:17px;height:17px;margin-top:3px}
 .names .ava{vertical-align:middle;margin:0 4px 0 0}
 /* Q-Lou: his face, his name, his words in quotes. The box is sized for three lines and never grows. */
@@ -331,7 +373,8 @@ details[open] summary::after{content:"–"}
   #screens{display:flex;flex-direction:column}
   .top{flex:none}
   #s-lobby.on,#s-join.on,#s-lobbywait.on{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
-  #s-lobby .qfree,#s-lobbywait .qfree{flex:1 1 0;min-height:90px;height:auto;margin:0 auto 4px}
+  #s-lobbywait .qfree{flex:1 1 0;min-height:90px;height:auto;margin:0 auto 4px}
+  #s-lobby.on{position:absolute;inset:0;padding:14px 16px 16px;overflow:hidden}
   #s-lobbywait .sub,#s-lobbywait .wait{margin:4px 0}
   #s-lobbywait .code{font-size:2.8rem;margin:4px 0}
 
@@ -385,20 +428,28 @@ details[open] summary::after{content:"–"}
 </aside>
 <aside class="hud" id="hudL"><h3>What Q-Lou is doing</h3><div id="hudLog"><div class="ln dim"><span class="k">ledger</span><span>Start a game. Every card, the Qloo signal behind it, every call and every number lands here as it happens.</span></div></div></aside>
 <div id="phone"><div id="screens">
-<div class="top"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
+<div class="top" style="display:none"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
 
 <section class="screen on" id="s-lobby">
-  <div class="qfree"><img src="static/deck/qlou.jpg" alt=""></div>
-  <div class="qrow lobbyq"><div class="qface big"></div><div class="bub"><b>Q-Lou</b><q>Two people. Four cards each. One song you'd both put on.</q></div></div>
-  <p class="venueLine" id="lobbyVenue"></p>
-  <div class="you"><button class="avabtn" id="myAva" onclick="cycleIcon()" title="Pick your mark"></button><input id="name" placeholder="Your nickname" maxlength="24" oninput="nameTyped()"><span class="pill lv" id="myLevel">First time here</span></div>
-  <div class="duo" id="duo1"><button id="btnSolo" onclick="newGame(true)">Solo<small>a house partner, now</small></button><button id="btnDual" class="ghost" onclick="dual(true)">Dual<small>two phones, one code</small></button></div>
-  <div class="duo" id="duo2" style="display:none"><button id="btnStart" onclick="newGame(false)">Start<small>get a room code</small></button><button id="btnJoin" onclick="goJoin()">Join<small>enter a code</small></button></div>
-  <p class="backlink" id="dualBack" style="display:none" onclick="dual(false)">‹ back</p>
+  <div class="rtop"><button class="burger" onclick="menu(true)" aria-label="Menu">☰</button><span class="pill">Our Song</span><span class="pill credits"><span id="tokN0">10</span><svg class="coin"><use href="#coin"/></svg></span></div>
+  <div class="vname"><span>Tonight at</span><b id="vName">The bar</b></div>
+  <div class="pulse"><div><b id="pHere">0</b><span>here</span></div><div><b id="pSongs">0</b><span>songs tonight</span></div><div><b id="pLast">—</b><span id="pLastLab">last played</span></div></div>
+  <div class="mecard" onclick="sheet(true)"><span class="pic big" id="myAva"></span><div class="mtext"><div class="mnm" id="myName">Who are you?</div><div class="mst" id="myLevel">Tap to say your name and pick a picture</div></div><span class="edit">✎</span></div>
+  <div class="qrow lobbyq"><div class="qface big"></div><div class="bub"><b>Q-Lou</b><q>Two of you, four cards each. I find the one song you'd both put on, and it plays here.</q></div></div>
+  <div class="sec"><h4>Here tonight</h4><span id="hereLine"></span></div>
+  <div class="roomlist" id="roomList"><div class="pline dim">Looking around…</div></div>
+  <button class="bigbtn" id="btnNext" onclick="playNext()">Play the next person<small id="nextSub">someone here you haven't played</small></button>
+  <div class="duo"><button id="btnJoin" class="ghost" onclick="goJoin()">Join with a code</button><button id="btnStart" class="ghost" onclick="newGame(false)">Start a table</button></div>
+  <button id="btnSolo" style="display:none" onclick="newGame(true)">Solo</button><button id="btnDual" style="display:none"></button>
+  <div class="dimmer" id="dimmer" style="display:none" onclick="sheet(false);menu(false);ringOff()"></div>
+  <div class="sheet" id="profSheet" style="display:none"><h4>Your profile at this bar</h4><div class="picgrid" id="picGrid"></div><input id="name" placeholder="Your nickname" maxlength="24" oninput="nameTyped()"><button onclick="sheet(false)">That's me</button></div>
+  <div class="sheet" id="menuSheet" style="display:none"><h4>Our Song</h4><div class="menu"><button class="ghost" onclick="menu(false);howBox()">How it works</button><button class="ghost" onclick="menu(false);watchBar()">Watch the bar screen</button><button class="ghost" onclick="leaveNow()">Leave the bar</button></div></div>
+  <div class="sheet" id="ringSheet" style="display:none"><h4>Someone wants to play</h4><div class="pline" id="ringLine"></div><div class="duo"><button onclick="answerInvite(true)">Let's play</button><button class="ghost" onclick="answerInvite(false)">Not now</button></div></div>
+  <div class="sheet" id="howSheet" style="display:none"><h4>How it works</h4><p class="howp">Two people at this bar, four cards each, one of each suit. Swap any that aren't you. Three rounds, one card each: most you, also you, a bit you. Both cards turn over together. Then Q-Lou finds the one song you'd both put on, on Qloo's numbers, and it plays here if you both say yes. Two tokens each.</p><button class="ghost" onclick="howBox(false)">Close</button></div>
 </section>
 
 <section class="screen" id="s-join">
-  <h1>Join a challenge</h1>
+  <h1>Join a table</h1>
   <input id="joinName" placeholder="Your nickname" maxlength="24">
   <input id="joinCode" placeholder="Room code" maxlength="4" style="text-transform:uppercase;letter-spacing:.2em">
   <button onclick="joinGame()">Let's go</button>
@@ -482,14 +533,46 @@ let sayQueue=[],saying=false,sayTimer=null,sticky=false;
 // the table's own state, reset by resetTable() whenever a room starts
 let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false,interludeAt=0,fanKey="",lastFlipAt=0,avaKey="",revealStep=0,songHoldUntil=0,songLeaving=false;
 const ALL_CARDS={};
-const MARKS=["bust","mk-hat","mk-phones","mk-star"];let myIcon=0,nameTimer=null;
-function levelName(pr){const g=pr&&pr.games||0,l=pr&&pr.level||0;return l>=3?`Legend · ${g} games`:l>=2?`Local · ${g} games`:l>=1?`Regular · ${g} game${g===1?"":"s"}`:"First time here"}
-function renderMyAva(pr){const l=pr&&pr.level||0;$("myAva").innerHTML=`<span class="ava l${l}"><svg><use href="#${MARKS[myIcon]}"/></svg></span>`;const lv=$("myLevel");lv.textContent=levelName(pr);lv.className="pill lv l"+l;lv.style.display=l?"":"none"}
-function cycleIcon(){myIcon=(myIcon+1)%MARKS.length;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6)}
-let lastProfile=null;
-function nameTyped(){clearTimeout(nameTimer);const n=$("name").value.trim();if(!n){lastProfile=null;renderMyAva(null);return}
-  nameTimer=setTimeout(()=>fetch("api/profile?name="+encodeURIComponent(n)).then(r=>r.json()).then(pr=>{if($("name").value.trim()===n){lastProfile=pr;renderMyAva(pr)}}).catch(()=>{}),380)}
-renderMyAva(null);
+// the pictures a player can pick: file, name, nights needed. The first six are open to everyone.
+const PICS=[["00_pint","Pint",0],["01_cocktail","Cocktail",0],["02_headphones","Headphones",0],["03_vinyl","Vinyl",0],["12_ukulele","Ukulele",0],["15_drum","Drum",0],["04_hat","Hat",5],["05_helmet","Helmet",10],["13_violin","Violin",10],["14_banjo","Banjo",25],["06_dogbowl","Dog bowl",25],["16_trumpet","Trumpet",50],["07_guitar","Guitar",50],["08_jukebox","Jukebox",100],["17_flute","Flute",100],["09_mic","Microphone",200],["10_crown","Crown",500],["11_qcoin","Q-Lou's coin",500]];
+const TITLES=[[500,"Patron Saint"],[200,"Landmark"],[100,"Icon"],[50,"Legend"],[25,"Veteran"],[10,"Fixture"],[5,"Local"],[1,"Regular"]];
+function titleFor(n){const t=TITLES.find(x=>n>=x[0]);return t?t[1]:""}
+function ringFor(n){return n>=50?3:n>=10?2:n>=1?1:0}
+let myIcon=0,nameTimer=null,lastProfile=null,venueTimer=null,hereTimer=null,queueing=false,ringing=null;
+const picSrc=i=>`static/pics/${(PICS[i%PICS.length]||PICS[0])[0]}.jpg`;
+function picHTML(i,nights,big){return `<span class="pic l${ringFor(nights||0)}${big?" big":""}"><img src="${picSrc(i)}" alt=""></span>`}
+function myNameV(){return $("name").value.trim()}
+function renderMyAva(pr){const g=pr&&pr.games||0;$("myAva").innerHTML=picHTML(myIcon,g,true);const n=myNameV();$("myName").textContent=n||"Who are you?";
+  $("myLevel").textContent=n?(g?`${titleFor(g)} · ${g} night${g===1?"":"s"}${pr.tonight?" · "+pr.tonight+" tonight":""}${pr.cards&&pr.cards.length?" · "+pr.cards.slice(0,3).join(", "):""}`:"First night here"):"Tap to say your name and pick a picture";
+  renderPicGrid(g);$("btnNext").disabled=!n}
+function renderPicGrid(g){$("picGrid").innerHTML=PICS.map((p,i)=>`<span class="pic ${i===myIcon?"sel":""} ${p[2]>g?"lock":""}" data-lock="${p[2]} nights" title="${p[1]}" onclick="pickPic(${i})"><img src="static/pics/${p[0]}.jpg" alt=""></span>`).join("")}
+function pickPic(i){const g=lastProfile&&lastProfile.games||0;if(PICS[i][2]>g){if(navigator.vibrate)navigator.vibrate([10,30,10]);return}myIcon=i;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6);heartbeat()}
+function nameTyped(){clearTimeout(nameTimer);const n=myNameV();if(!n){lastProfile=null;renderMyAva(null);return}renderMyAva(lastProfile&&lastProfile._n===n?lastProfile:null);
+  nameTimer=setTimeout(()=>fetch("api/profile?name="+encodeURIComponent(n)).then(r=>r.json()).then(pr=>{if(myNameV()===n){pr._n=n;lastProfile=pr;if(pr.icon!=null)myIcon=pr.icon;renderMyAva(pr);heartbeat()}}).catch(()=>{}),380)}
+function sheet(on){$("profSheet").style.display=on?"":"none";$("dimmer").style.display=on?"":"none";if(on){renderPicGrid(lastProfile&&lastProfile.games||0);setTimeout(()=>{if(!myNameV())$("name").focus()},50)}else heartbeat()}
+function menu(on){$("menuSheet").style.display=on?"":"none";$("dimmer").style.display=on?"":"none"}
+function howBox(on){const o=on!==false;$("howSheet").style.display=o?"":"none";$("dimmer").style.display=o?"":"none"}
+function watchBar(){try{window.open("screen","_blank")}catch(e){}}
+// the room: who is here, the pulse; every few seconds while the entry screen is up
+async function loadVenue(){if(!$("s-lobby").classList.contains("on"))return;try{const v=await (await fetch("api/venue?me="+encodeURIComponent(myNameV())+"&_="+Date.now())).json();
+  $("vName").textContent=v.name||"The bar";$("pHere").textContent=v.here;$("pSongs").textContent=v.songs_tonight;$("pLast").textContent=v.last_played||"—";$("hereLine").textContent=`${v.here} at the bar · ${v.playing} playing`;
+  const rows=v.people.slice(0,6).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} nights`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
+  $("roomList").innerHTML=rows+`<div class="morel"><span>${v.people.length>6?"+ "+(v.people.length-6)+" more":""}</span><u onclick="watchBar()">Watch the bar screen ›</u></div>`}catch(e){}}
+async function heartbeat(){const n=myNameV();if(!n||!$("s-lobby").classList.contains("on"))return;try{const r=await (await fetch("api/venue/here",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();handleMatch(r)}catch(e){}}
+function handleMatch(r){if(!r)return;if(r.status==="matched"&&r.code){queueing=false;code=r.code;who=r.who;remember();startPoll();return}
+  if(r.invite&&!ringing){ringing=r.invite;$("ringLine").innerHTML=`${picHTML(r.invite.icon,0)}<div class="pt"><div class="nm">${esc(r.invite.from)}</div><span class="st">wants to play a song with you</span></div>`;$("ringSheet").style.display="";$("dimmer").style.display=""}
+  if(!r.invite&&ringing){ringOff()}}
+function ringOff(){ringing=null;$("ringSheet").style.display="none";if($("profSheet").style.display==="none"&&$("menuSheet").style.display==="none")$("dimmer").style.display="none"}
+async function answerInvite(yes){const inv=ringing;ringOff();try{const r=await (await fetch("api/venue/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:myNameV(),icon:myIcon,yes})})).json();handleMatch(r)}catch(e){}}
+async function playNext(){const n=myNameV();if(!n){sheet(true);return}const b=$("btnNext");
+  if(queueing){queueing=false;b.classList.remove("waiting");b.firstChild.textContent="Play the next person";$("nextSub").textContent="someone here you haven't played";fetch("api/venue/leave",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n})}).catch(()=>{});return}
+  try{const r=await (await fetch("api/venue/next",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();
+    if(r.status==="matched"){handleMatch(r);return}queueing=true;b.classList.add("waiting");b.firstChild.textContent="Finding you someone…";$("nextSub").textContent="tap again to stop"}catch(e){alert(e.message)}}
+async function invite(to,btn){const n=myNameV();if(!n){sheet(true);return}btn.disabled=true;btn.textContent="Ringing…";
+  try{const r=await (await fetch("api/venue/invite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon,to})})).json();
+    if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite"},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
+function startVenue(){clearInterval(venueTimer);clearInterval(hereTimer);loadVenue();venueTimer=setInterval(loadVenue,4000);hereTimer=setInterval(heartbeat,queueing?2500:2500)}
+startVenue();renderMyAva(null);
 function qlouSay(text,hold){if(!text)return;sayQueue.push({text,hold:hold==null?3200:hold});if(!saying||sticky)nextSay()}
 function nextSay(){const n=sayQueue.shift();clearTimeout(sayTimer);sticky=false;if(!n){saying=false;return}saying=true;const el=$("qsay");
   if(el.textContent){el.classList.add("fade");setTimeout(()=>{el.textContent=n.text;el.classList.remove("fade")},360)}else{el.textContent=n.text}
@@ -500,7 +583,7 @@ function fitTable(){const T=$("s-table");if(!T.classList.contains("on"))return;
   const W=T.clientWidth-24;const fixed=34+$("players").offsetHeight+$("stage").offsetHeight+20+40+8+8+24+12+12+1+5*8;
   const H=T.clientHeight-16-fixed;const byW=Math.floor((W-3*8)/4),byH=Math.floor(H/3/1.5);
   const cw=Math.max(54,Math.min(byW,byH,118));T.style.setProperty("--cw",cw+"px");T.style.setProperty("--sw",cw+"px");T.classList.toggle("tight",cw<74)}
-function avatarHTML(side,small){const lv=side&&side.profile?side.profile.level:0;const g=side&&side.profile?side.profile.games:0;const ic=MARKS[(side&&side.icon||0)%MARKS.length];return `<span class="ava l${lv}${small?" sm":""}" title="${g} game${g===1?"":"s"} here"><svg><use href="#${ic}"/></svg></span>`}
+function avatarHTML(side,small){const g=side&&side.profile?side.profile.games:0;return `<span class="pic l${ringFor(g)}" title="${g} night${g===1?"":"s"} here"><img src="${picSrc(side&&side.icon||0)}" alt=""></span>`}
 // cards fly from Q-Lou's face, face down, and turn over one at a time once they have all landed: the deal, and the swaps
 function dealIn(ids,turn){const from=$("qface").getBoundingClientRect();const els=[...$("fan").querySelectorAll(".fcard")].filter(el=>!ids||ids.includes(+el.dataset.id));const flight=840,step=170;
   els.forEach((el,i)=>{el.style.visibility="hidden";if(turn)el.classList.add("facedown");setTimeout(()=>{const to=el.getBoundingClientRect();const f=document.createElement("div");f.className="flyer back";f.style.left=(from.left+from.width/2-to.width/2)+"px";f.style.top=(from.top+from.height/2-to.height/2)+"px";f.style.width=to.width+"px";f.style.height=to.height+"px";f.style.transform="scale(.3)";document.body.appendChild(f);
@@ -527,7 +610,7 @@ setTimeout(()=>{try{const m=/^#([A-Z]{4})\/(host|guest)$/.exec(location.hash||""
   try{if(!code){const s=JSON.parse(localStorage.getItem("oursong")||"null");if(s&&s.code){code=s.code;who=s.who;startPoll()}}}catch(e){}},0);
 try{const j=new URLSearchParams(location.search).get("join");if(j&&!code){$("joinCode").value=j.toUpperCase();show("join")}}catch(e){}
 function toTop(){try{window.scrollTo(0,0)}catch(e){}try{$("screens").scrollTop=0}catch(e){}}
-function show(id){const was=document.querySelector(".screen.on");document.body.classList.toggle("tablemode",id==="table");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");toTop();if(id==="table")setTimeout(fitTable,0)}
+function show(id){const was=document.querySelector(".screen.on");document.body.classList.toggle("tablemode",id==="table");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");toTop();if(id==="table")setTimeout(fitTable,0);document.querySelector(".top").style.display=id==="lobby"?"none":"";if(id==="lobby")startVenue();else{clearInterval(venueTimer);clearInterval(hereTimer)}}
 function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
   return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)throw new Error("Easy there, slow down a second.");if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
 function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){try{location.hash=code+"/"+who}catch(e2){}}try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
@@ -537,6 +620,7 @@ function leave(){const b=$("leaveBtn");if(Date.now()-leaveArmed<3500){leaveNow()
 function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}try{localStorage.removeItem("oursong")}catch(e){}}
 function dual(on){$("duo1").style.display=on?"none":"";$("duo2").style.display=on?"":"none";$("dualBack").style.display=on?"":"none"}
 function goJoin(){$("joinName").value=$("name").value;show("join")}
+function dual(){}
 async function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house,icon:myIcon});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){alert(e.message)}}
 async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name,icon:myIcon});code=r.code;who="guest";remember();startPoll()}catch(e){alert(e.message)}}
 function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;u.hash="";return u.toString()}catch(e){return code}}
@@ -545,12 +629,11 @@ function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
 function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";revealStep=0;songHoldUntil=0;songLeaving=false;$("songArea").className="songarea";$("qsay").textContent="";$("voteRow").style.display="";$("doneRow").style.display="none";$("bet").innerHTML="";qlouClear()}
-async function poll(){try{state=await api(code);render()}catch(e){if(/no such room/.test(e.message)){leaveNow()}}}
+async function poll(){let st;try{st=await api(code)}catch(e){if(/no such room/.test(e.message))leaveNow();return}state=st;try{render()}catch(e){console.error("render",e)}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
 function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
-  $("roomPill").textContent="Room "+s.code;$("tRoom").textContent="Room "+s.code;$("tokN").textContent=me.tokens;$("tTok").textContent=me.tokens;
-  $("lobbyVenue").textContent=s.venue&&s.venue.name?`Tonight at ${s.venue.name}`:"";
+  $("roomPill").textContent="Room "+s.code;$("tRoom").textContent="Room "+s.code;$("tokN").textContent=me.tokens;$("tTok").textContent=me.tokens;$("tokN0").textContent=me.tokens;
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   try{renderHud(s,me,other)}catch(e){}
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
@@ -736,7 +819,7 @@ function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&
     $("betVerdict").textContent=played?"Both said yes":"Three picks, nobody charged";const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
     const o=(s.offers||[]).find(x=>x.status==="played")||(s.offers||[])[(s.offers||[]).length-1]||{};const sn=o.said_no||[];const lab=k=>sn.includes(k)?"said no":"said yes";
     setStatus(lab(theirKey()),lab(who),sn.includes(theirKey())?"no":"yes",sn.includes(who)?"no":"yes");
-    const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return g===1?"first night":`${g} nights`};
+    const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return (g===1?"first night":`${g} nights`)+(titleFor(g)?" · "+titleFor(g):"")};
     const fav=sd=>{const c=sd.profile&&sd.profile.cards||[];return c.length?c.slice(0,3).join(", "):(r.plays&&r.plays[sd.name]||[]).slice(0,3).join(", ")};
     const tg=r.together||{nights:0,songs:0};const tn=tg.nights,ts=tg.songs;const pair=tn<=1?`<b>You and ${esc(ot.name)}</b> · first night together`:`<b>You and ${esc(ot.name)}</b> · ${tn} nights · ${ts} song${ts===1?"":"s"} together`;
     $("endLog").innerHTML=`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}

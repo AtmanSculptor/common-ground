@@ -69,6 +69,35 @@ def together(a: str, b: str) -> dict:
     return {"nights": nights, "songs": songs}
 
 
+VENUE_NAME = os.environ.get("CG_VENUE", "The Rusty Nail Bar")
+
+
+def venue_name() -> str:
+    return VENUE_NAME
+
+
+def _day_start(now: float | None = None) -> float:
+    """Tonight starts at 6 AM local (a bar night runs past midnight)."""
+    t = time.localtime(now or time.time())
+    secs = t.tm_hour * 3600 + t.tm_min * 60 + t.tm_sec
+    start = (now or time.time()) - secs + 6 * 3600
+    return start if start <= (now or time.time()) else start - 86400
+
+
+def tonight() -> dict:
+    """The bar's pulse: songs that played tonight and the last one."""
+    start = _day_start()
+    songs = 0
+    last = ""
+    for r in rows(500):
+        if (r.get("t") or 0) < start:
+            continue
+        if r.get("played"):
+            songs += 1
+            last = r.get("artist") or last
+    return {"songs": songs, "last": last}
+
+
 def profile(name: str) -> dict:
     """What this venue knows about a nickname: games, songs that played, the level. No account, no
     login: the nickname at this bar is the identity (in a jukebox app it would be the app's account).
@@ -78,8 +107,9 @@ def profile(name: str) -> dict:
     hit = _profiles.get(key)
     if hit and now - hit[0] < 60:
         return hit[1]
-    games = songs = 0
+    games = songs = tonight_n = 0
     cards: Counter = Counter()
+    start = _day_start()
     if key:
         for r in rows(2000):
             plays = r.get("plays") or {}
@@ -89,8 +119,10 @@ def profile(name: str) -> dict:
                 cards.update(c for c in mine if c)
                 if r.get("played"):
                     songs += 1
+                if (r.get("t") or 0) >= start:
+                    tonight_n += 1
     level = next((lv for n, lv in LEVELS if games >= n), 0)
-    out = {"games": games, "songs": songs, "level": level, "cards": [c for c, _ in cards.most_common(3)]}
+    out = {"games": games, "songs": songs, "level": level, "tonight": tonight_n, "cards": [c for c, _ in cards.most_common(3)]}
     _profiles[key] = (now, out)
     return out
 

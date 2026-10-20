@@ -40,13 +40,13 @@ EXCLUDE_IDS = {A + "lifestyle_preferences_beliefs:christianity", A + "lifestyle_
 # The house: strangers with real Qloo profiles for the demo. Q-Lou seats you with one; they pick
 # their cards and say yes on a human clock (see rooms.HOUSE_LOCK_PAUSE).
 HOUSE = [
-    {"name": "Rosa", "profile": [A + "leisure:coffee", A + "leisure:music_festivals", A + "global_issues:climate_activism"]},
-    {"name": "Hank", "profile": [A + "hobbies_and_interests:fishing", A + "hobbies_and_interests:automotive", A + "spending_habits:discount_shoppers"]},
-    {"name": "Dee", "profile": [A + "hobbies_and_interests:running", A + "leisure:avid_reader", A + "life_stage:parents_with_young_children"]},
-    {"name": "Marcus", "profile": [A + "hobbies_and_interests:video_gamer", A + "leisure:foodie", A + "hobbies_and_interests:basketball"]},
-    {"name": "June", "profile": [A + "life_stage:retirement", A + "hobbies_and_interests:travel", A + "leisure:museums"]},
-    {"name": "Tasha", "profile": [A + "leisure:foodie", A + "hobbies_and_interests:yoga", A + "leisure:cinephile"]},
-    {"name": "Luis", "profile": [A + "hobbies_and_interests:soccer", A + "leisure:music_festivals", A + "life_stage:parents_with_young_children"]},
+    {"name": "Rosa", "nights": 12, "icon": 1, "profile": [A + "leisure:coffee", A + "leisure:music_festivals", A + "global_issues:climate_activism"]},
+    {"name": "Hank", "nights": 31, "icon": 4, "profile": [A + "hobbies_and_interests:fishing", A + "hobbies_and_interests:automotive", A + "spending_habits:discount_shoppers"]},
+    {"name": "Dee", "nights": 4, "icon": 2, "profile": [A + "hobbies_and_interests:running", A + "leisure:avid_reader", A + "life_stage:parents_with_young_children"]},
+    {"name": "Marcus", "nights": 6, "icon": 5, "profile": [A + "hobbies_and_interests:video_gamer", A + "leisure:foodie", A + "hobbies_and_interests:basketball"]},
+    {"name": "June", "nights": 0, "icon": 3, "profile": [A + "life_stage:retirement", A + "hobbies_and_interests:travel", A + "leisure:museums"]},
+    {"name": "Tasha", "nights": 58, "icon": 12, "profile": [A + "leisure:foodie", A + "hobbies_and_interests:yoga", A + "leisure:cinephile"]},
+    {"name": "Luis", "nights": 110, "icon": 7, "profile": [A + "hobbies_and_interests:soccer", A + "leisure:music_festivals", A + "life_stage:parents_with_young_children"]},
 ]
 
 _SIM: dict[str, dict[str, float]] = {}

@@ -494,20 +494,21 @@ class Rooms:
         except Exception:
             pass
 
-    def create(self, host_name: str, house: bool = False, icon: int = 0) -> Room:
+    def create(self, host_name: str, house: bool = False, icon: int = 0, house_name: str | None = None, avoid: set[str] | None = None) -> Room:
         with self.lock:
             code = make_code(self.rng)
             while code in self.rooms:
                 code = make_code(self.rng)
             r = Room(code)
             r.sides["host"].name, r.sides["host"].joined = host_name, True
-            r.sides["host"].icon = int(icon) % 4
+            r.sides["host"].icon = int(icon) % 64
             if house:
-                h = self.rng.choice(quiz.HOUSE)
+                pool = [h for h in quiz.HOUSE if h["name"] == house_name] if house_name else [h for h in quiz.HOUSE if h["name"].lower() not in (avoid or set())] or list(quiz.HOUSE)
+                h = self.rng.choice(pool)
                 g = r.sides["guest"]
                 g.name, g.joined, g.house = h["name"], True, True
                 g.quiz = quiz.Quiz.preset(h["profile"])      # the house keeps a taste profile; it drives which cards it plays
-                g.icon = (sum(map(ord, h["name"])) % 3) + 1   # a house regular has its own mark
+                g.icon = h.get("icon", (sum(map(ord, h["name"])) % 6) + 4)   # a house regular has its own picture
                 r.log.append(f"Q-Lou seats you with {h['name']}")
                 r.deal(self.rng)
             self.rooms[code] = r
@@ -522,7 +523,7 @@ class Rooms:
         if not r or r.sides["guest"].joined:
             return None
         r.sides["guest"].name, r.sides["guest"].joined = name, True
-        r.sides["guest"].icon = int(icon) % 4
+        r.sides["guest"].icon = int(icon) % 64
         with r.lock:
             if r.phase == "lobby":
                 r.deal(self.rng)

@@ -65,7 +65,7 @@ def resources() -> dict:
 REFRESH_EVERY = int(os.environ.get("CG_REFRESH_CHECK_MINUTES", "60"))   # 0 turns the keeper off
 # The venue's own line on the playing field. In a jukebox app the bar sets this (TouchTunes already
 # sells venues promotion space); here it comes from the environment. Empty name turns it off.
-VENUE = {"name": os.environ.get("CG_VENUE", "The Rusty Nail"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7"),
+VENUE = {"name": os.environ.get("CG_VENUE", "The Rusty Nail Bar"), "line": os.environ.get("CG_VENUE_LINE", "Happy hour till 7"),
          # a second slot: one line a night from the bar or a sponsor, shown while Q-Lou thinks. "|" separates lines;
          # each room gets one, the same on both phones.
          "quips": [q.strip() for q in os.environ.get("CG_VENUE_QUIPS", "Tip your bartender. She knows your song.|Kitchen's open till 10.|Trivia Thursdays. Bring the whole table.").split("|") if q.strip()]}
@@ -417,11 +417,74 @@ def _think(room: Room) -> None:
     threading.Thread(target=work, daemon=True).start()
 
 
+# ============================ the venue: the room tonight ============================
+from common_ground import venue as venue_mod
+VENUE_ROOM = venue_mod.Venue(lambda: ROOMS)
+
+
+class Here(BaseModel):
+    name: str = ""
+    icon: int = 0
+
+
+class Invite(BaseModel):
+    name: str = ""
+    icon: int = 0
+    to: str = ""
+
+
+class Answer(BaseModel):
+    name: str = ""
+    icon: int = 0
+    yes: bool = True
+
+
+@app.get("/api/venue")
+def venue_snapshot(me: str = ""):
+    return VENUE_ROOM.snapshot(me)
+
+
+@app.post("/api/venue/here")
+def venue_here(body: Here):
+    VENUE_ROOM.heartbeat(body.name, body.icon)
+    return {"ok": True, **VENUE_ROOM.poll(body.name)}
+
+
+@app.post("/api/venue/next")
+def venue_next(body: Here):
+    if not body.name.strip():
+        raise HTTPException(400, "say a name first")
+    return VENUE_ROOM.next_person(body.name, body.icon)
+
+
+@app.post("/api/venue/leave")
+def venue_leave(body: Here):
+    VENUE_ROOM.leave_queue(body.name)
+    return {"ok": True}
+
+
+@app.post("/api/venue/invite")
+def venue_invite(body: Invite):
+    if not body.name.strip() or not body.to.strip():
+        raise HTTPException(400, "who?")
+    return VENUE_ROOM.invite(body.name, body.icon, body.to)
+
+
+@app.post("/api/venue/answer")
+def venue_answer(body: Answer):
+    return VENUE_ROOM.answer(body.name, body.icon, body.yes)
+
+
 @app.get("/api/profile")
 def profile_lookup(name: str = ""):
     """The venue log for a nickname: games, songs, level. The lobby shows it beside the name as you type."""
     name = (name or "").strip()[:24]
-    return stats.profile(name) if name else {"games": 0, "songs": 0, "level": 0}
+    out = dict(stats.profile(name)) if name else {"games": 0, "songs": 0, "level": 0, "tonight": 0, "cards": []}
+    out["title"] = venue_mod.title_for(out.get("games", 0))
+    pic = VENUE_ROOM.pic_for(name) if name else None
+    if pic is not None:
+        out["icon"] = pic
+    return out
 
 
 @app.post("/api/game/new")
