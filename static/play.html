@@ -38,7 +38,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .meter{height:12px;background:var(--surface2);border-radius:999px;overflow:hidden;margin:6px 0 2px}
 .meter i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--aura),var(--gold),var(--aura));background-size:200% 100%;transition:width 1.8s cubic-bezier(.25,.75,.25,1)}
 @keyframes shimmer{0%{background-position:0 0}100%{background-position:200% 0}}
-#s-table.thinking .stage::before{animation:linepulse 4s ease-in-out infinite}
+#s-table.reveal .stage::before,#s-table.thinking .stage::before{animation:linepulse 4s ease-in-out infinite}
 @keyframes linepulse{0%,100%{opacity:.4}50%{opacity:1}}
 #s-table.thinking .qmini{animation:glow 4s ease-in-out infinite}
 #s-table.reveal .card.match{animation:goldglow 4s ease-in-out infinite}
@@ -180,7 +180,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 /* Q-Lou: his face, his name, his words in quotes. The box is sized for three lines and never grows. */
 .qrow{display:flex;align-items:flex-start;gap:10px;padding:0 2px;height:92px}
 .qface{width:46px;height:46px;border-radius:50%;flex:none;background:#000 url(static/deck/qface.jpg) center/cover;border:2px solid var(--aura);box-shadow:0 0 16px rgba(189,53,252,.55)}
-#s-table.thinking .qface{animation:glow 3s ease-in-out infinite}
+#s-table.reveal .qface,#s-table.thinking .qface{animation:glow 3s ease-in-out infinite}
 .bub{flex:1 1 0;min-width:0;height:92px;display:flex;flex-direction:column;justify-content:center;padding:2px 4px 2px 0}
 .bub b{color:var(--gold);font-weight:800;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:2px;flex:none}
 .bub q{quotes:"\201C" "\201D";font-size:.92rem;line-height:1.25;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;transition:opacity .35s}
@@ -223,9 +223,13 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.thinking .slots,#s-table.song .slots,#s-table.done .slots{visibility:hidden}
 #s-table.thinking .divider,#s-table.song .divider,#s-table.done .divider{opacity:0}
 @property --sweep{syntax:"<angle>";inherits:false;initial-value:0deg}
-#s-table.thinking .arena::after{content:"";position:absolute;inset:-2px;border-radius:22px;padding:2px;background:conic-gradient(from var(--sweep),transparent 0 62%,rgba(255,199,0,.95) 82%,rgba(189,53,252,.95) 94%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:sweep 3.4s linear infinite;pointer-events:none}
+#s-table.reveal .arena::after,#s-table.thinking .arena::after{content:"";position:absolute;inset:-2px;border-radius:22px;padding:2px;background:conic-gradient(from var(--sweep),transparent 0 62%,rgba(255,199,0,.95) 82%,rgba(189,53,252,.95) 94%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:sweep 3.4s linear infinite;pointer-events:none}
 @keyframes sweep{to{--sweep:360deg}}
 #s-table.thinking .arena{box-shadow:0 0 30px rgba(138,43,226,.25)}
+.tick{display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:var(--text2);font-size:.9rem;font-weight:600;letter-spacing:.01em}
+#s-table.thinking .tick{display:block}
+.tick i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:4px;animation:tickdot 1.2s ease-in-out infinite}.tick i:nth-child(3){animation-delay:.2s}.tick i:nth-child(4){animation-delay:.4s}
+@keyframes tickdot{0%,100%{opacity:.25;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
 .songarea{display:none;position:absolute;inset:0;z-index:4;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:6px;overflow:hidden;border-radius:20px}
 #s-table.song .songarea,#s-table.done .songarea{display:flex}
 .songarea.in{animation:rise 1s cubic-bezier(.2,.8,.2,1)}
@@ -477,6 +481,7 @@ details[open] summary::after{content:"–"}
     <div class="tile" id="tile"></div>
     <div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
     <div class="divider"></div>
+    <div class="tick" id="tick"></div>
     <div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div>
     <div class="songarea" id="songArea">
       <p class="kicker" id="betVerdict"></p>
@@ -591,8 +596,8 @@ function driftOff(done){const to=$("qface").getBoundingClientRect();const slots=
   slots.forEach((sl,i)=>{const img=sl.querySelector(".card img");const r=sl.getBoundingClientRect();
     setTimeout(()=>{sl.classList.add("gone");if(!img)return;const f=document.createElement("div");f.className="flyer drift";f.innerHTML=`<img src="${img.getAttribute("src")}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
       f.style.left=r.left+"px";f.style.top=r.top+"px";f.style.width=r.width+"px";f.style.height=r.height+"px";document.body.appendChild(f);
-      requestAnimationFrame(()=>{f.style.transform=`translate(${to.left+to.width/2-r.left-r.width/2}px,${to.top+to.height/2-r.top-r.height/2}px) scale(.18) rotate(${i%2?9:-9}deg)`;f.style.opacity="0"});setTimeout(()=>f.remove(),1500)},i*170)});
-  setTimeout(done,slots.length*170+1200)}
+      requestAnimationFrame(()=>{f.style.transform=`translate(${to.left+to.width/2-r.left-r.width/2}px,${to.top+to.height/2-r.top-r.height/2}px) scale(.18) rotate(${i%2?9:-9}deg)`;f.style.opacity="0"});setTimeout(()=>f.remove(),1500)},i*110)});
+  setTimeout(done,slots.length*110+1100)}
 
 // ---- Q-Lou's lines: static/quips.json, hand-edited; the same line on both phones for the same moment ----
 let Q=null;fetch("static/quips.json?v=7").then(r=>r.json()).then(j=>{Q=j}).catch(()=>{Q={}});
@@ -797,19 +802,16 @@ function countsLine(c){if(!c)return "";const w=["no","one","two","three"];const 
   const line=parts.join(", ");return line?line.charAt(0).toUpperCase()+line.slice(1)+".":""}
 function renderReveal(s,me,other){const pairs=s.pairs||[];
   if(pairs.length>shownPairs){flipPair(s,pairs[shownPairs],shownPairs);shownPairs++;return}
-  if(revealStep===0){if(Date.now()-lastFlipAt<3400)return;              // the third pair gets its moment first
+  if(revealStep===0){if(Date.now()-lastFlipAt<2400)return;              // the third pair gets its moment first
     revealStep=1;setMode("reveal");$("roundLabel").textContent="The reveal";setStatus("","");$("handHint").textContent="";renderSlots(s,me,other);
     const rv=s.reveal||{};qlouClear();qlouSay(q("common","cm",{meter:rv.meter!=null?rv.meter:"",counts:countsLine(rv.counts)})||`Common ground score ${rv.meter}. ${countsLine(rv.counts)}`,0);
-    songHoldUntil=Date.now()+10200;
-    setTimeout(()=>driftOff(()=>{revealStep=2;setMode("thinking");$("roundLabel").textContent="Q-Lou is thinking";saidStep=-3;qlouClear();qlouSay(holdLine(),0)}),3800);return}
+    songHoldUntil=Date.now()+5600;
+    setTimeout(()=>driftOff(()=>{revealStep=2;setMode("thinking");$("roundLabel").textContent="Q-Lou is thinking";saidStep=-3;qlouClear();qlouSay(holdLine(),0)}),2600);return}
   if(revealStep===1)return;                                                 // the line and the drift own the table
   if(s.phase==="thinking"){if(tableMode==="song"){leaveSong();return}if(songLeaving)return;if(tableMode!=="thinking"){setMode("thinking");$("roundLabel").textContent="Q-Lou is thinking"}renderThinking();return}
   if(tableMode!=="song"&&tableMode!=="done"){enterSong();if(tableMode!=="song")return}
   renderJukebox(s,me,other);
   if(s.phase==="done"&&s.result)renderDoneInPlace(s)}
-function renderThinking(){const last=state.offers&&state.offers[state.offers.length-1];
-  if(last&&last.status==="declined"){if(saidStep!==-2){saidStep=-2;const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));qlouClear();qlouSay(`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`,0)}return}
-  if(saidStep!==-3){saidStep=-3;qlouClear();qlouSay(holdLine(),0)}}
 function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&&p.played);
   if(tableMode!=="done"){setMode("done");$("roundLabel").textContent=played?"Tonight's song":"No match tonight";$("voteRow").style.display="none";$("doneRow").style.display="";$("voteMsg").textContent="";
     $("betVerdict").textContent=played?"Both said yes":"Three picks, nobody charged";const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
@@ -829,10 +831,11 @@ async function nudge(name,btn){if(nudgeBusy)return;nudgeBusy=true;document.query
   setTimeout(()=>{nudgeBusy=false;btn.style.transform="";document.querySelectorAll("#nudges button").forEach(b=>b.disabled=false)},1600)}
 function showBubble(em,where){if(!em||em.at===bubbleSeen||!(NUDGES[em.name]))return;bubbleSeen=em.at;const b=$(where||"themBubble");b.textContent=NUDGES[em.name];b.classList.remove("on");void b.offsetWidth;b.classList.add("on");if(navigator.vibrate)navigator.vibrate(8)}
 // Q-Lou's voice while he thinks; the raw steps stay under the fold on the done screen; the pick is never named here
-function renderThinking(steps){const last=state.offers&&state.offers[state.offers.length-1];
+const TICK={read:"Reading the six cards",draft:"Ranking 2,003 artists",verify:"Checking the top three with Qloo",pick:"Found one",baseline:"Scoring the control guess",pool:"Pulling artists from Qloo",score:"Scoring every artist",curve:"Weighing the two of you",compare:"Reading what you two share",why:"Writing the line",tracks:"Finding the top track"};
+function renderThinking(){const last=state.offers&&state.offers[state.offers.length-1];const steps=state.thinking||[];
+  const st=steps.length?steps[steps.length-1].step:"";$("tick").innerHTML=`<span>${TICK[st]||"Asking Qloo"}</span><i></i><i></i><i></i>`;
   if(last&&last.status==="declined"){if(saidStep!==-2){saidStep=-2;const noer=(last.said_no||[]).map(k=>k===who?"You":(state.sides[k].name||k));qlouClear();qlouSay(`${noer.join(" and ")} said no to ${last.artist.name}. ${q("backup","bk"+last.attempt)}`,0)}return}
-  for(let i=saidStep+1;i<steps.length;i++){const line=sayFor(steps[i]);if(line)qlouSay(line,3200)}
-  saidStep=steps.length-1}
+  if(saidStep!==-3){saidStep=-3;qlouClear();qlouSay(holdLine(),0)}}
 function trackHTML(t){return `<div class="track"><img src="${esc(t.art||"")}" alt=""><div class="t"><b>${esc(t.track)}</b><span>${esc(t.album||"")}${t.year?" · "+esc(t.year):""}</span></div><button class="ghost" onclick="playPreview('${esc(t.preview||"").replace(/'/g,"")}',this)">▶</button></div>`}
 function artHTML(t){return t&&t.art?`<img src="${esc(t.art)}" alt=""><div class="play" id="heroPlay">▶</div>`:`<div class="play">▶</div>`}
 function songLine(p,other){const t0=p.tracks&&p.tracks[0];const vars={artist:p.artist.name,title:t0?t0.track:p.artist.name};return p.attempt>1?q("song.again","sg"+p.attempt,vars):q("song.pick","sp",vars)}
