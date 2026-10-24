@@ -49,10 +49,10 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .qfree img{height:100%;aspect-ratio:.62;object-fit:cover;object-position:58% 50%;display:block;filter:drop-shadow(0 0 30px rgba(189,53,252,.45));-webkit-mask-image:radial-gradient(ellipse 72% 64% at 50% 46%,#000 52%,transparent 100%);mask-image:radial-gradient(ellipse 72% 64% at 50% 46%,#000 52%,transparent 100%);animation:breathe 5s ease-in-out infinite}
 .qfree .qname{position:absolute;bottom:-4px;left:0;right:0;text-align:center;font-weight:800;font-size:1rem;letter-spacing:.06em}
 /* the room tonight */
-#s-lobby.on{display:flex;flex-direction:column;gap:0;min-height:calc(100vh - 76px);min-height:calc(100dvh - 76px)}
+#s-lobby.on{display:flex;flex-direction:column;gap:0;min-height:calc(100vh - 28px);min-height:calc(100dvh - 28px);margin-bottom:-46px}
 .rtop{display:flex;justify-content:space-between;align-items:center;height:34px;flex:none}
 .burger{width:34px;height:34px;min-width:0;padding:0;margin:0;border-radius:50%;background:var(--surface);border:0;box-shadow:none;color:var(--text2);font-size:1rem}
-.vname{text-align:center;margin:14px 0 2px;flex:none}
+.vname{text-align:center;margin:14px 0 16px;flex:none}
 .vname b{display:block;font-size:1.35rem;font-weight:800;letter-spacing:-.01em}
 .vname span{color:var(--text3);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase}
 .pulse{display:flex;justify-content:space-evenly;text-align:center;margin:8px 0 18px;flex:none}
@@ -65,13 +65,14 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .pic.big{width:64px;height:64px}
 .pic.l1{border-color:var(--aura)}.pic.l2{border-color:var(--gold)}.pic.l3{border-color:var(--gold);box-shadow:0 0 12px rgba(255,199,0,.55)}
 #s-lobby .lobbyq{margin:0 0 18px;flex:none}
-.sec{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 6px;flex:none}
+.sec{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 2px;flex:none}
+#s-lobby .hint{margin:0 2px 8px;color:var(--text3);font-size:.78rem;flex:none}
 .sec h4{margin:0;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}.sec span{color:var(--text3);font-size:.74rem}
 .roomlist{flex:1 1 0;min-height:120px;border-radius:18px;border:1px solid rgba(189,53,252,.3);background:rgba(0,0,0,.35);padding:6px 10px;display:flex;flex-direction:column;gap:0;overflow-y:auto;scrollbar-width:none}
 .pline{display:flex;align-items:center;gap:10px;padding:5px 2px;min-height:56px}
 .pline.dim{color:var(--text3);font-size:.85rem;justify-content:center}
 .pline .pt{flex:1 1 0;min-width:0}.pline .nm{font-weight:700;font-size:.95rem;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden}.pline .st{display:block;color:var(--text3);font-size:.72rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag{font-size:.56rem;color:var(--gold);border:1px solid rgba(255,199,0,.5);border-radius:999px;padding:1px 6px;font-weight:700;letter-spacing:.04em;flex:none}
+.pline .tag{display:inline-block;font-size:.5rem;color:rgba(255,199,0,.7);background:none;border:1px solid rgba(255,199,0,.28);border-radius:999px;padding:1px 5px;margin:0;font-weight:600;letter-spacing:.04em;flex:none}
 .dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 8px #3ddc84;flex:none}.dot.busy{background:var(--gold);box-shadow:0 0 8px var(--gold)}
 .pline button{margin:0;height:32px;padding:0 14px;font-size:.8rem;flex:none;box-shadow:none}
 .pline button.ghost{opacity:.8}
@@ -79,7 +80,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .bigbtn{height:54px;margin:16px 0 10px;flex:none;flex-direction:column;gap:3px;line-height:1.05;font-size:1.05rem;font-weight:800;width:100%;max-width:none}
 .bigbtn small{font-weight:600;font-size:.68rem;opacity:.75;letter-spacing:0}
 .bigbtn.waiting{animation:pulse 1.4s ease-in-out infinite}
-#s-lobby .duo{margin:0;flex:none}#s-lobby .duo button{height:38px;font-size:.84rem;flex-direction:row}
+#s-lobby .duo{margin:14px 0 0;flex:none}#s-lobby .duo button{height:46px;font-size:.9rem;flex-direction:row}
 .dimmer{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:20}
 .sheet{position:absolute;left:12px;right:12px;bottom:14px;z-index:21;border-radius:22px;background:rgba(13,7,20,.98);border:1px solid rgba(189,53,252,.5);box-shadow:0 -10px 40px rgba(0,0,0,.8);padding:14px}
 .sheet h4{margin:0 0 10px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
@@ -374,7 +375,7 @@ details[open] summary::after{content:"–"}
   .top{flex:none}
   #s-lobby.on,#s-join.on,#s-lobbywait.on{display:flex;flex-direction:column;flex:1 1 0;min-height:0}
   #s-lobbywait .qfree{flex:1 1 0;min-height:90px;height:auto;margin:0 auto 4px}
-  #s-lobby.on{position:absolute;inset:0;padding:14px 16px 16px;overflow:hidden}
+  #s-lobby.on{position:absolute;inset:0;padding:14px 16px 16px;overflow:hidden;min-height:0;margin-bottom:0}
   #s-lobbywait .sub,#s-lobbywait .wait{margin:4px 0}
   #s-lobbywait .code{font-size:2.8rem;margin:4px 0}
 
@@ -433,12 +434,11 @@ details[open] summary::after{content:"–"}
 <section class="screen on" id="s-lobby">
   <div class="rtop"><button class="burger" onclick="menu(true)" aria-label="Menu">☰</button><span class="pill">Our Song</span><span class="pill credits"><span id="tokN0">10</span><svg class="coin"><use href="#coin"/></svg></span></div>
   <div class="vname"><span>Tonight at</span><b id="vName">The bar</b></div>
-  <div class="pulse"><div><b id="pHere">0</b><span>here</span></div><div><b id="pSongs">0</b><span>songs tonight</span></div><div><b id="pLast">—</b><span id="pLastLab">last played</span></div></div>
-  <div class="mecard" onclick="sheet(true)"><span class="pic big" id="myAva"></span><div class="mtext"><div class="mnm" id="myName">Who are you?</div><div class="mst" id="myLevel">Tap to say your name and pick a picture</div></div><span class="edit">✎</span></div>
+  <div class="mecard" onclick="sheet(true)"><span class="pic big" id="myAva"></span><div class="mtext"><div class="mnm" id="myName">Who are you?</div><div class="mst" id="myLevel">Tap to give your name and pick a picture</div></div><span class="edit">✎</span></div>
   <div class="qrow lobbyq"><div class="qface big"></div><div class="bub"><b>Q-Lou</b><q>Two of you, four cards each. I find the one song you'd both put on, and it plays here.</q></div></div>
   <div class="sec"><h4>Here tonight</h4><span id="hereLine"></span></div>
+  <p class="hint">Invite anyone. The regulars always say yes.</p>
   <div class="roomlist" id="roomList"><div class="pline dim">Looking around…</div></div>
-  <button class="bigbtn" id="btnNext" onclick="playNext()">Play the next person<small id="nextSub">someone here you haven't played</small></button>
   <div class="duo"><button id="btnJoin" class="ghost" onclick="goJoin()">Join with a code</button><button id="btnStart" class="ghost" onclick="newGame(false)">Start a table</button></div>
   <button id="btnSolo" style="display:none" onclick="newGame(true)">Solo</button><button id="btnDual" style="display:none"></button>
   <div class="dimmer" id="dimmer" style="display:none" onclick="sheet(false);menu(false);ringOff()"></div>
@@ -543,8 +543,8 @@ const picSrc=i=>`static/pics/${(PICS[i%PICS.length]||PICS[0])[0]}.jpg`;
 function picHTML(i,nights,big){return `<span class="pic l${ringFor(nights||0)}${big?" big":""}"><img src="${picSrc(i)}" alt=""></span>`}
 function myNameV(){return $("name").value.trim()}
 function renderMyAva(pr){const g=pr&&pr.games||0;$("myAva").innerHTML=picHTML(myIcon,g,true);const n=myNameV();$("myName").textContent=n||"Who are you?";
-  $("myLevel").textContent=n?(g?`${titleFor(g)} · ${g} night${g===1?"":"s"}${pr.tonight?" · "+pr.tonight+" tonight":""}${pr.cards&&pr.cards.length?" · "+pr.cards.slice(0,3).join(", "):""}`:"First night here"):"Tap to say your name and pick a picture";
-  renderPicGrid(g);$("btnNext").disabled=!n}
+  $("myLevel").textContent=n?(g?`${titleFor(g)} · ${g} night${g===1?"":"s"}${pr.tonight?" · "+pr.tonight+" tonight":""}${pr.cards&&pr.cards.length?" · "+pr.cards.slice(0,3).join(", "):""}`:"First night here"):"Tap to give your name and pick a picture";
+  renderPicGrid(g)}
 function renderPicGrid(g){$("picGrid").innerHTML=PICS.map((p,i)=>`<span class="pic ${i===myIcon?"sel":""} ${p[2]>g?"lock":""}" data-lock="${p[2]} nights" title="${p[1]}" onclick="pickPic(${i})"><img src="static/pics/${p[0]}.jpg" alt=""></span>`).join("")}
 function pickPic(i){const g=lastProfile&&lastProfile.games||0;if(PICS[i][2]>g){if(navigator.vibrate)navigator.vibrate([10,30,10]);return}myIcon=i;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6);heartbeat()}
 function nameTyped(){clearTimeout(nameTimer);const n=myNameV();if(!n){lastProfile=null;renderMyAva(null);return}renderMyAva(lastProfile&&lastProfile._n===n?lastProfile:null);
@@ -555,19 +555,15 @@ function howBox(on){const o=on!==false;$("howSheet").style.display=o?"":"none";$
 function watchBar(){try{window.open("screen","_blank")}catch(e){}}
 // the room: who is here, the pulse; every few seconds while the entry screen is up
 async function loadVenue(){if(!$("s-lobby").classList.contains("on"))return;try{const v=await (await fetch("api/venue?me="+encodeURIComponent(myNameV())+"&_="+Date.now())).json();
-  $("vName").textContent=v.name||"The bar";$("pHere").textContent=v.here;$("pSongs").textContent=v.songs_tonight;$("pLast").textContent=v.last_played||"—";$("hereLine").textContent=`${v.here} at the bar · ${v.playing} playing`;
-  const rows=v.people.slice(0,6).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} nights`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
-  $("roomList").innerHTML=rows+`<div class="morel"><span>${v.people.length>6?"+ "+(v.people.length-6)+" more":""}</span><u onclick="watchBar()">Watch the bar screen ›</u></div>`}catch(e){}}
+  $("vName").textContent=v.name||"The bar";$("hereLine").textContent=`${v.here} here`;
+  const rows=v.people.slice(0,12).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} night${p.nights===1?"":"s"}`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
+  $("roomList").innerHTML=rows+`<div class="morel"><span>${v.people.length>12?"+ "+(v.people.length-12)+" more":""}</span><u onclick="watchBar()">Watch the bar screen ›</u></div>`}catch(e){}}
 async function heartbeat(){const n=myNameV();if(!n||!$("s-lobby").classList.contains("on"))return;try{const r=await (await fetch("api/venue/here",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();handleMatch(r)}catch(e){}}
 function handleMatch(r){if(!r)return;if(r.status==="matched"&&r.code){queueing=false;code=r.code;who=r.who;remember();startPoll();return}
   if(r.invite&&!ringing){ringing=r.invite;$("ringLine").innerHTML=`${picHTML(r.invite.icon,0)}<div class="pt"><div class="nm">${esc(r.invite.from)}</div><span class="st">wants to play a song with you</span></div>`;$("ringSheet").style.display="";$("dimmer").style.display=""}
   if(!r.invite&&ringing){ringOff()}}
 function ringOff(){ringing=null;$("ringSheet").style.display="none";if($("profSheet").style.display==="none"&&$("menuSheet").style.display==="none")$("dimmer").style.display="none"}
 async function answerInvite(yes){const inv=ringing;ringOff();try{const r=await (await fetch("api/venue/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:myNameV(),icon:myIcon,yes})})).json();handleMatch(r)}catch(e){}}
-async function playNext(){const n=myNameV();if(!n){sheet(true);return}const b=$("btnNext");
-  if(queueing){queueing=false;b.classList.remove("waiting");b.firstChild.textContent="Play the next person";$("nextSub").textContent="someone here you haven't played";fetch("api/venue/leave",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n})}).catch(()=>{});return}
-  try{const r=await (await fetch("api/venue/next",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();
-    if(r.status==="matched"){handleMatch(r);return}queueing=true;b.classList.add("waiting");b.firstChild.textContent="Finding you someone…";$("nextSub").textContent="tap again to stop"}catch(e){alert(e.message)}}
 async function invite(to,btn){const n=myNameV();if(!n){sheet(true);return}btn.disabled=true;btn.textContent="Ringing…";
   try{const r=await (await fetch("api/venue/invite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon,to})})).json();
     if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite"},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
