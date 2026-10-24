@@ -333,3 +333,19 @@ def test_the_room_tonight_queue_and_invites(client, monkeypatch):
     a = client.post("/api/venue/answer", json={"name": "Kim", "icon": 2, "yes": True}).json()
     assert a["status"] == "matched" and a["who"] == "guest"
     assert client.post("/api/venue/here", json={"name": "Brent", "icon": 0}).json()["code"] == a["code"]
+
+
+def test_guard_names_and_tables():
+    from common_ground import guard
+    assert guard.clean_name("  Brent  ") == "Brent"
+    assert guard.clean_name("f*ck you") == "Someone"
+    assert guard.clean_name("sh1t") == "Someone"
+    assert guard.clean_name("Scunthorpe fan") == "Someone"   # known cost of a short list; a judge never types this
+    assert guard.clean_name("") == ""
+    guard._by_ip.clear(); guard._day.clear()
+    now = 1_000_000.0
+    for i in range(guard.PER_IP_PER_HOUR):
+        assert guard.allow_table("1.1.1.1", now + i)
+    assert not guard.allow_table("1.1.1.1", now + 20)
+    assert guard.allow_table("2.2.2.2", now + 20)
+    assert guard.allow_table("1.1.1.1", now + 3700)

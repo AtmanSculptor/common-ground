@@ -25,7 +25,7 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from common_ground import matrix, stats
+from common_ground import guard, matrix, stats
 from common_ground import rooms as rooms_mod
 from common_ground.agent import DOMAINS, run
 from common_ground.engine import Group
@@ -166,7 +166,7 @@ def stats_page():
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status(), "matrix": matrix.available(),
+    return {"ok": True, "qloo_calls": _q.calls, "rooms": len(ROOMS.rooms), "llm": budget_status(), "tables_today": guard.tables_today(), "matrix": matrix.available(),
             "resources": resources()}
 
 
@@ -444,16 +444,25 @@ def venue_snapshot(me: str = ""):
     return VENUE_ROOM.snapshot(me)
 
 
+def _table_or_full(request: Request) -> None:
+    """A new table costs Qloo calls; the door counts them per address and per day."""
+    if not guard.allow_table(guard.client_ip(request)):
+        raise HTTPException(429, guard.FULL)
+
+
 @app.post("/api/venue/here")
 def venue_here(body: Here):
+    body.name = guard.clean_name(body.name)
     VENUE_ROOM.heartbeat(body.name, body.icon)
     return {"ok": True, **VENUE_ROOM.poll(body.name)}
 
 
 @app.post("/api/venue/next")
-def venue_next(body: Here):
+def venue_next(body: Here, request: Request):
+    body.name = guard.clean_name(body.name)
     if not body.name.strip():
         raise HTTPException(400, "say a name first")
+    _table_or_full(request)
     return VENUE_ROOM.next_person(body.name, body.icon)
 
 
@@ -464,14 +473,19 @@ def venue_leave(body: Here):
 
 
 @app.post("/api/venue/invite")
-def venue_invite(body: Invite):
+def venue_invite(body: Invite, request: Request):
+    body.name = guard.clean_name(body.name)
     if not body.name.strip() or not body.to.strip():
         raise HTTPException(400, "who?")
+    _table_or_full(request)
     return VENUE_ROOM.invite(body.name, body.icon, body.to)
 
 
 @app.post("/api/venue/answer")
-def venue_answer(body: Answer):
+def venue_answer(body: Answer, request: Request):
+    body.name = guard.clean_name(body.name)
+    if body.yes:
+        _table_or_full(request)
     return VENUE_ROOM.answer(body.name, body.icon, body.yes)
 
 
@@ -488,15 +502,16 @@ def profile_lookup(name: str = ""):
 
 
 @app.post("/api/game/new")
-def game_new(body: NewGame):
+def game_new(body: NewGame, request: Request):
     ROOMS.sweep()
-    r = ROOMS.create(body.name.strip()[:24] or "You", house=body.house, icon=body.icon)
+    _table_or_full(request)
+    r = ROOMS.create(guard.clean_name(body.name) or "You", house=body.house, icon=body.icon)
     return {"code": r.code, "who": "host", "house": r.sides["guest"].name if body.house else None}
 
 
 @app.post("/api/game/{code}/join")
 def game_join(code: str, body: JoinGame):
-    r = ROOMS.join(code, body.name.strip()[:24] or "Partner", icon=body.icon)
+    r = ROOMS.join(code, guard.clean_name(body.name) or "Partner", icon=body.icon)
     if not r:
         raise HTTPException(404, "no such room, or it is full")
     return {"code": r.code, "who": "guest"}

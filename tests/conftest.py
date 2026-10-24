@@ -86,8 +86,9 @@ def client(fake_qloo, monkeypatch, tmp_path):
     """The app over HTTP with the fake Qloo, fresh rooms and a fresh results log."""
     from fastapi.testclient import TestClient
     import app as appmod
-    from common_ground import rooms as rooms_mod, stats
+    from common_ground import guard, rooms as rooms_mod, stats
     monkeypatch.setattr(appmod, "Qloo", lambda **kw: fake_qloo)
+    guard._by_ip.clear(); guard._day.clear()          # the door counts tables per address; every test starts the night fresh
     appmod.ROOMS = rooms_mod.Rooms(tmp_path / "rooms.pkl", random.Random(7))
     monkeypatch.setattr(stats, "FILE", tmp_path / "games.jsonl")
     monkeypatch.setattr(rooms_mod, "INTERLUDE_MIN", 0.0)     # tests do not wait out the table's moment
