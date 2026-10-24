@@ -122,6 +122,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hud p{margin:0 0 7px}
 .hud p.intro{flex:none}
 .hud .ln{display:grid;grid-template-columns:5.4em 1fr;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.06)}
+.hud .ln>span:last-child{min-width:0;overflow-wrap:anywhere}
 .hud .ln .k{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.62rem;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);padding-top:3px;white-space:nowrap}
 .hud .ln.now .k{color:#fff}
 .hud .ln.dim .k{color:var(--text3)}
@@ -229,6 +230,23 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.reveal .arena::after,#s-table.thinking .arena::after{content:"";position:absolute;inset:-2px;border-radius:22px;padding:2px;background:conic-gradient(from var(--sweep),transparent 0 62%,rgba(255,199,0,.95) 82%,rgba(189,53,252,.95) 94%,transparent 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:sweep 3.4s linear infinite;pointer-events:none}
 @keyframes sweep{to{--sweep:360deg}}
 #s-table.thinking .arena{box-shadow:0 0 30px rgba(138,43,226,.25)}
+/* from the reveal on, Q-Lou leaves the top box and holds the center of the field */
+#s-table.thinking #stage,#s-table.song #stage,#s-table.done #stage{visibility:hidden}
+#qmid{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;background:#000 url(static/deck/qface.jpg) center/cover;border:3px solid var(--aura);box-shadow:0 0 28px rgba(189,53,252,.7);z-index:5;animation:fadein .6s ease}
+#qmidsay{display:none;position:absolute;left:12px;right:12px;text-align:center;color:#eee;font-size:.95rem;line-height:1.3;z-index:5;overflow:hidden;display:none;-webkit-box-orient:vertical;-webkit-line-clamp:3}
+#qmidsay.fade{opacity:0;transition:opacity .35s}
+#s-table.thinking #qmid{display:block;width:118px;height:118px;top:50%;margin-top:-112px;animation:fadein .6s ease,glow 3s ease-in-out .6s infinite}
+#s-table.thinking .tick{top:50%;margin-top:30px;transform:none}
+#s-table.thinking #qmidsay{display:-webkit-box;top:50%;margin-top:64px}
+#s-table.song #qmid,#s-table.done #qmid{display:block;width:52px;height:52px;top:6px}
+#s-table.song #qmidsay,#s-table.done #qmidsay{display:-webkit-box;top:62px;font-size:.82rem;line-height:1.25;-webkit-line-clamp:2}
+#s-table.song .songarea,#s-table.done .songarea{padding-top:108px;justify-content:flex-start}
+#s-table.song .songarea>*,#s-table.done .songarea>*{flex:none}
+#s-table.song .arena,#s-table.done .arena{min-height:calc(3 * var(--sw,84px) + 124px);transition:min-height .6s ease}
+#s-table.song .songarea .kicker,#s-table.done .songarea .kicker{display:none}
+#s-table.song .songarea .art{width:var(--sw,84px);height:var(--sw,84px)}
+#s-table.done #qmid{width:44px;height:44px;top:6px}#s-table.done #qmidsay{top:54px;font-size:.76rem}#s-table.done .songarea{padding-top:96px}
+#s-table.done .songarea .art{width:calc(var(--sw,84px) * .7);height:calc(var(--sw,84px) * .7)}#s-table.done .songarea .song-title{font-size:.95rem}#s-table.done .songarea .brow{margin-top:3px}#s-table.done .songarea .brow button{height:32px}
 .tick{display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:var(--text2);font-size:.9rem;font-weight:600;letter-spacing:.01em}
 #s-table.thinking .tick{display:block}
 .tick i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:4px;animation:tickdot 1.2s ease-in-out infinite}.tick i:nth-child(3){animation-delay:.2s}.tick i:nth-child(4){animation-delay:.4s}
@@ -487,6 +505,7 @@ details[open] summary::after{content:"–"}
     <div class="slots" id="themSlots"><div class="slot"></div><div class="slot"></div><div class="slot"></div></div>
     <div class="divider"></div>
     <div class="tick" id="tick"></div>
+    <div id="qmid"></div><div id="qmidsay"></div>
     <div class="slots" id="meSlots"><div class="slot" data-i="0"></div><div class="slot" data-i="1"></div><div class="slot" data-i="2"></div></div>
     <div class="songarea" id="songArea">
       <p class="kicker" id="betVerdict"></p>
@@ -593,7 +612,7 @@ function startVenue(){clearInterval(venueTimer);clearInterval(hereTimer);loadVen
 startVenue();renderMyAva(null);(function(){const b=document.querySelector("#hudR .pills button:nth-child(1)");if(b)hudBox(b,"bxTry")})();
 function qlouSay(text,hold){if(!text)return;sayQueue.push({text,hold:hold==null?3200:hold});if(!saying||sticky)nextSay()}
 function nextSay(){const n=sayQueue.shift();clearTimeout(sayTimer);sticky=false;if(!n){saying=false;return}saying=true;const el=$("qsay");
-  if(el.textContent){el.classList.add("fade");setTimeout(()=>{el.textContent=n.text;el.classList.remove("fade")},360)}else{el.textContent=n.text}
+  const m=$("qmidsay");if(el.textContent){el.classList.add("fade");m.classList.add("fade");setTimeout(()=>{el.textContent=n.text;m.textContent="\u201c"+n.text+"\u201d";el.classList.remove("fade");m.classList.remove("fade")},360)}else{el.textContent=n.text;m.textContent="\u201c"+n.text+"\u201d"}
   if(n.hold===0){sticky=true}else{sayTimer=setTimeout(nextSay,n.hold+300)}}
 function qlouClear(){sayQueue=[];clearTimeout(sayTimer);saying=false;sticky=false}
 function qlouActed(){}
@@ -609,7 +628,7 @@ function dealIn(ids,turn){const from=$("qface").getBoundingClientRect();const el
     setTimeout(()=>{f.remove();el.style.visibility=""},flight)},i*step)});
   if(turn){const landed=(els.length-1)*step+flight+200;els.forEach((el,i)=>setTimeout(()=>{el.classList.remove("facedown");if(navigator.vibrate)navigator.vibrate(5)},landed+i*590))}}
 // the six cards drift back to Q-Lou's face, one after another, slowly; each slot goes with its card; the frame stays
-function driftOff(done){const to=$("qface").getBoundingClientRect();const slots=[...document.querySelectorAll("#themSlots .slot, #meSlots .slot")];
+function driftOff(done){const fr=$("field").getBoundingClientRect();const to={left:fr.left+fr.width/2-30,top:fr.top+fr.height/2-90,width:60,height:60};const slots=[...document.querySelectorAll("#themSlots .slot, #meSlots .slot")];
   slots.forEach((sl,i)=>{const img=sl.querySelector(".card img");const r=sl.getBoundingClientRect();
     setTimeout(()=>{sl.classList.add("gone");if(!img)return;const f=document.createElement("div");f.className="flyer drift";f.innerHTML=`<img src="${img.getAttribute("src")}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
       f.style.left=r.left+"px";f.style.top=r.top+"px";f.style.width=r.width+"px";f.style.height=r.height+"px";document.body.appendChild(f);
