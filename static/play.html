@@ -80,7 +80,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .bigbtn{height:54px;margin:16px 0 10px;flex:none;flex-direction:column;gap:3px;line-height:1.05;font-size:1.05rem;font-weight:800;width:100%;max-width:none}
 .bigbtn small{font-weight:600;font-size:.68rem;opacity:.75;letter-spacing:0}
 .bigbtn.waiting{animation:pulse 1.4s ease-in-out infinite}
-#s-lobby .duo{margin:14px 0 0;flex:none}#s-lobby .duo button{height:46px;font-size:.9rem;flex-direction:row}
+#s-lobby .duo{margin:12px 0 0;flex:none;gap:8px}#s-lobby .duo button{height:40px;font-size:.84rem;flex-direction:row;opacity:.85}
+#s-lobby .duolab{margin:10px 2px 0;color:var(--text3);font-size:.74rem;text-align:center;flex:none}
 .dimmer{position:absolute;inset:0;background:rgba(0,0,0,.6);z-index:20}
 .sheet{position:absolute;left:12px;right:12px;bottom:14px;z-index:21;border-radius:22px;background:rgba(13,7,20,.98);border:1px solid rgba(189,53,252,.5);box-shadow:0 -10px 40px rgba(0,0,0,.8);padding:14px}
 .sheet h4{margin:0 0 10px;font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
@@ -131,8 +132,8 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hud code{display:inline-block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.64rem;color:#d9a4ff;background:rgba(189,53,252,.12);border-radius:6px;padding:1px 6px;margin:3px 0 0}
 .hud code.au{color:#ffd978;background:rgba(255,199,0,.1)}
 .hud .num{color:var(--gold);font-weight:700}
-.hud .pills{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 0;flex:none}
-.hud .pills button{margin:0;width:auto;min-width:0;height:auto;padding:6px 11px;font-size:.74rem;border-radius:999px;background:rgba(189,53,252,.12);color:var(--text2);border:1px solid rgba(189,53,252,.45);box-shadow:none}
+.hud .pills{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0 0;flex:none}
+.hud .pills button{margin:0;width:auto;min-width:0;height:auto;padding:7px 2px;font-size:.7rem;letter-spacing:0;white-space:nowrap;border-radius:999px;background:rgba(189,53,252,.12);color:var(--text2);border:1px solid rgba(189,53,252,.45);box-shadow:none}
 .hud .pills button.open{background:rgba(255,199,0,.12);color:var(--gold);border-color:var(--gold)}
 /* the info box: one fixed square under the pills, empty until a pill is pressed; long content scrolls inside it, nothing else moves */
 .hud .infobox{flex:1 1 0;min-height:0;margin-top:12px;border:1px solid rgba(189,53,252,.3);border-radius:14px;background:rgba(0,0,0,.35);overflow-y:auto;padding:12px 14px;scrollbar-width:thin}
@@ -400,35 +401,39 @@ details[open] summary::after{content:"–"}
 <symbol id="mk-star" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/><path d="M19 2l.9 2.1 2.1.3-1.5 1.5.4 2.1L19 7l-1.9 1 .4-2.1L16 4.4l2.1-.3z"/></symbol></defs></svg>
 <aside class="hud" id="hudR"><h3>How it works</h3>
   <p class="intro"><b style="color:#fff">Our Song</b> is a game for the jukebox. Two people, four cards each, one song they would both play, picked on Qloo's numbers, not a guess.</p>
-  <div class="pills"><button onclick="hudBox(this,'bxDeck')">The deck</button><button onclick="hudBox(this,'bxEngine')">The engine</button><button onclick="hudBox(this,'bxVenue')">The venue</button><button onclick="hudBox(this,'bxTrust')">Why trust it</button></div>
+  <div class="pills"><button onclick="hudBox(this,'bxTry')">Try it</button><button onclick="hudBox(this,'bxDeck')">The deck</button><button onclick="hudBox(this,'bxEngine')">The engine</button><button onclick="hudBox(this,'bxReal')">Real or not</button></div>
   <div class="infobox" id="infobox">
+  <div class="box" id="bxTry"><h4>Ninety seconds</h4>
+    <ol>
+    <li>Tap <b>Who are you?</b> on the phone and give a name.</li>
+    <li>Press <b>Invite</b> on anyone. The regulars always say yes.</li>
+    <li>Swap the cards that are not you, then play three: most you, also you, a bit you.</li>
+    <li>Q-Lou finds the song. Play it or not; he has three picks in him.</li>
+    </ol>
+    <p>Watch the right side while you play: every Qloo call lands there as it happens.</p>
+    <p class="dim"><span id="hudVenue"></span> <span id="hudScreen">Two phones? Start a table on one and Join with a code on the other.</span></p></div>
   <div class="box" id="bxDeck"><h4>101 cards, four suits</h4>
-    <table class="dk"><tr><th>Suit</th><th>Says</th><th></th><th>For one</th></tr>
-    <tr><td>Stage</td><td>what you turn up</td><td class="n">28</td><td>Jazz hands</td></tr>
-    <tr><td>Bar</td><td>what you order</td><td class="n">25</td><td>Whiskey</td></tr>
-    <tr><td>Road</td><td>your Saturday</td><td class="n">25</td><td>Road trips</td></tr>
-    <tr><td>Porch</td><td>you at home</td><td class="n">23</td><td>Bookworm</td></tr></table>
-    <p>Every card stands for one Qloo signal, a tag or an audience, checked against the live API before it was let in. A card whose signal came back as noise was left out.</p>
-    <p>A hand is four, one of each suit. Swap any that aren't you; what you swapped out counts against you.</p>
+    <table class="dk"><tr><th>Suit</th><th>Means</th><th>For example</th></tr>
+    <tr><td>Stage</td><td>what you turn up</td><td>Jazz hands</td></tr>
+    <tr><td>Bar</td><td>what you order</td><td>Whiskey</td></tr>
+    <tr><td>Road</td><td>your Saturday</td><td>Road trips</td></tr>
+    <tr><td>Porch</td><td>you at home</td><td>Bookworm</td></tr></table>
+    <p>Each card is one Qloo tag or audience, checked against the live API before it was let in. Cards whose signal came back as noise were left out.</p>
+    <p>A hand is four, one of each suit. Swap any that are not you; what you swapped out counts against you.</p>
     <p><a href="deck" target="_blank">See the deck</a></p></div>
   <div class="box" id="bxEngine"><h4>The engine</h4>
     <ol>
-    <li>Before any game, Qloo scored all 101 cards against 2,003 artists bars actually play. One matrix, built once.</li>
+    <li>Before any game, Qloo scored all 101 cards against 2,003 artists bars actually play. One matrix, built once, refreshed on a schedule.</li>
     <li>Each column is standardized, so a life card and a genre card pull by rank, not by how wide Qloo's numbers run.</li>
     <li>Your three cards weigh 3, 2, 1. The cards you swapped out pull against.</li>
     <li>Each of you gets a curved score for every artist. <b>The weaker score decides</b>, so nobody gets dragged along.</li>
     <li>The top three are checked live against Qloo, Qloo's compare says what you share, and the song is the artist's top track.</li>
+    <li>The control: a plain language model guesses from the same cards with no data, and Qloo scores that guess too. Both land on the ledger.</li>
     </ol></div>
-  <div class="box" id="bxVenue"><h4>The venue</h4>
-    <p>A jukebox lives where strangers end up next to each other. Two of them open Our Song, one code joins their phones, and four cards each later there is one song they would both put on. Say yes and it goes on the jukebox screen for the whole room to see.</p>
-    <p>The game is free. It sits in front of a paid play: TouchTunes runs the jukebox in 65,000 venues, and a song that two people chose together is a song somebody pays for. The last 25 picks at a venue sit out of the draft, so regulars do not hear the same song twice.</p>
-    <p><span id="hudVenue"></span> <span id="hudScreen" class="dim">The venue screen shows the table on the bar's TV.</span></p></div>
-  <div class="box" id="bxTrust"><h4>Why trust it</h4>
-    <ol>
-    <li>Every number on this screen is Qloo's. Nothing is made up to look good.</li>
-    <li>The control: beside each pick a plain language model guesses from the same cards, with no data, and Qloo scores that guess too. You see both.</li>
-    <li>Q-Lou's lines are written, not generated. The ledger on the right shows every call as it happens.</li>
-    </ol></div>
+  <div class="box" id="bxReal"><h4>Real or not</h4>
+    <p><b>Real:</b> every Qloo call, the matrix, the pick, the control, the venue log, two phones at one table, and the regulars who sit in when you are alone.</p>
+    <p><b>Not real:</b> no jukebox plays the song, tokens are play money, and the room pairs people by nickname at one venue.</p>
+    <p>In a jukebox app the account and the pairing already exist. This is the free game in front of a paid play.</p></div>
   </div>
 </aside>
 <aside class="hud" id="hudL"><h3>What Q-Lou is doing</h3><div id="hudLog"><div class="ln dim"><span class="k">ledger</span><span>Start a game. Every card, the Qloo signal behind it, every call and every number lands here as it happens.</span></div></div></aside>
@@ -443,6 +448,7 @@ details[open] summary::after{content:"–"}
   <div class="sec"><h4>Here tonight</h4><span id="hereLine"></span></div>
   <p class="hint">Invite anyone. The regulars always say yes.</p>
   <div class="roomlist" id="roomList"><div class="pline dim">Looking around…</div></div>
+  <p class="duolab">Two phones?</p>
   <div class="duo"><button id="btnJoin" class="ghost" onclick="goJoin()">Join with a code</button><button id="btnStart" class="ghost" onclick="newGame(false)">Start a table</button></div>
   <button id="btnSolo" style="display:none" onclick="newGame(true)">Solo</button><button id="btnDual" style="display:none"></button>
   <div class="dimmer" id="dimmer" style="display:none" onclick="sheet(false);menu(false);ringOff()"></div>
@@ -585,7 +591,7 @@ function renderIdleLedger(g){if(!$("hudL")||getComputedStyle($("hudL")).display=
   ln("ledger","Start a game and watch a new one land here, call by call.","dim");
   $("hudLog").innerHTML=L.join("")}
 function startVenue(){clearInterval(venueTimer);clearInterval(hereTimer);loadVenue();venueTimer=setInterval(loadVenue,4000);hereTimer=setInterval(heartbeat,queueing?2500:2500)}
-startVenue();renderMyAva(null);(function(){const b=document.querySelector("#hudR .pills button:nth-child(2)");if(b)hudBox(b,"bxEngine")})();
+startVenue();renderMyAva(null);(function(){const b=document.querySelector("#hudR .pills button:nth-child(1)");if(b)hudBox(b,"bxTry")})();
 function qlouSay(text,hold){if(!text)return;sayQueue.push({text,hold:hold==null?3200:hold});if(!saying||sticky)nextSay()}
 function nextSay(){const n=sayQueue.shift();clearTimeout(sayTimer);sticky=false;if(!n){saying=false;return}saying=true;const el=$("qsay");
   if(el.textContent){el.classList.add("fade");setTimeout(()=>{el.textContent=n.text;el.classList.remove("fade")},360)}else{el.textContent=n.text}
