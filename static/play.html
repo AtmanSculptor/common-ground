@@ -90,7 +90,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .picgrid .pic{width:62px;height:62px;margin:0 auto;display:block;cursor:pointer;border-width:2px}
 .picgrid .pic.sel{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 18px rgba(255,199,0,.5)}
 .picgrid .pic.lock img{filter:grayscale(1) brightness(.35)}
-.picgrid .pic.lock::after{content:attr(data-lock);position:absolute;left:0;right:0;bottom:4px;font-size:.5rem;text-align:center;color:var(--text2);font-weight:700}
+.picgrid .pic.lock::after{content:attr(data-lock);position:absolute;inset:0;display:grid;place-items:center;font-size:.8rem;color:#fff;font-weight:800;text-shadow:0 1px 3px #000}.picgrid .pic.lock::before{content:"nights";position:absolute;left:0;right:0;bottom:7px;font-size:.46rem;text-align:center;color:var(--text2);font-weight:700;letter-spacing:.04em;text-transform:uppercase;z-index:1}
 .menu{display:flex;flex-direction:column;gap:8px}.menu button{margin:0;width:100%}
 .howp{font-size:.92rem;line-height:1.35;color:var(--text2);margin:0 0 12px}
 .lobbyq{height:auto;margin:6px 0 2px}.lobbyq .bub{height:auto;padding-top:4px}.lobbyq .bub q{-webkit-line-clamp:4;font-size:.95rem}
@@ -136,7 +136,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .hud .pills button{margin:0;width:auto;min-width:0;height:auto;padding:7px 2px;font-size:.7rem;letter-spacing:0;white-space:nowrap;border-radius:999px;background:rgba(189,53,252,.12);color:var(--text2);border:1px solid rgba(189,53,252,.45);box-shadow:none}
 .hud .pills button.open{background:rgba(255,199,0,.12);color:var(--gold);border-color:var(--gold)}
 /* the info box: one fixed square under the pills, empty until a pill is pressed; long content scrolls inside it, nothing else moves */
-.hud .infobox{flex:1 1 0;min-height:0;margin-top:12px;border:1px solid rgba(189,53,252,.3);border-radius:14px;background:rgba(0,0,0,.35);overflow-y:auto;padding:12px 14px;scrollbar-width:thin}
+.hud .infobox{flex:1 1 0;min-height:0;margin-top:12px;border:1px solid rgba(189,53,252,.3);border-radius:14px;background:rgba(0,0,0,.35);overflow-y:auto;padding:12px 14px;scrollbar-width:thin;scrollbar-color:rgba(189,53,252,.55) transparent}
+.hud .infobox::-webkit-scrollbar{width:6px}.hud .infobox::-webkit-scrollbar-thumb{background:rgba(189,53,252,.55);border-radius:6px}.hud .infobox::-webkit-scrollbar-track{background:transparent}
+#hudLog{scrollbar-color:rgba(189,53,252,.55) transparent}#hudLog::-webkit-scrollbar{width:6px}#hudLog::-webkit-scrollbar-thumb{background:rgba(189,53,252,.55);border-radius:6px}
 .hud .box{display:none}
 .hud .box.open{display:block;animation:fadein .4s ease}
 @keyframes fadein{from{opacity:0}to{opacity:1}}
@@ -400,25 +402,20 @@ details[open] summary::after{content:"–"}
 <symbol id="mk-phones" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/><path d="M5 9.5a7 7 0 0114 0" fill="none" stroke="currentColor" stroke-width="2.2" style="stroke:inherit"/><rect x="3.4" y="8.5" width="3.2" height="4.6" rx="1.2"/><rect x="17.4" y="8.5" width="3.2" height="4.6" rx="1.2"/></symbol>
 <symbol id="mk-star" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/><path d="M19 2l.9 2.1 2.1.3-1.5 1.5.4 2.1L19 7l-1.9 1 .4-2.1L16 4.4l2.1-.3z"/></symbol></defs></svg>
 <aside class="hud" id="hudR"><h3>How it works</h3>
-  <p class="intro"><b style="color:#fff">Our Song</b> is a game for the jukebox. Two people, four cards each, one song they would both play, picked on Qloo's numbers, not a guess.</p>
+  <p class="intro"><b style="color:#fff">Our Song</b> is a game for the phone-controlled jukebox, the kind <a href="https://www.touchtunes.com" target="_blank" rel="noopener">TouchTunes</a> runs in 65,000 bars. Two people, four cards each, one song they would both play, picked on Qloo's numbers, not a guess.</p>
   <div class="pills"><button onclick="hudBox(this,'bxTry')">Try it</button><button onclick="hudBox(this,'bxDeck')">The deck</button><button onclick="hudBox(this,'bxEngine')">The engine</button><button onclick="hudBox(this,'bxReal')">Real or not</button></div>
   <div class="infobox" id="infobox">
   <div class="box" id="bxTry"><h4>Ninety seconds</h4>
     <ol>
     <li>Tap <b>Who are you?</b> on the phone and give a name.</li>
-    <li>Press <b>Invite</b> on anyone. The regulars always say yes.</li>
+    <li>Press <b>Invite</b> on anyone. The regulars are house players built for the demo; they always say yes.</li>
     <li>Swap the cards that are not you, then play three: most you, also you, a bit you.</li>
     <li>Q-Lou finds the song. Play it or not; he has three picks in him.</li>
     </ol>
     <p>Watch the right side while you play: every Qloo call lands there as it happens.</p>
     <p class="dim"><span id="hudVenue"></span> <span id="hudScreen">Two phones? Start a table on one and Join with a code on the other.</span></p></div>
-  <div class="box" id="bxDeck"><h4>101 cards, four suits</h4>
-    <table class="dk"><tr><th>Suit</th><th>Means</th><th>For example</th></tr>
-    <tr><td>Stage</td><td>what you turn up</td><td>Jazz hands</td></tr>
-    <tr><td>Bar</td><td>what you order</td><td>Whiskey</td></tr>
-    <tr><td>Road</td><td>your Saturday</td><td>Road trips</td></tr>
-    <tr><td>Porch</td><td>you at home</td><td>Bookworm</td></tr></table>
-    <p>Each card is one Qloo tag or audience, checked against the live API before it was let in. Cards whose signal came back as noise were left out.</p>
+  <div class="box" id="bxDeck"><h4>101 cards</h4>
+    <p>We made the deck: 101 cards in four suits, Stage, Bar, Road and Porch. Each card is one Qloo tag or audience, checked against the live API before it was let in; cards whose signal came back as noise were left out.</p>
     <p>A hand is four, one of each suit. Swap any that are not you; what you swapped out counts against you.</p>
     <p><a href="deck" target="_blank">See the deck</a></p></div>
   <div class="box" id="bxEngine"><h4>The engine</h4>
@@ -433,7 +430,7 @@ details[open] summary::after{content:"–"}
   <div class="box" id="bxReal"><h4>Real or not</h4>
     <p><b>Real:</b> every Qloo call, the matrix, the pick, the control, the venue log, two phones at one table, and the regulars who sit in when you are alone.</p>
     <p><b>Not real:</b> no jukebox plays the song, tokens are play money, and the room pairs people by nickname at one venue.</p>
-    <p>In a jukebox app the account and the pairing already exist. This is the free game in front of a paid play.</p></div>
+    <p><b>The market:</b> phone-controlled jukeboxes are already in the bars. TouchTunes alone runs 65,000 venues and about 2 million monthly app users; its app already has the account, the credits, the venue screen and friends. Our Song is a feature added inside that app, not a new app: the free game in front of a paid play. The customer is the jukebox company; the bar is theirs.</p></div>
   </div>
 </aside>
 <aside class="hud" id="hudL"><h3>What Q-Lou is doing</h3><div id="hudLog"><div class="ln dim"><span class="k">ledger</span><span>Start a game. Every card, the Qloo signal behind it, every call and every number lands here as it happens.</span></div></div></aside>
@@ -556,7 +553,7 @@ function myNameV(){return $("name").value.trim()}
 function renderMyAva(pr){const g=pr&&pr.games||0;$("myAva").innerHTML=picHTML(myIcon,g,true);const n=myNameV();$("myName").textContent=n||"Who are you?";
   $("myLevel").textContent=n?(g?`${titleFor(g)} · ${g} night${g===1?"":"s"}${pr.tonight?" · "+pr.tonight+" tonight":""}${pr.cards&&pr.cards.length?" · "+pr.cards.slice(0,3).join(", "):""}`:"First night here"):"Tap to give your name and pick a picture";
   renderPicGrid(g)}
-function renderPicGrid(g){$("picGrid").innerHTML=PICS.map((p,i)=>`<span class="pic ${i===myIcon?"sel":""} ${p[2]>g?"lock":""}" data-lock="${p[2]} nights" title="${p[1]}" onclick="pickPic(${i})"><img src="static/pics/${p[0]}.jpg" alt=""></span>`).join("")}
+function renderPicGrid(g){$("picGrid").innerHTML=PICS.map((p,i)=>`<span class="pic ${i===myIcon?"sel":""} ${p[2]>g?"lock":""}" data-lock="${p[2]}" title="${p[1]}" onclick="pickPic(${i})"><img src="static/pics/${p[0]}.jpg" alt=""></span>`).join("")}
 function pickPic(i){const g=lastProfile&&lastProfile.games||0;if(PICS[i][2]>g){if(navigator.vibrate)navigator.vibrate([10,30,10]);return}myIcon=i;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6);heartbeat()}
 function nameTyped(){clearTimeout(nameTimer);const n=myNameV();if(!n){lastProfile=null;renderMyAva(null);return}renderMyAva(lastProfile&&lastProfile._n===n?lastProfile:null);
   nameTimer=setTimeout(()=>fetch("api/profile?name="+encodeURIComponent(n)).then(r=>r.json()).then(pr=>{if(myNameV()===n){pr._n=n;lastProfile=pr;if(pr.icon!=null)myIcon=pr.icon;renderMyAva(pr);heartbeat()}}).catch(()=>{}),380)}
