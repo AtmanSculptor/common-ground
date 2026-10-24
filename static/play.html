@@ -562,6 +562,7 @@ function watchBar(){try{window.open("screen","_blank")}catch(e){}}
 async function loadVenue(){if(!$("s-lobby").classList.contains("on"))return;try{const v=await (await fetch("api/venue?me="+encodeURIComponent(myNameV())+"&_="+Date.now())).json();
   $("vName").textContent=v.name||"The bar";$("hereLine").textContent=`${v.here} here`;
   const rows=v.people.slice(0,12).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} night${p.nights===1?"":"s"}`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
+  renderIdleLedger(v.last_game);
   $("roomList").innerHTML=rows+`<div class="morel"><span>${v.people.length>12?"+ "+(v.people.length-12)+" more":""}</span><u onclick="watchBar()">Watch the bar screen ›</u></div>`}catch(e){}}
 async function heartbeat(){const n=myNameV();if(!n||!$("s-lobby").classList.contains("on"))return;try{const r=await (await fetch("api/venue/here",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();handleMatch(r)}catch(e){}}
 function handleMatch(r){if(!r)return;if(r.status==="matched"&&r.code){queueing=false;code=r.code;who=r.who;remember();startPoll();return}
@@ -572,8 +573,19 @@ async function answerInvite(yes){const inv=ringing;ringOff();try{const r=await (
 async function invite(to,btn){const n=myNameV();if(!n){sheet(true);return}btn.disabled=true;btn.textContent="Ringing…";
   try{const r=await (await fetch("api/venue/invite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon,to})})).json();
     if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite"},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
+function renderIdleLedger(g){if(!$("hudL")||getComputedStyle($("hudL")).display==="none"||!g||hudKey)return;
+  const L=[];const ln=(k,h,cls)=>L.push(`<div class="ln ${cls||""}"><span class="k">${k}</span><span>${h}</span></div>`);
+  const nm=g.names||[];const sc=g.scores||{};const keys=Object.keys(sc);const pct=x=>x==null?"":Math.round(x*100);
+  ln("last game",`At the venue, ${nm.length===2?`<b>${esc(nm[0])}</b> and <b>${esc(nm[1])}</b>`:"two people"}.`);
+  nm.forEach(n=>{const c=(g.plays||{})[n]||[];if(c.length)ln("played",`<b>${esc(n)}</b>: ${c.map(esc).join(", ")}`)});
+  if(g.both_played&&g.both_played.length)ln("common",g.both_played.map(esc).join(", "));
+  ln("pick",`<b>${esc(g.artist)}</b> · Qloo ${keys.map((k,i)=>`${esc(nm[i]||k)} ${pct(sc[k])}`).join(", ")}${g.attempt>1?` · pick ${g.attempt}`:""}`);
+  if(g.baseline&&g.baseline.guess){const bs=g.baseline.scores||{};ln("control",`A plain model guessed <b>${esc(g.baseline.guess)}</b> · Qloo ${Object.keys(bs).map((k,i)=>`${esc(nm[i]||k)} ${pct(bs[k])}`).join(", ")}`)}
+  ln("result",g.played?"Both said yes. It played.":"No song that night.");
+  ln("ledger","Start a game and watch a new one land here, call by call.","dim");
+  $("hudLog").innerHTML=L.join("")}
 function startVenue(){clearInterval(venueTimer);clearInterval(hereTimer);loadVenue();venueTimer=setInterval(loadVenue,4000);hereTimer=setInterval(heartbeat,queueing?2500:2500)}
-startVenue();renderMyAva(null);
+startVenue();renderMyAva(null);(function(){const b=document.querySelector("#hudR .pills button:nth-child(2)");if(b)hudBox(b,"bxEngine")})();
 function qlouSay(text,hold){if(!text)return;sayQueue.push({text,hold:hold==null?3200:hold});if(!saying||sticky)nextSay()}
 function nextSay(){const n=sayQueue.shift();clearTimeout(sayTimer);sticky=false;if(!n){saying=false;return}saying=true;const el=$("qsay");
   if(el.textContent){el.classList.add("fade");setTimeout(()=>{el.textContent=n.text;el.classList.remove("fade")},360)}else{el.textContent=n.text}

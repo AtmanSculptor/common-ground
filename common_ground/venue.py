@@ -115,11 +115,12 @@ class Venue:
                 k = _key(h["name"])
                 if k in seen or k == mk:
                     continue
-                people.append(self._person(h["name"], h.get("icon", (sum(map(ord, h["name"])) % 6) + 4), True, k in playing))
+                people.append(self._person(h["name"], h.get("icon", (sum(map(ord, h["name"])) % 6) + 4), True, False))   # a regular can always be invited; the house seats a fresh copy
             people.sort(key=lambda p: (p["playing"], p["house"], -p["nights"]))
             pulse = stats.tonight()
             return {"name": stats.venue_name(), "here": len(self.here) + len(quiz.HOUSE), "playing": sum(1 for p in people if p["playing"]),
-                    "songs_tonight": pulse["songs"], "last_played": pulse["last"], "people": people}
+                    "songs_tonight": pulse["songs"], "last_played": pulse["last"], "people": people,
+                    "last_game": stats.last_game()}
 
     def _person(self, name: str, icon: int, house: bool, playing: bool) -> dict:
         pr = stats.profile(name)

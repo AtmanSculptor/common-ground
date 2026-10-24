@@ -193,3 +193,15 @@ def archive(label: str = "") -> str | None:
             return None
         os.replace(FILE, target)
     return target.name
+
+
+def last_game() -> dict | None:
+    """The last finished game at this venue, for the ledger before anyone plays: who played what, the pick,
+    both scores, the control guess and its scores. Names are the nicknames the players gave."""
+    for r in reversed(rows(50)):
+        if r.get("artist") and r.get("scores"):
+            plays = r.get("plays") or {}
+            return {"t": r.get("t"), "names": list(plays.keys()), "plays": plays, "artist": r["artist"],
+                    "scores": r.get("scores"), "played": r.get("played"), "attempt": r.get("attempt"),
+                    "baseline": r.get("baseline"), "both_played": r.get("both_played") or []}
+    return None
