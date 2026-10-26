@@ -183,7 +183,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .names .ava{vertical-align:middle;margin:0 4px 0 0}
 /* Q-Lou: his face, his name, his words in quotes. The box is sized for three lines and never grows. */
 .qrow{display:flex;align-items:flex-start;gap:10px;padding:0 2px;height:92px}
-.qface{width:46px;height:46px;border-radius:50%;flex:none;background:#000 url(static/deck/qface.jpg) center/cover;border:2px solid var(--aura);box-shadow:0 0 16px rgba(189,53,252,.55)}
+.qface{width:46px;height:46px;border-radius:50%;flex:none;background:#000 url(static/deck/qface_v3.jpg) center/cover;border:2px solid var(--aura);box-shadow:0 0 16px rgba(189,53,252,.55)}
 #s-table.reveal .qface,#s-table.thinking .qface{animation:glow 3s ease-in-out infinite}
 .bub{flex:1 1 0;min-width:0;height:92px;display:flex;flex-direction:column;justify-content:center;padding:2px 4px 2px 0}
 .bub b{color:var(--gold);font-weight:800;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;display:block;margin-bottom:2px;flex:none}
@@ -232,7 +232,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.thinking .arena{box-shadow:0 0 30px rgba(138,43,226,.25)}
 /* from the reveal on, Q-Lou leaves the top box and holds the center of the field */
 #s-table.thinking #stage,#s-table.song #stage,#s-table.done #stage{visibility:hidden}
-#qmid{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;background:#000 url(static/deck/qface.jpg) center/cover;border:3px solid var(--aura);box-shadow:0 0 28px rgba(189,53,252,.7);z-index:5;animation:fadein .6s ease}
+#qmid{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:50%;background:#000 url(static/deck/qface_v3.jpg) center/cover;border:3px solid var(--aura);box-shadow:0 0 28px rgba(189,53,252,.7);z-index:5;animation:fadein .6s ease}
 #qmidsay{display:none;position:absolute;left:12px;right:12px;text-align:center;color:#eee;font-size:.95rem;line-height:1.3;z-index:5;overflow:hidden;display:none;-webkit-box-orient:vertical;-webkit-line-clamp:3}
 #qmidsay.fade{opacity:0;transition:opacity .35s}
 #s-table.thinking #qmid{display:block;width:118px;height:118px;top:50%;margin-top:-112px;animation:fadein .6s ease,glow 3s ease-in-out .6s infinite}
@@ -488,7 +488,7 @@ details[open] summary::after{content:"–"}
   <div class="code" id="codeBig" onclick="copyCode()" title="Tap to copy"></div>
   <p class="sub center" id="codeHint">Your partner opens Our Song and joins with it. Tap the code to copy it.</p>
   <button class="ghost" id="shareBtn" onclick="shareCode()">Share the code</button>
-  <div class="qfree"><img src="static/deck/qlou.jpg" alt=""></div>
+  <div class="qfree"><img src="static/deck/qlou_v3.jpg" alt=""></div>
   <p class="wait pulse" id="lobbyWaitMsg" style="margin-top:14px">Waiting for your partner…</p>
   <button class="ghost" onclick="leaveNow()">Never mind, start over</button>
 </section>
