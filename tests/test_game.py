@@ -47,7 +47,7 @@ def _to_jukebox(client, code, toss_host=1, toss_guest=0):
 def test_two_phones_full_game(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     st = _st(client, code)
-    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["deal", "r1", "r2", "r3"] and st["tries"] == 3
+    assert st["phase"] == "lobby" and st["sides"]["guest"]["joined"] is False and st["rounds"] == ["deal", "r1", "r2", "r3"] and st["tries"] == 2
     assert st["rank_names"] == ["Most me", "Also me", "A bit me"] and st["rank"] == 0 and st["pairs"] == []
     assert client.post(f"/api/game/{code}/join", json={"name": "Josie"}).json()["who"] == "guest"
     assert client.post(f"/api/game/{code}/join", json={"name": "Third"}).status_code == 404
@@ -117,7 +117,7 @@ def test_two_phones_full_game(client):
     assert client.get("/api/stats").json()["games"] == 1
 
 
-def test_a_no_brings_the_next_pick_and_three_nos_mean_no_match(client):
+def test_a_no_brings_the_next_pick_and_two_nos_mean_no_match(client):
     code = client.post("/api/game/new", json={"name": "Brent"}).json()["code"]
     client.post(f"/api/game/{code}/join", json={"name": "Josie"})
     st = _to_jukebox(client, code)
@@ -130,17 +130,13 @@ def test_a_no_brings_the_next_pick_and_three_nos_mean_no_match(client):
     assert st["offers"][0]["status"] == "declined" and st["offers"][0]["said_no"] == ["guest"]
     assert st["sides"]["host"]["tokens"] == 10                      # nobody paid
     seen.append(st["pick"]["artist"]["id"])
-    client.post(f"/api/game/{code}/vote", json={"who": "host", "up": False})
-    assert client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": True}).json()["outcome"] == "again"
-    st = _wait_pick(client, code)
-    assert st["pick"]["attempt"] == 3 and st["pick"]["artist"]["id"] not in seen
     client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True})
     out = client.post(f"/api/game/{code}/vote", json={"who": "guest", "up": False}).json()
-    assert out["outcome"] == "nothing"
+    assert out["outcome"] == "nothing"                             # two picks, then no match tonight
     st = _st(client, code)
     r = st["result"]
     assert st["phase"] == "done" and r["paid_by"] is None and r["pick"]["played"] is False and r["tokens"] == {"host": 10, "guest": 10}
-    assert [o["status"] for o in r["offers"]] == ["declined", "declined", "declined"]
+    assert [o["status"] for o in r["offers"]] == ["declined", "declined"]
     assert client.post(f"/api/game/{code}/vote", json={"who": "host", "up": True}).status_code == 400
 
 

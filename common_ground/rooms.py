@@ -7,7 +7,7 @@ Phases (version 2, docs/game_v2.md):
   reveal    the pairs flip rank by rank; the meter moves and says why; Guilty or Objection
   thinking  Q-Lou is working (steps stream to both phones)
   jukebox   the pick and the question. Both yes: 2 tokens each and it plays. Any no: the next
-            pick, up to three in all; after the third, no match tonight
+            pick, up to two in all; after the second, no match tonight
   done      meter, title, what you share, the LLM-vs-Qloo control
 
 State lives in memory and is mirrored to a pickle so a restart does not end a game.
@@ -29,7 +29,7 @@ from .qloo import Qloo
 PLAYS = 3                # cards each partner puts on the table, one per round, ranked
 TOSS_MAX = 4             # at the deal you may swap any of your four
 INTERLUDE_MIN = 12.0     # seconds the table holds after the third flip before the song can arrive: the meter, the words, the call
-MAX_PICK_ATTEMPTS = 3    # three picks, then no match tonight
+MAX_PICK_ATTEMPTS = 2    # two picks, then no match tonight (was three; Brent: one backup is enough)
 ROTATION = 25            # the last picks at this venue sit out of the draft, so a regular does not hear the same song twice
 START_TOKENS = 10        # the demo balance; a jukebox app sets the real one
 SONG_COST = 4
@@ -369,7 +369,7 @@ class Room:
 
     def settled(self) -> str | None:
         """Both votes are in on the open offer: 'play' (both yes, 2 tokens each), 'again' (someone
-        said no and Q-Lou has another in him), 'nothing' (three picks, no match tonight), or None
+        said no and Q-Lou has another in him), 'nothing' (two picks, no match tonight), or None
         while waiting. A yes from someone who cannot pay their half counts as a no."""
         o = self.pick
         if not o or o["status"] != "open" or len(o["votes"]) < 2:

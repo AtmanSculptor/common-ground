@@ -17,7 +17,7 @@ A bar jukebox is a one-person machine in a room full of people. Our Song gives t
 1. **The room.** The entry screen is the bar tonight: who is here, your picture and your title by your name. Invite anyone.
 2. **The deal.** Four cards, one of each suit. Stage is what you turn up, Bar is what you order, Road is your Saturday, Porch is you at home. Tap any card that is not you and Q-Lou swaps it. 101 cards, each one a verified Qloo signal.
 3. **Three rounds.** One card each: most you, also you, a bit you. Drag it into the gold slot. Both cards turn over together and Q-Lou says one thing about the pair.
-4. **The song.** The cards drift back to him. He finds the artist both of you score highest on and brings back the top track. Play it, two tokens each, or Not this one, and he brings another, three picks at most.
+4. **The song.** The cards drift back to him. He finds the artist both of you score highest on and brings back the top track. Play it, two tokens each, or Not this one, and he brings one more, two picks at most.
 5. **The end.** The song, who said yes, and what the venue knows about the two of you.
 
 Partners, not competitors. Nobody wins over anybody. The song does.
