@@ -69,7 +69,7 @@ def together(a: str, b: str) -> dict:
     return {"nights": nights, "songs": songs}
 
 
-VENUE_NAME = os.environ.get("CG_VENUE", "The Rusty Nail Bar")
+VENUE_NAME = os.environ.get("CG_VENUE", "Q-Lou's Lounge")
 
 
 def venue_name() -> str:

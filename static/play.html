@@ -17,6 +17,8 @@ p{line-height:1.35;margin:6px 0}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
 body.tablemode>.top{display:none}
 .pill{background:var(--surface);border-radius:999px;padding:5px 11px;font-weight:700;font-size:.85rem;color:var(--text2);display:inline-flex;align-items:center;gap:6px}
+.pill .mark,h4 .mark{width:22px;height:22px;border-radius:50%;object-fit:cover;margin:-4px 0 -4px -5px;border:1px solid var(--aura);flex:none}
+h4 .mark{width:26px;height:26px;margin:0 6px 0 0;vertical-align:-7px}
 .pill.credits{color:var(--gold)}
 .tbar .r{display:flex;gap:8px;align-items:center}
 button.pill.leave{height:auto;margin:0;padding:5px 11px;font-size:.8rem;border:1px solid rgba(189,53,252,.35);background:var(--surface);color:var(--text3);box-shadow:none;letter-spacing:0;transition:color .3s,border-color .3s,background .3s}
@@ -420,7 +422,7 @@ details[open] summary::after{content:"–"}
 <symbol id="mk-phones" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/><path d="M5 9.5a7 7 0 0114 0" fill="none" stroke="currentColor" stroke-width="2.2" style="stroke:inherit"/><rect x="3.4" y="8.5" width="3.2" height="4.6" rx="1.2"/><rect x="17.4" y="8.5" width="3.2" height="4.6" rx="1.2"/></symbol>
 <symbol id="mk-star" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4.2"/><path d="M3.5 22c0-5 3.8-8 8.5-8s8.5 3 8.5 8z"/><path d="M19 2l.9 2.1 2.1.3-1.5 1.5.4 2.1L19 7l-1.9 1 .4-2.1L16 4.4l2.1-.3z"/></symbol></defs></svg>
 <aside class="hud" id="hudR"><h3>How it works</h3>
-  <p class="intro"><b style="color:#fff">Our Song</b> is a game for the phone-controlled jukebox, the kind <a href="https://www.touchtunes.com" target="_blank" rel="noopener">TouchTunes</a> runs in 65,000 bars. Two people, four cards each, one song they would both play, picked on Qloo's numbers, not a guess.</p>
+  <p class="intro"><b style="color:#fff">Our Song</b> is a game for the phone-controlled jukebox, the kind <a href="https://www.touchtunes.com" target="_blank" rel="noopener">TouchTunes</a> runs in 65,000 bars. Two people, four cards each, one song they would both play, picked on Qloo's numbers, not a guess. In a real venue this screen carries the bar's own name; here Q-Lou keeps the bar himself.</p>
   <div class="pills"><button onclick="hudBox(this,'bxTry')">Try it</button><button onclick="hudBox(this,'bxDeck')">The deck</button><button onclick="hudBox(this,'bxEngine')">The engine</button><button onclick="hudBox(this,'bxReal')">Real or not</button></div>
   <div class="infobox" id="infobox">
   <div class="box" id="bxTry"><h4>Ninety seconds</h4>
@@ -455,10 +457,10 @@ details[open] summary::after{content:"–"}
 </aside>
 <aside class="hud" id="hudL"><h3>What Q-Lou is doing</h3><div id="hudLog"><div class="ln dim"><span class="k">ledger</span><span>Start a game. Every card, the Qloo signal behind it, every call and every number lands here as it happens.</span></div></div></aside>
 <div id="phone"><div id="screens">
-<div class="top" style="display:none"><div class="pill" id="roomPill">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
+<div class="top" style="display:none"><div class="pill" id="roomPill"><img class="mark" src="static/deck/qface_v3.jpg" alt="">Our Song</div><div class="pill credits"><span id="tokN">10</span><svg class="coin"><use href="#coin"/></svg></div></div>
 
 <section class="screen on" id="s-lobby">
-  <div class="rtop"><button class="burger" onclick="menu(true)" aria-label="Menu">☰</button><span class="pill">Our Song</span><span class="pill credits"><span id="tokN0">10</span><svg class="coin"><use href="#coin"/></svg></span></div>
+  <div class="rtop"><button class="burger" onclick="menu(true)" aria-label="Menu">☰</button><span class="pill"><img class="mark" src="static/deck/qface_v3.jpg" alt="">Our Song</span><span class="pill credits"><span id="tokN0">10</span><svg class="coin"><use href="#coin"/></svg></span></div>
   <div class="vname"><span>Tonight at</span><b id="vName">The bar</b></div>
   <div class="mecard" onclick="sheet(true)"><span class="pic big" id="myAva"></span><div class="mtext"><div class="mnm" id="myName">Who are you?</div><div class="mst" id="myLevel">Tap to give your name and pick a picture</div></div><span class="edit">✎</span></div>
   <div class="qrow lobbyq"><div class="qface big"></div><div class="bub"><b>Q-Lou</b><q>Two of you, four cards each. I find the one song you'd both put on, and it plays here.</q></div></div>
@@ -470,7 +472,7 @@ details[open] summary::after{content:"–"}
   <button id="btnSolo" style="display:none" onclick="newGame(true)">Solo</button><button id="btnDual" style="display:none"></button>
   <div class="dimmer" id="dimmer" style="display:none" onclick="sheet(false);menu(false);ringOff()"></div>
   <div class="sheet" id="profSheet" style="display:none"><h4>Your profile at this bar</h4><div class="picgrid" id="picGrid"></div><input id="name" placeholder="Your nickname" maxlength="24" oninput="nameTyped()"><button onclick="sheet(false)">That's me</button></div>
-  <div class="sheet" id="menuSheet" style="display:none"><h4>Our Song</h4><div class="menu"><button class="ghost" onclick="menu(false);howBox()">How it works</button><button class="ghost" onclick="menu(false);watchBar()">Watch the bar screen</button><button class="ghost" onclick="leaveNow()">Leave the bar</button></div></div>
+  <div class="sheet" id="menuSheet" style="display:none"><h4><img class="mark" src="static/deck/qface_v3.jpg" alt="">Our Song</h4><div class="menu"><button class="ghost" onclick="menu(false);howBox()">How it works</button><button class="ghost" onclick="menu(false);watchBar()">Watch the bar screen</button><button class="ghost" onclick="leaveNow()">Leave the bar</button></div></div>
   <div class="sheet" id="ringSheet" style="display:none"><h4>Someone wants to play</h4><div class="pline" id="ringLine"></div><div class="duo"><button onclick="answerInvite(true)">Let's play</button><button class="ghost" onclick="answerInvite(false)">Not now</button></div></div>
   <div class="sheet" id="howSheet" style="display:none"><h4>How it works</h4><p class="howp">Two people at this bar, four cards each, one of each suit. Swap any that aren't you. Three rounds, one card each: most you, also you, a bit you. Both cards turn over together. Then Q-Lou finds the one song you'd both put on, on Qloo's numbers, and it plays here if you both say yes. Two tokens each.</p><button class="ghost" onclick="howBox(false)">Close</button></div>
 </section>
@@ -578,14 +580,14 @@ function renderPicGrid(g){$("picGrid").innerHTML=PICS.map((p,i)=>`<span class="p
 function pickPic(i){const g=lastProfile&&lastProfile.games||0;if(PICS[i][2]>g){if(navigator.vibrate)navigator.vibrate([10,30,10]);return}myIcon=i;renderMyAva(lastProfile);if(navigator.vibrate)navigator.vibrate(6);heartbeat()}
 function nameTyped(){clearTimeout(nameTimer);const n=myNameV();if(!n){lastProfile=null;renderMyAva(null);return}renderMyAva(lastProfile&&lastProfile._n===n?lastProfile:null);
   nameTimer=setTimeout(()=>fetch("api/profile?name="+encodeURIComponent(n)).then(r=>r.json()).then(pr=>{if(myNameV()===n){pr._n=n;lastProfile=pr;if(pr.icon!=null)myIcon=pr.icon;renderMyAva(pr);heartbeat()}}).catch(()=>{}),380)}
-function sheet(on){$("profSheet").style.display=on?"":"none";$("dimmer").style.display=on?"":"none";if(on){renderPicGrid(lastProfile&&lastProfile.games||0);setTimeout(()=>{if(!myNameV())$("name").focus()},50)}else heartbeat()}
+function sheet(on){$("profSheet").style.display=on?"":"none";$("dimmer").style.display=on?"":"none";if(on){renderPicGrid(lastProfile&&lastProfile.games||0);setTimeout(()=>{if(!myNameV())$("name").focus()},50)}else{heartbeat();const to=pendingInvite;pendingInvite=null;if(to&&myNameV()){const b=document.querySelector(`#roomList button[data-to="${CSS.escape(to)}"]`);invite(to,b||{disabled:false,textContent:""})}}}
 function menu(on){$("menuSheet").style.display=on?"":"none";$("dimmer").style.display=on?"":"none"}
 function howBox(on){const o=on!==false;$("howSheet").style.display=o?"":"none";$("dimmer").style.display=o?"":"none"}
 function watchBar(){try{window.open("screen","_blank")}catch(e){}}
 // the room: who is here, the pulse; every few seconds while the entry screen is up
 async function loadVenue(){if(!$("s-lobby").classList.contains("on"))return;try{const v=await (await fetch("api/venue?me="+encodeURIComponent(myNameV())+"&_="+Date.now())).json();
   $("vName").textContent=v.name||"The bar";$("hereLine").textContent=`${v.here} here`;
-  const rows=v.people.slice(0,12).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} night${p.nights===1?"":"s"}`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
+  const rows=v.people.slice(0,12).map(p=>`<div class="pline">${picHTML(p.icon,p.nights)}<div class="pt"><div class="nm">${esc(p.name)}${p.title?` <span class="tag">${esc(p.title.toUpperCase())}</span>`:""}</div><span class="st">${p.nights?`${p.nights} night${p.nights===1?"":"s"}`:"First night"} · ${p.tonight} tonight</span></div><i class="dot ${p.playing?"busy":""}"></i>${p.playing?`<button class="ghost" disabled>Playing</button>`:`<button data-to="${esc(p.name)}" onclick="invite('${esc(p.name).replace(/'/g,"\\'")}',this)">Invite</button>`}</div>`).join("");
   renderIdleLedger(v.last_game);
   $("roomList").innerHTML=rows+`<div class="morel"><span>${v.people.length>12?"+ "+(v.people.length-12)+" more":""}</span><u onclick="watchBar()">Watch the bar screen ›</u></div>`}catch(e){}}
 async function heartbeat(){const n=myNameV();if(!n||!$("s-lobby").classList.contains("on"))return;try{const r=await (await fetch("api/venue/here",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon})})).json();handleMatch(r)}catch(e){}}
@@ -594,7 +596,8 @@ function handleMatch(r){if(!r)return;if(r.status==="matched"&&r.code){queueing=f
   if(!r.invite&&ringing){ringOff()}}
 function ringOff(){ringing=null;$("ringSheet").style.display="none";if($("profSheet").style.display==="none"&&$("menuSheet").style.display==="none")$("dimmer").style.display="none"}
 async function answerInvite(yes){const inv=ringing;ringOff();try{const r=await (await fetch("api/venue/answer",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:myNameV(),icon:myIcon,yes})})).json();handleMatch(r)}catch(e){}}
-async function invite(to,btn){const n=myNameV();if(!n){sheet(true);return}btn.disabled=true;btn.textContent="Ringing…";
+let pendingInvite=null;
+async function invite(to,btn){const n=myNameV();if(!n){pendingInvite=to;sheet(true);return}pendingInvite=null;btn.disabled=true;btn.textContent="Ringing…";
   try{const r=await (await fetch("api/venue/invite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon,to})})).json();
     if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite"},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
 function renderIdleLedger(g){if(!$("hudL")||getComputedStyle($("hudL")).display==="none"||!g||hudKey)return;
