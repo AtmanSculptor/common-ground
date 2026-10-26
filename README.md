@@ -1,6 +1,6 @@
 # Our Song
 
-**Two strangers at a bar, four cards each, and Q-Lou, the genie in the jukebox, finds the one song they would both put on. Then it plays.**
+**Two people at a bar, four cards each, and Q-Lou, the genie in the jukebox, finds the one song they would both put on. Then it plays.**
 
 Built for the Qloo Agentic Hackathon 2026. MIT license.
 
@@ -12,7 +12,7 @@ Tap **Who are you?** and give a name, then press **Invite** on anyone in the lis
 
 ## What it is
 
-A bar jukebox is a one-person machine in a room full of people. Our Song gives two people who do not know each other a reason to choose a song together. It is built as a feature inside a jukebox app: free to play, and it ends with a paid play that two people chose.
+A bar jukebox is a one-person machine in a room full of people. Our Song gives two people a reason to choose a song together. Strangers get an icebreaker. Friends get a referee for the aux cord. Couples get a song. It is built as a feature inside a jukebox app: free to play, and it ends with a paid play that two people chose.
 
 1. **The room.** The entry screen is the bar tonight: who is here, your picture and your title by your name. Invite anyone.
 2. **The deal.** Four cards, one of each suit. Stage is what you turn up, Bar is what you order, Road is your Saturday, Porch is you at home. Tap any card that is not you and Q-Lou swaps it. 101 cards, each one a verified Qloo signal.
