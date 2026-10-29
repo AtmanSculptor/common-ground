@@ -247,7 +247,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.song #qmidsay,#s-table.done #qmidsay{display:-webkit-box;top:62px;font-size:.82rem;line-height:1.25;-webkit-line-clamp:2}
 #s-table.song .songarea,#s-table.done .songarea{padding-top:108px;justify-content:flex-start}
 #s-table.song .songarea>*,#s-table.done .songarea>*{flex:none}
-#s-table.song .arena,#s-table.done .arena{min-height:calc(3 * var(--sw,84px) + 124px);transition:min-height .6s ease}
+#s-table.song .arena{min-height:calc(3 * var(--sw,84px) + 124px);transition:min-height .6s ease}
+#s-table.done .arena{min-height:calc(3 * var(--sw,84px) + 210px);transition:min-height .6s ease}
+#s-table.done .songarea{overflow-y:auto;scrollbar-width:none}#s-table.done .songarea .song-artist{white-space:normal;line-height:1.2}#s-table.done .songarea .song-title{white-space:normal;line-height:1.1}
 #s-table.song .songarea .kicker,#s-table.done .songarea .kicker{display:none}
 #s-table.song .songarea .art{width:calc(var(--sw,84px) * 1.6);height:calc(var(--sw,84px) * 1.6)}
 #s-table.done #qmid{width:44px;height:44px;top:6px}#s-table.done #qmidsay{top:54px;font-size:.76rem}#s-table.done .songarea{padding-top:96px}
