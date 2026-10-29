@@ -866,7 +866,8 @@ function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&
     const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return (g===1?"first night":`${g} nights`)+(titleFor(g)?" · "+titleFor(g):"")};
     const fav=sd=>{const c=sd.profile&&sd.profile.cards||[];return c.length?c.slice(0,3).join(", "):(r.plays&&r.plays[sd.name]||[]).slice(0,3).join(", ")};
     const tg=r.together||{nights:0,songs:0};const tn=tg.nights,ts=tg.songs;const pair=tn<=1?`<b>You and ${esc(ot.name)}</b> · first night together`:`<b>You and ${esc(ot.name)}</b> · ${tn} nights · ${ts} song${ts===1?"":"s"} together`;
-    $("endLog").innerHTML=`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}
+    const po=(s.offers||[]).find(x=>x.status==="played");const fit=po&&po.scores?Math.min(Math.round((po.scores.host||0)*100),Math.round((po.scores.guest||0)*100)):null;
+    $("endLog").innerHTML=(fit!=null?`<div class="pair"><b>Qloo fit</b> · ${fit} of 100</div>`:"")+`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}
   showBubble(s.sides[theirKey()].emote,"themBubble");
   if(!doneSettled){doneSettled=true;forget();setTimeout(()=>{clearInterval(timer);timer=null},120000)}}
 const NUDGES={heart:"❤️",fire:"🔥",laugh:"😂",down:"👎"};
