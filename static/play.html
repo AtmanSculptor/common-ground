@@ -246,9 +246,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 #s-table.song .songarea>*,#s-table.done .songarea>*{flex:none}
 #s-table.song .arena,#s-table.done .arena{min-height:calc(3 * var(--sw,84px) + 124px);transition:min-height .6s ease}
 #s-table.song .songarea .kicker,#s-table.done .songarea .kicker{display:none}
-#s-table.song .songarea .art{width:var(--sw,84px);height:var(--sw,84px)}
+#s-table.song .songarea .art{width:calc(var(--sw,84px) * 1.6);height:calc(var(--sw,84px) * 1.6)}
 #s-table.done #qmid{width:44px;height:44px;top:6px}#s-table.done #qmidsay{top:54px;font-size:.76rem}#s-table.done .songarea{padding-top:96px}
-#s-table.done .songarea .art{width:calc(var(--sw,84px) * .7);height:calc(var(--sw,84px) * .7)}#s-table.done .songarea .song-title{font-size:.95rem}#s-table.done .songarea .brow{margin-top:3px}#s-table.done .songarea .brow button{height:32px}
+#s-table.done .songarea .art{width:calc(var(--sw,84px) * 1.05);height:calc(var(--sw,84px) * 1.05)}#s-table.done .songarea .song-title{font-size:.95rem}#s-table.done .songarea .brow{margin-top:3px}#s-table.done .songarea .brow button{height:32px}
 .tick{display:none;position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;color:var(--text2);font-size:.9rem;font-weight:600;letter-spacing:.01em}
 #s-table.thinking .tick{display:block}
 .tick i{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gold);margin-left:4px;animation:tickdot 1.2s ease-in-out infinite}.tick i:nth-child(3){animation-delay:.2s}.tick i:nth-child(4){animation-delay:.4s}
@@ -260,9 +260,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 @keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
 @keyframes sink{to{opacity:0;transform:translateY(16px)}}
 .songarea .kicker{margin:0 0 2px;font-size:.74rem;color:var(--text3);text-align:center;height:14px;line-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
-.songarea .art{flex:none;width:calc(var(--sw,84px) * 1.15);height:calc(var(--sw,84px) * 1.15);margin:0 auto 2px;border-radius:14px}
+.songarea .art{flex:none;width:calc(var(--sw,84px) * 1.6);height:calc(var(--sw,84px) * 1.6);margin:0 auto 4px;border-radius:16px}
 .songarea .art .play{font-size:2.2rem}
-.songarea .song-title{font-size:1.1rem;margin:4px 0 0;line-height:1.05;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.songarea .song-title{font-size:1.25rem;margin:4px 0 0;line-height:1.05;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songarea .song-artist{font-size:.85rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .songarea .brow{margin-top:6px;gap:8px}
 .songarea .brow button{min-width:0;height:38px;padding:0 13px;font-size:.86rem}
@@ -270,7 +270,7 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .songarea .log{display:none;width:100%;margin-top:4px;font-size:.78rem;line-height:1.35;color:var(--text3);text-align:center}
 .songarea .log div{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .songarea .log div.pair{white-space:nowrap;text-overflow:ellipsis;display:block}
-#s-table.done .songarea .art{width:calc(var(--sw,84px) * .8);height:calc(var(--sw,84px) * .8)}
+#s-table.done .songarea .art{width:calc(var(--sw,84px) * 1.05);height:calc(var(--sw,84px) * 1.05)}
 #s-table.done .songarea .art .play{font-size:1.6rem}
 .songarea .log b{color:var(--text2);font-weight:600}
 #s-table.done .songarea .log{display:block}
