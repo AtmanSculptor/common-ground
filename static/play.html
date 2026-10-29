@@ -482,6 +482,7 @@ details[open] summary::after{content:"–"}
   <input id="joinName" placeholder="Your nickname" maxlength="24">
   <input id="joinCode" placeholder="Room code" maxlength="4" style="text-transform:uppercase;letter-spacing:.2em">
   <button onclick="joinGame()">Let's go</button>
+  <p class="sub center" id="joinErr" style="min-height:1.4em;color:var(--coral);margin-top:8px"></p>
   <div class="brow"><button class="ghost" onclick="show('lobby')">Back</button></div>
 </section>
 
@@ -659,10 +660,12 @@ function leaveNow(){if(timer)clearInterval(timer);timer=null;forget();try{locati
 function leave(){const b=$("leaveBtn");if(Date.now()-leaveArmed<3500){leaveNow();return}leaveArmed=Date.now();b.textContent="Tap again to go";b.classList.add("armed");setTimeout(()=>{if(Date.now()-leaveArmed>=3400){leaveArmed=0;b.textContent="Back to the bar";b.classList.remove("armed")}},3600)}
 function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}try{localStorage.removeItem("oursong")}catch(e){}}
 function dual(on){$("duo1").style.display=on?"none":"";$("duo2").style.display=on?"":"none";$("dualBack").style.display=on?"":"none"}
-function goJoin(){$("joinName").value=$("name").value;show("join")}
+function goJoin(){$("joinName").value=$("name").value;$("joinErr").textContent="";show("join")}
 function dual(){}
-async function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house,icon:myIcon});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){alert(e.message)}}
-async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name,icon:myIcon});code=r.code;who="guest";remember();startPoll()}catch(e){alert(e.message)}}
+async function tellLobby(msg){const q=document.querySelector("#s-lobby .lobbyq q");if(q)q.textContent=msg}
+function tellTable(msg){qlouClear();qlouSay(msg,0)}
+function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house,icon:myIcon});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){tellLobby(e.message)}}
+async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name,icon:myIcon});code=r.code;who="guest";remember();startPoll()}catch(e){$("joinErr").textContent=/no such room/.test(e.message)?"No table with that code. Check it with your partner.":e.message}}
 function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;u.hash="";return u.toString()}catch(e){return code}}
 function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textContent="Copied. Your partner opens Our Song and joins with it."}catch(e){}}
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
@@ -808,7 +811,7 @@ async function lockToss(){try{$("tossBtn").disabled=true;const gone=tosses.slice
     const fresh=(out.hand||[]).filter(c=>!hand.some(h=>h.id===c.id)).map(c=>c.id);
     tossSettleUntil=Date.now()+(gone.length?1500+gone.length*590+1500:1200);setMode("tosswait");$("handHint").textContent=gone.length?"":"Waiting for "+partnerName()+"…";
     flyOut(gone);setTimeout(()=>{hand=out.hand||hand;tosses=[];renderFan();if(fresh.length)dealIn(fresh,true)},gone.length?760:0);
-    setTimeout(poll,gone.length?1500+gone.length*590+1400:300)}catch(e){alert(e.message);$("tossBtn").disabled=false}}
+    setTimeout(poll,gone.length?1500+gone.length*590+1400:300)}catch(e){tellTable(e.message);$("tossBtn").disabled=false}}
 function flyOut(ids){const to=$("qface").getBoundingClientRect();ids.forEach((id,i)=>{const el=$("fan").querySelector(`.fcard[data-id="${id}"]`);if(!el)return;const r=el.getBoundingClientRect();
   setTimeout(()=>{el.style.visibility="hidden";const f=document.createElement("div");f.className="flyer back";f.style.left=r.left+"px";f.style.top=r.top+"px";f.style.width=r.width+"px";f.style.height=r.height+"px";document.body.appendChild(f);
     requestAnimationFrame(()=>{f.style.transform=`translate(${to.left+to.width/2-r.left-r.width/2}px,${to.top+to.height/2-r.top-r.height/2}px) scale(.25)`;f.style.opacity="0"});setTimeout(()=>f.remove(),820)},i*130)})}
@@ -835,7 +838,7 @@ function overLiveSlot(x,y){const r=liveSlot().getBoundingClientRect();const m=Ma
 // a tap seats the card in the gold slot; a tap on the slot (or the seated card) plays it; a tap on another card swaps it in
 function seatCard(id){chosen=id;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Tap the gold slot to lock it in.";if(navigator.vibrate)navigator.vibrate(6)}
 function slotTapped(){if(tableMode!=="play"||chosen===null||state.sides[who].down)return;const id=chosen;if(navigator.vibrate)navigator.vibrate(12);playIt(id)}
-async function playIt(id){try{await api(code+"/play",{who,card:id});if(state&&state.sides&&state.sides[who])state.sides[who].down=true;chosen=null;poll()}catch(e){chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);if(!/once per round/i.test(e.message))alert(e.message)}}
+async function playIt(id){try{await api(code+"/play",{who,card:id});if(state&&state.sides&&state.sides[who])state.sides[who].down=true;chosen=null;poll()}catch(e){chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);if(!/once per round/i.test(e.message))tellTable(e.message)}}
 function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   f.style.left=from.left+"px";f.style.top=from.top+"px";f.style.width=from.width+"px";f.style.height=from.height+"px";document.body.appendChild(f);
   requestAnimationFrame(()=>{f.style.transform=`translate(${to.left-from.left}px,${to.top-from.top}px)`;f.style.width=to.width+"px";f.style.height=to.height+"px"});
@@ -901,7 +904,7 @@ function renderJukebox(s,me,other){const p=s.pick;if(!p||!p.artist)return;const 
   else if(me.tokens<s.half){$("voteMsg").textContent=q("outcome.short","sh")}}
 function playHero(){playPreview(heroUrl,$("heroPlay"))}
 function playPreview(u,btn){const a=$("preview");if(!u)return;if(a.src!==u){a.src=u;a.play().catch(()=>{});btn&&(btn.textContent="❚❚");return}if(a.paused){a.play().catch(()=>{});btn&&(btn.textContent="❚❚")}else{a.pause();btn&&(btn.textContent="▶")}}
-async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;interludeAt=0;poll()}catch(e){alert(e.message)}}
+async function vote(up){try{const pressed=$(up?"yesBtn":"noBtn"),other=$(up?"noBtn":"yesBtn");pressed.classList.add("chosen");pressed.disabled=true;other.disabled=true;await api(code+"/vote",{who,up});$("bet").innerHTML="";myBet=null;saidStep=-1;interludeAt=0;poll()}catch(e){tellTable(e.message)}}
 function renderDone(r){const tk=theirKey();const p=r.pick;const t=p&&p.tracks&&p.tracks[0];const nm=Object.keys(r.plays||{});const n=names();
   const played=p&&p.played;
   $("doneKicker").textContent=played?(p.paid_by==="house"?q("outcome.house","oh"):q("outcome.both","ob")):q("outcome.nothing","on");
