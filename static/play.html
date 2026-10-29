@@ -600,7 +600,7 @@ async function answerInvite(yes){const inv=ringing;ringOff();try{const r=await (
 let pendingInvite=null;
 async function invite(to,btn){const n=myNameV();if(!n){pendingInvite=to;sheet(true);return}pendingInvite=null;btn.disabled=true;btn.textContent="Ringing…";
   try{const r=await (await fetch("api/venue/invite",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n,icon:myIcon,to})})).json();
-    if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite"},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
+    if(r.status==="matched"){handleMatch(r);return}if(r.status==="gone"){btn.textContent="Gone";return}setTimeout(()=>{btn.disabled=false;btn.textContent="Invite";if(btn.isConnected)tellLobby(`${to} didn't pick up. Try someone else, or start a table.`)},21000)}catch(e){btn.disabled=false;btn.textContent="Invite"}}
 function renderIdleLedger(g){if(!$("hudL")||getComputedStyle($("hudL")).display==="none"||!g||hudKey)return;
   const L=[];const ln=(k,h,cls)=>L.push(`<div class="ln ${cls||""}"><span class="k">${k}</span><span>${h}</span></div>`);
   const nm=g.names||[];const sc=g.scores||{};const keys=Object.keys(sc);const pct=x=>x==null?"":Math.round(x*100);
