@@ -658,7 +658,8 @@ function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){
 let leaveArmed=0;
 function leaveNow(){if(timer)clearInterval(timer);timer=null;forget();try{location.replace(location.pathname+location.search)}catch(e){location.reload()}}
 function leave(){const b=$("leaveBtn");if(Date.now()-leaveArmed<3500){leaveNow();return}leaveArmed=Date.now();b.textContent="Tap again to go";b.classList.add("armed");setTimeout(()=>{if(Date.now()-leaveArmed>=3400){leaveArmed=0;b.textContent="Back to the bar";b.classList.remove("armed")}},3600)}
-function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}try{localStorage.removeItem("oursong")}catch(e){}}
+function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}forgetStore()}
+function forgetStore(){try{localStorage.removeItem("oursong")}catch(e){}}
 function dual(on){$("duo1").style.display=on?"none":"";$("duo2").style.display=on?"":"none";$("dualBack").style.display=on?"":"none"}
 function goJoin(){$("joinName").value=$("name").value;$("joinErr").textContent="";show("join")}
 function dual(){}
@@ -872,7 +873,7 @@ function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&
     const po=(s.offers||[]).find(x=>x.status==="played");const fit=po&&po.scores?Math.min(Math.round((po.scores.host||0)*100),Math.round((po.scores.guest||0)*100)):null;
     $("endLog").innerHTML=(fit!=null?`<div class="pair"><b>Qloo fit</b> · ${fit} of 100</div>`:"")+`<div class="pair">${pair}</div><div><b>You</b> · ${nights(me)} · ${esc(fav(me))}</div><div><b>${esc(ot.name)}</b> · ${nights(ot)} · ${esc(fav(ot))}</div>`}
   showBubble(s.sides[theirKey()].emote,"themBubble");
-  if(!doneSettled){doneSettled=true;forget();setTimeout(()=>{clearInterval(timer);timer=null},120000)}}
+  if(!doneSettled){doneSettled=true;forgetStore();setTimeout(()=>{clearInterval(timer);timer=null},120000)}}
 const NUDGES={heart:"❤️",fire:"🔥",laugh:"😂",down:"👎"};
 let nudgeBusy=false,bubbleSeen=0;
 function renderNudges(){if($("nudges").childElementCount)return;$("nudges").innerHTML=Object.entries(NUDGES).map(([k,g])=>`<button onclick="nudge('${k}',this)" aria-label="${k}">${g}</button>`).join("")}
