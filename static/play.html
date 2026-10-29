@@ -652,7 +652,7 @@ try{const j=new URLSearchParams(location.search).get("join");if(j&&!code){$("joi
 function toTop(){try{window.scrollTo(0,0)}catch(e){}try{$("screens").scrollTop=0}catch(e){}}
 function show(id){const was=document.querySelector(".screen.on");document.body.classList.toggle("tablemode",id==="table");if(was&&was.id==="s-"+id)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on"));$("s-"+id).classList.add("on");toTop();if(id==="table")setTimeout(fitTable,0);document.querySelector(".top").style.display=id==="lobby"?"none":"";if(id==="lobby")startVenue();else{clearInterval(venueTimer);clearInterval(hereTimer)}}
 function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}:{};
-  return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)throw new Error("Easy there, slow down a second.");if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
+  return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)return r.json().catch(()=>({})).then(j=>{throw new Error(j.detail||"Easy there, slow down a second.")});if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
 function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){try{location.hash=code+"/"+who}catch(e2){}}try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
 let leaveArmed=0;
 function leaveNow(){if(timer)clearInterval(timer);timer=null;forget();try{location.replace(location.pathname+location.search)}catch(e){location.reload()}}
