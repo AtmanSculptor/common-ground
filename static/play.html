@@ -668,7 +668,7 @@ function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textCo
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
-function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";revealStep=0;songHoldUntil=0;songLeaving=false;$("songArea").className="songarea";$("qsay").textContent="";$("voteRow").style.display="";$("doneRow").style.display="none";$("bet").innerHTML="";qlouClear()}
+function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";revealStep=0;songHoldUntil=0;songLeaving=false;$("songArea").className="songarea";$("art").style.display="";$("qsay").textContent="";$("voteRow").style.display="";$("doneRow").style.display="none";$("bet").innerHTML="";qlouClear()}
 async function poll(){let st;try{st=await api(code)}catch(e){if(/no such room/.test(e.message))leaveNow();return}state=st;if(chosen!==null&&state.sides&&state.sides[who]&&((state.sides[who].plays||[]).includes(chosen)||state.sides[who].down))chosen=null;try{render()}catch(e){console.error("render",e)}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
@@ -859,7 +859,8 @@ function renderReveal(s,me,other){const pairs=s.pairs||[];
   if(s.phase==="done"&&s.result)renderDoneInPlace(s)}
 function renderDoneInPlace(s){const r=s.result;const p=r.pick;const played=!!(p&&p.played);
   if(tableMode!=="done"){setMode("done");$("roundLabel").textContent=played?"Tonight's song":"No match tonight";$("voteRow").style.display="none";$("doneRow").style.display="";$("voteMsg").textContent="";
-    $("betVerdict").textContent=played?"Both said yes":"Two picks, nobody charged";const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
+    $("betVerdict").textContent=played?"Both said yes":"Two picks, nobody charged";
+    $("art").style.display=played?"":"none";if(!played){const tried=(s.offers||[]).filter(o=>o.artist).map(o=>o.artist.name);$("songTitle").textContent="No song tonight";$("artist").textContent=tried.length?"Passed on "+tried.join(" and "):""}const oline=played?q("outcome.both","ob"):q("outcome.nothing","on");$("why").textContent="Q-Lou: "+oline;qlouClear();qlouSay(oline,0);
     const o=(s.offers||[]).find(x=>x.status==="played")||(s.offers||[])[(s.offers||[]).length-1]||{};const sn=o.said_no||[];const lab=k=>sn.includes(k)?"said no":"said yes";
     setStatus(lab(theirKey()),lab(who),sn.includes(theirKey())?"no":"yes",sn.includes(who)?"no":"yes");
     const me=s.sides[who],ot=s.sides[theirKey()];const nights=sd=>{const g=(sd.profile&&sd.profile.games||0)+1;return (g===1?"first night":`${g} nights`)+(titleFor(g)?" · "+titleFor(g):"")};
