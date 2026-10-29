@@ -761,7 +761,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
     const fk=(me.plays||[]).join(",")+"|"+chosen+"|"+r;if(fanKey!==fk){fanKey=fk;renderFan()}
     renderSlots(s,me,other);
     setStatus(other.down?"card down":"choosing",me.down?"card down":"your turn");
-    if(mode==="play"){$("handHint").textContent=`Drag the card that is ${r===0?"most you":r===1?"also you":"a bit you"} into the gold slot.`}
+    if(mode==="play"){$("handHint").textContent=chosen!==null?"Tap the gold slot to lock it in.":`Tap or drag the card that's ${r===0?"most you":r===1?"also you":"a bit you"}.`}
     else $("handHint").textContent=other.down?"Both down. Turning them over…":"Waiting for "+pn+"…";
     showBubble(other.emote,"themBubble");return}}
 function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names();
@@ -775,7 +775,7 @@ function renderSlots(s,me,other){const pairs=s.pairs||[];const mine=who==="host"
     if(p){if(!sl.classList.contains("done")||!sl.firstChild){sl.className="slot done";sl.dataset.key="";sl.innerHTML=faceHTML(p[mine],cls(p,mine))}return}
     if(i===r&&s.phase==="play"){const down=myPlays[r]!=null;const id=down?myPlays[r]:chosen;const c=id!=null?(hand.find(x=>x.id===id)||ALL_CARDS[Object.keys(ALL_CARDS).find(k=>ALL_CARDS[k].id===id)]):null;
       const key=(down?"d":"l")+(id==null?"":id);if(sl.dataset.key===key)return;sl.dataset.key=key;
-      sl.className="slot "+(down?"down":"live");sl.innerHTML=c?faceHTML(c,""):`<i>${rankName(i)}</i>`;return}
+      sl.className="slot "+(down?"down":"live");sl.innerHTML=c?faceHTML(c,""):`<i>${rankName(i)}</i>`;sl.onclick=down?null:slotTapped;return}
     sl.className="slot";sl.dataset.key="";sl.innerHTML=`<i>${rankName(i)}</i>`});
   $("themSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=pairs[i];
     if(p){if(!sl.classList.contains("done")){sl.className="slot done";sl.innerHTML=faceHTML(p[theirs],cls(p,theirs))}return}
@@ -816,13 +816,13 @@ function flyOut(ids){const to=$("qface").getBoundingClientRect();ids.forEach((id
 // a tap puts the card in the live slot; "Play it" sends it; a tap on the slot takes it back
 // drag a card into the gold slot and it is played; let go anywhere else and it springs back. A tap just points at the slot.
 let drag=null;
-function startDrag(e,el,id){if(tableMode!=="play"||state.sides[who].down||drag||chosen!==null)return;const c=hand.find(x=>x.id===id);if(!c)return;
+function startDrag(e,el,id){if(tableMode!=="play"||state.sides[who].down||drag)return;const c=hand.find(x=>x.id===id);if(!c)return;
   const r=el.getBoundingClientRect();drag={id,el,x0:e.clientX,y0:e.clientY,r,moved:false,ghost:null};try{el.setPointerCapture(e.pointerId)}catch(x){}
   el.onpointermove=ev=>{if(!drag)return;const dx=ev.clientX-drag.x0,dy=ev.clientY-drag.y0;if(!drag.moved&&Math.hypot(dx,dy)<8)return;
     if(!drag.moved){drag.moved=true;qlouActed();const g=document.createElement("div");g.className="dragging";g.style.left=r.left+"px";g.style.top=r.top+"px";g.style.width=r.width+"px";g.style.height=r.height+"px";g.innerHTML=faceHTML(c,"");g.firstChild.style.position="absolute";g.firstChild.style.inset="0";const n0=el.querySelector(".name"),n1=g.querySelector(".name");if(n0&&n1){const cs=getComputedStyle(n0);n1.style.fontSize=cs.fontSize;n1.style.padding=cs.padding;n1.style.letterSpacing=cs.letterSpacing;n1.style.fontWeight=cs.fontWeight}document.body.appendChild(g);drag.ghost=g;el.style.opacity=.25}
     drag.ghost.style.transform=`translate(${dx}px,${dy}px) scale(1.06)`;const over=overLiveSlot(ev.clientX,ev.clientY);liveSlot().classList.toggle("over",over)};
   el.onpointerup=el.onpointercancel=ev=>{const d=drag;if(!d)return;drag=null;el.onpointermove=null;el.onpointerup=null;el.onpointercancel=null;liveSlot().classList.remove("over");
-    if(!d.moved){pointAtSlot();return}
+    if(!d.moved){seatCard(d.id);return}
     if(overLiveSlot(ev.clientX,ev.clientY)){const g=d.ghost;const to=liveSlot().getBoundingClientRect();g.style.transition="transform .3s cubic-bezier(.25,.75,.25,1),width .3s,height .3s";g.style.transform=`translate(${to.left-r.left}px,${to.top-r.top}px)`;g.style.width=to.width+"px";g.style.height=to.height+"px";
       chosen=d.id;setTimeout(()=>{g.remove();renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()])},320);playIt(d.id);if(navigator.vibrate)navigator.vibrate(12)}
     else{d.ghost.style.transition="transform .3s";d.ghost.style.transform="";setTimeout(()=>{d.ghost.remove();el.style.opacity=""},300)}}}
@@ -832,7 +832,9 @@ window.addEventListener("pointercancel",()=>cancelDrag());
 document.addEventListener("visibilitychange",()=>{if(document.hidden)cancelDrag()});
 function liveSlot(){return $("meSlots").querySelectorAll(".slot")[state.rank]}
 function overLiveSlot(x,y){const r=liveSlot().getBoundingClientRect();const m=Math.max(24,r.width*.35);return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
-function pointAtSlot(){const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Drag it into the gold slot.";if(navigator.vibrate)navigator.vibrate(6)}
+// a tap seats the card in the gold slot; a tap on the slot (or the seated card) plays it; a tap on another card swaps it in
+function seatCard(id){chosen=id;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Tap the gold slot to lock it in.";if(navigator.vibrate)navigator.vibrate(6)}
+function slotTapped(){if(tableMode!=="play"||chosen===null||state.sides[who].down)return;const id=chosen;if(navigator.vibrate)navigator.vibrate(12);playIt(id)}
 async function playIt(id){try{await api(code+"/play",{who,card:id});if(state&&state.sides&&state.sides[who])state.sides[who].down=true;chosen=null;poll()}catch(e){chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);if(!/once per round/i.test(e.message))alert(e.message)}}
 function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
   f.style.left=from.left+"px";f.style.top=from.top+"px";f.style.width=from.width+"px";f.style.height=from.height+"px";document.body.appendChild(f);
