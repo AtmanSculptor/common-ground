@@ -680,7 +680,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   $("roomPill").textContent="Room "+s.code;$("tRoom").textContent="Room "+s.code;$("tokN").textContent=me.tokens;$("tTok").textContent=me.tokens;$("tokN0").textContent=me.tokens;
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   try{renderHud(s,me,other)}catch(e){}
-  if(s.left&&s.left!==who&&s.phase!=="done"){if(!leftShown){leftShown=true;show("table");setMode(tableMode||"toss");tellTable(`${partnerName()} left the table. Nobody pays. Back to the bar when you're ready.`);setStatus("left","",no,"");$("handHint").textContent="";$("tossBtn").style.display="none";$("nudges").style.display="none";clearInterval(timer);timer=null}return}
+  if(s.left&&s.left!==who&&s.phase!=="done"){if(!leftShown){leftShown=true;show("table");setMode(tableMode||"toss");tellTable(`${partnerName()} left the table. Nobody pays. Back to the bar when you're ready.`);setStatus("left","","no","");$("handHint").textContent="";$("tossBtn").style.display="none";$("nudges").style.display="none";clearInterval(timer);timer=null}return}
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"||s.phase==="jukebox"||(s.phase==="done"&&s.result)){show("table");renderTable(s,me,other);return}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
