@@ -204,6 +204,9 @@ input{font:inherit;width:100%;padding:13px;border-radius:12px;border:0;backgroun
 .slot{width:var(--sw,84px);aspect-ratio:2/3;border-radius:var(--r);border:2px dashed rgba(189,53,252,.45);position:relative;display:grid;place-items:center;transition:border-color .5s,box-shadow .5s,visibility 0s}
 .slot i{font-style:normal;color:var(--text3);font-size:.78rem;font-weight:600;text-align:center;line-height:1.15;padding:0 4px}
 .slot.live{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,199,0,.25),0 0 18px rgba(255,199,0,.25);animation:slotpulse 2s ease-in-out infinite}
+#themSlots .slot.live{border-color:rgba(189,53,252,.6);box-shadow:none;animation:none}#themSlots .slot.live i{color:var(--text3)}
+/* a seated card (tapped, not yet locked) glows gold until it is tapped again */
+.slot.live .card .frame{border-color:var(--gold);box-shadow:0 0 0 2px var(--gold),0 0 22px rgba(255,199,0,.6);animation:slotpulse 2s ease-in-out infinite}
 .slot.live i{color:var(--gold)}
 .slot.live.over{border-style:solid;background:rgba(255,199,0,.12);box-shadow:0 0 0 2px var(--gold),0 0 30px rgba(255,199,0,.5);animation:none}
 .slot.nudge{animation:slotnudge .5s ease}
@@ -665,7 +668,7 @@ function goJoin(){$("joinName").value=$("name").value;$("joinErr").textContent="
 function dual(){}
 function tellLobby(msg){const q=document.querySelector("#s-lobby .lobbyq q");if(q)q.textContent=msg}
 function tellTable(msg){qlouClear();qlouSay(msg,0)}
-async function newGame(house){const name=$("name").value.trim()||"You";try{const r=await api("new",{name,house,icon:myIcon});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){tellLobby(e.message)}}
+async function newGame(house){const name=$("name").value.trim()||"Stranger";try{const r=await api("new",{name,house,icon:myIcon});code=r.code;who="host";remember();if(!house){$("codeBig").textContent=code;show("lobbywait")}startPoll()}catch(e){tellLobby(e.message)}}
 async function joinGame(){const name=$("joinName").value.trim()||"Partner";const c=$("joinCode").value.trim().toUpperCase();try{const r=await api(c+"/join",{name,icon:myIcon});code=r.code;who="guest";remember();startPoll()}catch(e){$("joinErr").textContent=/no such room/.test(e.message)?"No table with that code. Check it with your partner.":e.message}}
 function joinLink(){try{const u=new URL(location.href);u.search="?join="+code;u.hash="";return u.toString()}catch(e){return code}}
 function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textContent="Copied. Your partner opens Our Song and joins with it."}catch(e){}}
@@ -766,7 +769,7 @@ function renderTable(s,me,other){const n=names();const pn=partnerName();$("themN
     const fk=(me.plays||[]).join(",")+"|"+chosen+"|"+r;if(fanKey!==fk){fanKey=fk;renderFan()}
     renderSlots(s,me,other);
     setStatus(other.down?"card down":"choosing",me.down?"card down":"your turn");
-    if(mode==="play"){$("handHint").textContent=chosen!==null?"Tap the gold slot to lock it in.":`Tap or drag the card that's ${r===0?"most you":r===1?"also you":"a bit you"}.`}
+    if(mode==="play"){$("handHint").textContent=chosen!==null?"Tap it again to lock it in.":`Tap or drag the card that's ${r===0?"most you":r===1?"also you":"a bit you"}.`}
     else $("handHint").textContent=other.down?"Both down. Turning them over…":"Waiting for "+pn+"…";
     showBubble(other.emote,"themBubble");return}}
 function tossLine(ts){const na=ts.host.length,nb=ts.guest.length;const n=names();
@@ -785,7 +788,8 @@ function renderSlots(s,me,other){const pairs=s.pairs||[];const mine=who==="host"
   $("themSlots").querySelectorAll(".slot").forEach((sl,i)=>{const p=pairs[i];
     if(p){if(!sl.classList.contains("done")){sl.className="slot done";sl.innerHTML=faceHTML(p[theirs],cls(p,theirs))}return}
     if(i===r&&s.phase==="play"){if(other.down){if(!sl.classList.contains("down")){sl.className="slot down";sl.innerHTML=backHTML()}}else{sl.className="slot live";sl.innerHTML=`<i>${theirRank(i)}</i>`}return}
-    sl.className="slot";sl.innerHTML=`<i>${theirRank(i)}</i>`})}
+    sl.className="slot";sl.innerHTML=`<i>${theirRank(i)}</i>`});
+  $("themSlots").querySelectorAll(".slot").forEach(sl=>{sl.onclick=()=>{if(chosen!==null)slotTapped()}})}
 function theirRank(i){return rankName(i).replace("me",partnerName())}
 // both cards are down: theirs flips, yours settles, Q-Lou says one thing about the pair and it stays until you act
 function flipPair(s,p,i){const mine=who==="host"?"a":"b",theirs=who==="host"?"b":"a";const kind=p.match;
@@ -838,7 +842,7 @@ document.addEventListener("visibilitychange",()=>{if(document.hidden)cancelDrag(
 function liveSlot(){return $("meSlots").querySelectorAll(".slot")[state.rank]}
 function overLiveSlot(x,y){const r=liveSlot().getBoundingClientRect();const m=Math.max(24,r.width*.35);return x>r.left-m&&x<r.right+m&&y>r.top-m&&y<r.bottom+m}
 // a tap seats the card in the gold slot; a tap on the slot (or the seated card) plays it; a tap on another card swaps it in
-function seatCard(id){chosen=id;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Tap the gold slot to lock it in.";if(navigator.vibrate)navigator.vibrate(6)}
+function seatCard(id){chosen=id;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);const sl=liveSlot();sl.classList.remove("nudge");void sl.offsetWidth;sl.classList.add("nudge");$("handHint").textContent="Tap it again to lock it in.";if(navigator.vibrate)navigator.vibrate(6)}
 function slotTapped(){if(tableMode!=="play"||chosen===null||state.sides[who].down)return;const id=chosen;if(navigator.vibrate)navigator.vibrate(12);playIt(id)}
 async function playIt(id){try{await api(code+"/play",{who,card:id});if(state&&state.sides&&state.sides[who])state.sides[who].down=true;chosen=null;poll()}catch(e){chosen=null;renderFan();renderSlots(state,state.sides[who],state.sides[theirKey()]);if(!/once per round/i.test(e.message))tellTable(e.message)}}
 function fly(from,to,img,done){const f=document.createElement("div");f.className="flyer";f.innerHTML=`<img src="${esc(img)}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">`;
