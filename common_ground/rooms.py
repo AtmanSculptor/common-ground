@@ -110,6 +110,7 @@ class Room:
     excluded: list[str] = field(default_factory=list)
     log: list[str] = field(default_factory=list)
     result: dict | None = None
+    left: str = ""                                       # "host" or "guest" once a phone has left a live table
     lock: threading.Lock = field(default_factory=threading.Lock, repr=False)
 
     def __getstate__(self):
@@ -453,7 +454,7 @@ class Room:
                 "toss_summary": self.toss_summary if self.phase != "toss" else None,
                 "reveal": self.reveal if self.phase in ("thinking", "jukebox", "done") else None,
                 "meter": self.meter, "thinking": self.thinking[-8:], "pick": offers[-1] if offers else None, "offers": offers,
-                "log": self.log[-5:],
+                "log": self.log[-5:], "left": self.left,
                 "result": {**self.result, "pick": self._result_pick(), "together": stats.together(self.sides["host"].name, self.sides["guest"].name)} if self.result else None, "t": now}
 
 

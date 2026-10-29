@@ -385,6 +385,10 @@ class Vote(BaseModel):
     up: bool
 
 
+class Leave(BaseModel):
+    who: str
+
+
 def _room(code: str, who: str | None = None) -> Room:
     r = ROOMS.get(code)
     if not r or (who is not None and who not in r.sides):
@@ -581,6 +585,18 @@ def game_emote(code: str, body: Emote):
     with r.lock:
         ok = r.emote(body.who, body.emote)
     return {"ok": ok}
+
+
+@app.post("/api/game/{code}/leave")
+def game_leave(code: str, body: Leave):
+    """A phone left a live table (Back to the bar). The partner's next poll says so, instead of waiting forever."""
+    r = _room(code, body.who)
+    with r.lock:
+        if r.phase != "done" and not r.left:
+            r.left = body.who
+            r.log.append(f"{body.who} left")
+    ROOMS.save()
+    return {"ok": True, "left": r.left}
 
 
 @app.post("/api/game/{code}/vote")

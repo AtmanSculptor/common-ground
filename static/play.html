@@ -561,7 +561,7 @@ details[open] summary::after{content:"–"}
 const $=id=>document.getElementById(id);
 const esc=s=>String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let code=null, who=null, state=null, timer=null, lastPhase=null, lastPick=null, myBet=null, lastSteps=[], saidStep=-1, heroUrl="", doneSettled=false;
-let sayQueue=[],saying=false,sayTimer=null,sticky=false;
+let sayQueue=[],saying=false,sayTimer=null,sticky=false,leftShown=false;
 // the table's own state, reset by resetTable() whenever a room starts
 let hand=[],tosses=[],chosen=null,tableMode="",dealt=false,shownPairs=0,shownRank=-1,TOSS_MAX=3,interludeShown=false,tossSaid=false,interludeAt=0,fanKey="",lastFlipAt=0,avaKey="",revealStep=0,songHoldUntil=0,songLeaving=false;
 const ALL_CARDS={};
@@ -656,7 +656,7 @@ function api(path,body){const o=body?{method:"POST",headers:{"Content-Type":"app
   return fetch("api/game/"+path+(body?"":"?who="+who+"&_="+Date.now()),o).then(r=>{if(r.status===429)return r.json().catch(()=>({})).then(j=>{throw new Error(j.detail||"Easy there, slow down a second.")});if(!r.ok)return r.json().then(j=>{throw new Error(j.detail||r.status)});return r.json()})}
 function remember(){try{history.replaceState(null,"","#"+code+"/"+who)}catch(e){try{location.hash=code+"/"+who}catch(e2){}}try{localStorage.setItem("oursong",JSON.stringify({code,who}))}catch(e){}}
 let leaveArmed=0;
-function leaveNow(){if(timer)clearInterval(timer);timer=null;forget();try{location.replace(location.pathname+location.search)}catch(e){location.reload()}}
+function leaveNow(){if(timer)clearInterval(timer);timer=null;try{if(code&&who&&state&&state.phase&&state.phase!=="done"&&!(state.left))fetch("api/game/"+code+"/leave",{method:"POST",keepalive:true,headers:{"Content-Type":"application/json"},body:JSON.stringify({who})})}catch(e){}forget();try{location.replace(location.pathname+location.search)}catch(e){location.reload()}}
 function leave(){const b=$("leaveBtn");if(Date.now()-leaveArmed<3500){leaveNow();return}leaveArmed=Date.now();b.textContent="Tap again to go";b.classList.add("armed");setTimeout(()=>{if(Date.now()-leaveArmed>=3400){leaveArmed=0;b.textContent="Back to the bar";b.classList.remove("armed")}},3600)}
 function forget(){try{history.replaceState(null,"",location.pathname+location.search)}catch(e){try{location.hash=""}catch(e2){}}forgetStore()}
 function forgetStore(){try{localStorage.removeItem("oursong")}catch(e){}}
@@ -672,7 +672,7 @@ function copyCode(){try{navigator.clipboard.writeText(code);$("codeHint").textCo
 function shareCode(){const text=`Our Song, room code ${code}. Open ${joinLink()} and join with it.`;if(navigator.share){navigator.share({title:"Our Song",text}).catch(()=>{})}else{try{navigator.clipboard.writeText(text);$("codeHint").textContent="Copied. Paste it to your partner."}catch(e){}}}
 function startPoll(){if(timer)clearInterval(timer);resetTable();poll();timer=setInterval(poll,1200)}
 // a new room starts from nothing: no hand, no tosses, no round carried over from the last one
-function resetTable(){lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";revealStep=0;songHoldUntil=0;songLeaving=false;$("songArea").className="songarea";$("art").style.display="";$("qsay").textContent="";$("voteRow").style.display="";$("doneRow").style.display="none";$("bet").innerHTML="";qlouClear()}
+function resetTable(){leftShown=false;lastPhase=null;lastPick=null;myBet=null;lastSteps=[];saidStep=-1;doneSettled=false;hand=[];tosses=[];chosen=null;dealt=false;shownPairs=0;shownRank=-1;interludeShown=false;tossSaid=false;fanKey="";interludeAt=0;lastFlipAt=0;avaKey="";tableMode="";revealStep=0;songHoldUntil=0;songLeaving=false;$("songArea").className="songarea";$("art").style.display="";$("qsay").textContent="";$("voteRow").style.display="";$("doneRow").style.display="none";$("bet").innerHTML="";qlouClear()}
 async function poll(){let st;try{st=await api(code)}catch(e){if(/no such room/.test(e.message))leaveNow();return}state=st;if(chosen!==null&&state.sides&&state.sides[who]&&((state.sides[who].plays||[]).includes(chosen)||state.sides[who].down))chosen=null;try{render()}catch(e){console.error("render",e)}}
 function partnerName(){const o=state.sides[who==="host"?"guest":"host"];return o.name||"your partner"}
 function theirKey(){return who==="host"?"guest":"host"}
@@ -680,6 +680,7 @@ function render(){const s=state,me=s.sides[who],other=s.sides[theirKey()];
   $("roomPill").textContent="Room "+s.code;$("tRoom").textContent="Room "+s.code;$("tokN").textContent=me.tokens;$("tTok").textContent=me.tokens;$("tokN0").textContent=me.tokens;
   if(s.thinking&&s.thinking.length)lastSteps=s.thinking;
   try{renderHud(s,me,other)}catch(e){}
+  if(s.left&&s.left!==who&&s.phase!=="done"){if(!leftShown){leftShown=true;show("table");setMode(tableMode||"toss");tellTable(`${partnerName()} left the table. Nobody pays. Back to the bar when you're ready.`);setStatus("left","",no,"");$("handHint").textContent="";$("tossBtn").style.display="none";$("nudges").style.display="none";clearInterval(timer);timer=null}return}
   if(s.phase==="lobby"){$("codeBig").textContent=s.code;$("lobbyWaitMsg").textContent="Waiting for your partner to join…";show("lobbywait");return}
   if(s.phase==="toss"||s.phase==="play"||s.phase==="thinking"||s.phase==="jukebox"||(s.phase==="done"&&s.result)){show("table");renderTable(s,me,other);return}}
 const longName=n=>String(n).split(" ").some(w=>w.length>8)?" long":"";
